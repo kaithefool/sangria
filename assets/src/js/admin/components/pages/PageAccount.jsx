@@ -24,7 +24,7 @@ const PageAccount = () => {
         <Form
           defaults={defaults}
           stored={fetched}
-          api={{ url: '/api/users/self', method: 'patch' }}
+          api={{ url: '/api/self', method: 'patch' }}
           onSubmitted={refresh}
         >
           <div className="pb-3">

@@ -5,7 +5,7 @@ import env from '~/lib/config/env';
 import MineContext from './MineContext';
 
 const MineProvider = ({
-  api = { url: '/api/users/self' },
+  api = { url: '/api/self' },
   children,
 }) => {
   const { req: fetchReq, fetched } = useHttp(env.user && api);

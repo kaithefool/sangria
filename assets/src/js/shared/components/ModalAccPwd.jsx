@@ -33,7 +33,7 @@ const ModalAccPwd = ({
         <Modal.Header closeButton />
         <Form
           alert={{ className: 'w-auto mt-3 px-3' }}
-          api={{ url: '/api/users/self/password', method: 'patch' }}
+          api={{ url: '/api/self', method: 'patch' }}
           defaults={{
             oldPassword: '',
             password: '',

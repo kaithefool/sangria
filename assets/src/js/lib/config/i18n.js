@@ -18,7 +18,7 @@ if (env.user) {
       return env.user?.lng;
     },
     cacheUserLanguage(lng) {
-      axios.patch('/api/users/self', { lng });
+      axios.patch('/api/self', { lng });
     },
   });
 }

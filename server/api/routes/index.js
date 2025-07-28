@@ -8,6 +8,7 @@ const files = require('./files');
 const users = require('./users');
 const assets = require('./assets');
 const consts = require('./consts');
+const self = require('./self');
 
 routes.use('/views', views);
 routes.use('/otps', otps);
@@ -17,5 +18,6 @@ routes.use('/files', files);
 routes.use('/users', users);
 routes.use('/assets', assets);
 routes.use('/consts', consts);
+routes.use('/self', self);
 
 module.exports = routes;

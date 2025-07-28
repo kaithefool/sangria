@@ -6,7 +6,6 @@ const { email, password } = require('../validators');
 const exportCsv = require('../responders/exportCsv');
 const parseCsv = require('../parsers/parseCsv');
 const parseXlsx = require('../parsers/parseXlsx');
-const comparePwd = require('../parsers/comparePwd');
 
 module.exports = new Routes({
   service,
@@ -40,27 +39,6 @@ module.exports = new Routes({
   patchActive: {
     path: '/active/:_id?',
     method: 'patch',
-  },
-  patchSelf: {
-    path: '/self',
-    method: 'patch',
-    serve: 'patch',
-    parse: (req, res, next) => {
-      req.attrs._id = req.user._id;
-      return next();
-    },
-  },
-  patchSelfPassword: {
-    path: '/self/password',
-    method: 'patch',
-    serve: 'patch',
-    parse: [
-      comparePwd({ field: 'oldPassword' }),
-      (req, res, next) => {
-        req.attrs._id = req.user._id;
-        return next();
-      },
-    ],
   },
   delete: true,
 
