@@ -21,7 +21,7 @@ module.exports = (opts) => {
       if (!err) return next();
       if (err.code !== 'EBADCSRFTOKEN') return next(err);
 
-      return next(httpError(403, 'res.invalidCsrf'));
+      return next(httpError(403, 'res.invalidCsrf', { type: 'invalid-csrf' }));
     },
   );
 };

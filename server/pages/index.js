@@ -23,13 +23,14 @@ routes.use(({
   csrfToken, user, t, i18n,
 }, res, next) => {
   const { locals } = res;
+
   locals.ver = ver; // package version
   locals.i18n = i18n; // i18n
   locals.t = t;
   locals._ = _; // lodash
   locals.env = {
     user,
-    csrf: csrfToken ? csrfToken() : null,
+    csrf: csrfToken?.(),
     lngs: LNG.split(','),
     lngLabels: LNG_LABEL.split(','),
     lngFlags: LNG_FLAG.split(','),

@@ -3,7 +3,7 @@ const { NODE_ENV } = process.env;
 // eslint-disable-next-line no-unused-vars
 module.exports = (err, { t }, res, next) => {
   const {
-    status = 500, expose = false, stack, model,
+    status = 500, expose = false, stack, model, type,
   } = err;
   let { message } = err;
 
@@ -25,7 +25,9 @@ module.exports = (err, { t }, res, next) => {
   }
 
   // render the error
-  const e = { status, message, stack };
+  const e = {
+    status, type, message, stack,
+  };
 
   // only providing error details in development
   if (NODE_ENV === 'production' && !expose) {
