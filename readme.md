@@ -32,6 +32,10 @@ npx hygen new cms [resource]
 npx hygen new api [resource] --singleton
 npx hygen new cms [resource] --singleton
 ```
+## CMS UI React components
+After logging in as admin,
+Visit [localhost:3000/admin/example](http://localhost:3000/admin/example) to see the showcase of CMS UI React components.
+
 ## API
 #### Web Sockets
 Socket.io is available with authenication built-in.
