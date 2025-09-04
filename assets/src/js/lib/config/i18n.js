@@ -12,13 +12,17 @@ import { humanize, titleize } from '../helpers/string';
 const languageDetector = new LanguageDetector();
 
 if (env.user) {
+  let cachedCount = 0;
   languageDetector.addDetector({
     name: 'env',
     lookup() {
       return env.user?.lng;
     },
     cacheUserLanguage(lng) {
-      axios.patch('/api/self', { lng });
+      if (cachedCount) {
+        axios.patch('/api/self', { lng });
+      }
+      cachedCount += 1;
     },
   });
 }
