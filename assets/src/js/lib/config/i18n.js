@@ -19,7 +19,7 @@ if (env.user) {
       return env.user?.lng;
     },
     cacheUserLanguage(lng) {
-      if (cachedCount) {
+      if (cachedCount || env.user?.lng !== lng) {
         axios.patch('/api/self', { lng });
       }
       cachedCount += 1;

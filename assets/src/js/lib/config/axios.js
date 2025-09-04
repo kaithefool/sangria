@@ -1,7 +1,22 @@
 import axios from 'axios';
 import env from './env';
 
-axios.defaults.headers.common['x-csrf-token'] = env.csrf;
+function getCsrf() {
+  return axios.defaults.headers.common['x-csrf-token'];
+}
+function setCsrf() {
+  axios.defaults.headers.common['x-csrf-token'] = env.csrf;
+}
+setCsrf();
+
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    env.get();
+    if (getCsrf() !== env.csrf) {
+      setCsrf();
+    }
+  }
+});
 
 axios.interceptors.response.use(
   (res) => res,
