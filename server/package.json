@@ -1,7 +1,10 @@
 {
   "name": "server",
   "private": true,
+  "main": "bin/www",
   "scripts": {
+    "start": "node bin/www",
+    "setup": "node bin/setup",
     "dev": "nodemon bin/www"
   },
   "author": "Kai Lam <kai.chun.lam@gmail.com>",

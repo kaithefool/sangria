@@ -11,6 +11,7 @@ logs
 # Shared files
 public/
 private/
+volumes/
 
 # Packages
 node_modules/

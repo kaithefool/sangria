@@ -4,8 +4,14 @@ const middleware = require('i18next-http-middleware');
 const FilesystemBackend = require('i18next-fs-backend');
 const inflect = require('inflect');
 
-const { FILE_STORAGE_LOCALES, LNG, LNG_LABEL } = process.env;
-const storage = path.resolve(__dirname, '../../', FILE_STORAGE_LOCALES);
+const { NODE_ENV, LNG, LNG_LABEL } = process.env;
+const storage = path.resolve(
+  __dirname,
+  '../../',
+  'assets',
+  NODE_ENV === 'production' ? 'dist' : 'build',
+  'locales',
+);
 
 const lngs = LNG.split(',');
 const lngLabels = LNG_LABEL.split(',');

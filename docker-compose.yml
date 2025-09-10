@@ -1,0 +1,19 @@
+name: burgundy
+services:
+  mongo:
+    image: mongo:6
+    restart: always
+    volumes:
+      - ./volumes/mongo/db:/data/db
+      - ./volumes/mongo/configdb:/data/configdb
+    networks:
+      - dev
+  app:
+    build: .
+    ports:
+      - 3000:3000
+    networks:
+      - dev
+networks:
+  dev:
+    driver: bridge
