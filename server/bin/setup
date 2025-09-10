@@ -32,7 +32,7 @@ OTP_SMS_MAX=3
 
 FILE_STORAGE_UPLOADS=public/uploads
 FILE_STORAGE_TRASH=private/trash
-FILE_STORAGE_LOCALES=dist/locales
+FILE_STORAGE_LOCALES=assets/locales
 
 MONGO_URI=mongodb://localhost:27017/${name}
 MONGO_SYNC_INDEX=0

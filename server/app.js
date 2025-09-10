@@ -11,7 +11,17 @@ const { middleware: i18nMid } = require('./start/i18n');
 const api = require('./api');
 const pages = require('./pages');
 
+const { NODE_ENV } = process.env;
 const app = express();
+const serveStatic = (...paths) => {
+  const mid = express.static(path.join(__dirname, ...paths));
+
+  return (req, res, next) => {
+    mid(req, res, () => {
+      next(httpError(404, 'res.notFound'));
+    });
+  };
+};
 
 // view engine setup
 app.set('views', path.join(__dirname, 'pages/views'));
@@ -28,16 +38,23 @@ app.use(express.json({
   },
 }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, '../public')));
-app.use(
-  '/dist',
-  express.static(path.join(__dirname, '../dist')),
-);
+app.use('/uploads', serveStatic('../public/uploads'));
+app.use('/assets', serveStatic(
+  '../assets',
+  NODE_ENV === 'production' ? 'dist' : 'build',
+));
 app.use(mongoSanitize({ allowDots: true }));
 
 app.use(i18nMid);
 app.use('/api', api);
-app.use('/', pages);
+app.use((req, res, next) => {
+  // no file extensions
+  if (req.path.match(/\.\w{1,4}$/)) {
+    return next(httpError(404, 'res.notFound'));
+  }
+
+  return next();
+}, pages);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => (

@@ -1,10 +1,9 @@
 const { resolve } = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
+const path = require('path');
 
-module.exports = ({
-  out = 'public/dist',
-}) => ({
+module.exports = (env, { mode }) => ({
   devtool: 'source-map',
   context: __dirname,
   entry: {
@@ -13,7 +12,7 @@ module.exports = ({
   },
   output: {
     filename: '[name].js',
-    path: resolve(__dirname, `../${out}`, 'assets'),
+    path: path.resolve(__dirname, mode === 'production' ? 'dist' : 'build'),
     clean: true,
   },
   resolve: {
@@ -31,7 +30,7 @@ module.exports = ({
     new CopyPlugin({
       patterns: [
         { from: './src/img', to: 'img' },
-        { from: './src/locales', to: '../locales' },
+        { from: './src/locales', to: 'locales' },
       ],
     }),
   ],

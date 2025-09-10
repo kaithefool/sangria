@@ -39,7 +39,7 @@ i18n
   .use(initReactI18next) // passes i18n down to react-i18next
   .init({
     backend: {
-      loadPath: '/dist/locales/{{lng}}/{{ns}}.json',
+      loadPath: '/assets/locales/{{lng}}/{{ns}}.json',
     },
     lowerCaseLng: true,
     supportedLngs: env.lngs,

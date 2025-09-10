@@ -9,9 +9,9 @@ html
         content='width=device-width, user-scalable=no'
       )
       script#env(type='application/json')!= JSON.stringify(env)
-      link(rel='stylesheet', href=`/dist/assets/${entry || 'home'}.css?v=${ver}`)
+      link(rel='stylesheet', href=`/assets/${entry || 'home'}.css?v=${ver}`)
   body(class=entry)
     block body
       if entry
         #root
-        script(src=`/dist/assets/${entry}.js?v=${ver}`)
+        script(src=`/assets/${entry}.js?v=${ver}`)

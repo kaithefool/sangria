@@ -1,0 +1,136 @@
+{
+  "field": "{{path, field}}",
+  "arrayField": "{{parent, singularize, field}} {{index}}",
+  "arrayObjField": "$t(arrayField)的{{child, field}}",
+  "res": {
+    "models": {
+      "User": {
+        "duplicates": "該{{keys, field, list(type:disjunction)}}已被使用"
+      }
+    },
+    "deleted": "已刪除",
+    "saved": "已儲存",
+    "success": "完成",
+    "imported": "已上載",
+    "confirm": "你確定嗎？",
+    "confirmDel": "你確定要刪除嗎？",
+    "userNotExists": "用戶不存在",
+    "maxOtpsReached": "你嘗試了太多次",
+    "invalidKey": "密鑰無效或已過期",
+    "invalidReCaptcha": "reCAPTCHA無效。請再試一次",
+    "invalidCredentials": "帳號或密碼不正確",
+    "userInactivated": "你的帳戶已停用",
+    "invalidToken": "密鑰無效或已過期",
+    "invalidCsrf": "CSRF密鑰無效或已過期",
+    "loggedOut": "你已登出帳戶",
+    "notFound": "找不到網頁",
+    "duplicates": "不能重複數據: {{values}}",
+    "invalidCsv": "CSV格式不正確",
+    "disconnected": "無法連接到伺服器/網絡",
+    "timeout": "連接超時",
+    "goBack": "回到主頁",
+    "noRecord": "沒有找到記錄",
+    "retryAfter": "{{seconds}}秒後重試",
+    "retryMaxReached": "你嘗試了太多次",
+    "userAlreadyExists": "該帳戶已被註冊"
+  },
+  "yup": {
+    "mixed": {
+      "default": "{{path, field}}不是有效的值",
+      "required": "{{path, field}}為必填",
+      "oneOf": "{{path, field}}必須是{{resolved, list(type:disjunction)}}",
+      "notOneOf": "{{path, field}}不得是{{resolved, list(type:disjunction)}}",
+      "notType": "{{path, field}}必須為\"{{type}}\"類",
+      "defined": "{{path, field}}不得是undefined"
+    },
+    "string": {
+      "length": "{{path, field}}必須包含{{length}}個字符",
+      "min": "{{path, field}}必須至少包含{{min}}個字符",
+      "max": "{{path, field}}必須最多包含{{max}}個字符",
+      "matches": "{{path, field}}不正確",
+      "email": "{{path, field}}必須為有效電郵地址",
+      "url": "{{path, field}}必須為有效URL",
+      "uuid": "{{path, field}}必須為有效UUID",
+      "trim": "{{path, field}}首尾不能有空白",
+      "lowercase": "{{path, field}}必須為細楷",
+      "uppercase": "{{path, field}}必須為大楷"
+    },
+    "number": {
+      "min": "{{path, field}}必須為{{min}}或以上",
+      "max": "{{path, field}}必須為{{max}}或以下",
+      "lessThan": "{{path, field}}必須少於{{less}}",
+      "moreThan": "{{path, field}}必須大於{{more}}",
+      "positive": "{{path, field}}必須為正數",
+      "negative": "{{path, field}}必須為負數",
+      "integer": "{{path, field}}必須為整數"
+    },
+    "date": {
+      "min": "{{path, field}}必須為{{min}}之後",
+      "max": "{{path, field}}必須為{{max}}之前"
+    },
+    "boolean": {
+      "isValue": "{{path, field}}必須為{{value}}"
+    },
+    "object": {
+      "noUnknown": "{{path, field}}不得有規定以外的屬性: {{unknown}}"
+    },
+    "array": {
+      "min": "{{path, field}}必須至少有{{min}}項",
+      "max": "{{path, field}}必須最多有{{max}}項",
+      "length": "{{path, field}}必須有{{length}}項"
+    },
+    "misc": {
+      "passwordConfirm": "{{path, field}}不一致"
+    }
+  },
+  "sms": {
+    "verify": "您的驗證碼是: {{verifyKey}}"
+  },
+  "nav": {
+    "Logout": "登出",
+    "New": "新增",
+    "All": "全部",
+    "Users": "用戶",
+    "Admins": "管理員",
+    "Clients": "客戶",
+    "Settings": "設定",
+    "Views": "頁面",
+    "Access Logs": "記錄",
+    "General": "一般"
+  },
+  "pg": {
+    "auth": {
+      "title" : "登入",
+      "register": "沒有帳戶? <1>註冊</1>",
+      "pwdRecovery": "忘記密碼?",
+      "submit": "登入"
+    },
+    "register" : {
+      "title": "新帳戶註冊",
+      "login": "已經成為會員? <1>登入</1>",
+      "submit": "註冊",
+      "mailSuccessTitle": "驗證電郵已發出",
+      "mailSuccessSubTitle": "請按電郵中的指示驗證電郵地址",
+      "noEmail": "沒有收到電郵通知?",
+      "noEmailLink": "重新發送",
+      "successTitle": "成功",
+      "successSubTitle": "你已驗證電郵地址",
+      "successLink": "重返登入頁"
+    },
+    "pwdReset": {
+      "mailTitle": "忘記密碼?",
+      "mailSubTitle": "我們可以協助你重設密碼",
+      "mailEmail": "首先請輸入你的帳號電郵地址...",
+      "mailSubmit": "傳送重設密碼電郵",
+      "mailBack": "重返登入頁",
+      "mailSuccessTitle": "驗證電郵已發出",
+      "mailSuccessSubTitle": "請按電郵中的指示驗證身分",
+      "noEmail": "沒有收到電郵通知?",
+      "noEmailLink": "重新發送",
+      "submit": "重設密碼",
+      "successTitle": "成功",
+      "successSubTitle": "你已更改密碼",
+      "successLink": "重返登入頁"
+    }
+  }
+}

@@ -21,3 +21,5 @@ package-lock.json
 
 # Webpack cache
 cache/*
+
+build/
