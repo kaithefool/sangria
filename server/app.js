@@ -32,17 +32,21 @@ app.set(
 );
 
 app.use(logger('dev'));
+
+// static files
+app.use('/locales', serveStatic('locales'));
+app.use('/uploads', serveStatic('../public/uploads'));
+app.use('/assets', serveStatic(
+  '../assets',
+  NODE_ENV === 'production' ? 'dist' : 'build',
+));
+
 app.use(express.json({
   verify: (req, res, buf) => {
     req.rawBody = buf;
   },
 }));
 app.use(cookieParser());
-app.use('/uploads', serveStatic('../public/uploads'));
-app.use('/assets', serveStatic(
-  '../assets',
-  NODE_ENV === 'production' ? 'dist' : 'build',
-));
 app.use(mongoSanitize({ allowDots: true }));
 
 app.use(i18nMid);
