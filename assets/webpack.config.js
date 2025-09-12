@@ -3,16 +3,17 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const path = require('path');
 
-module.exports = (env, { mode }) => ({
+module.exports = () => ({
   devtool: 'source-map',
   context: __dirname,
+  mode: 'development',
   entry: {
     home: './src/js/home/index.jsx',
     admin: './src/js/admin/index.jsx',
   },
   output: {
     filename: '[name].js',
-    path: path.resolve(__dirname, mode === 'production' ? 'dist' : 'build'),
+    path: path.resolve(__dirname, 'dist'),
     clean: true,
   },
   resolve: {

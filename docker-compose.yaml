@@ -8,8 +8,24 @@ services:
       - ./volumes/mongo/configdb:/data/configdb
     networks:
       - dev
-  app:
-    build: .
+  assets:
+    build: ./assets
+    ports:
+      - 80:80
+    volumes:
+      - ./assets/dist:/app/dist
+    develop:
+      watch:
+        - action: rebuild
+          path: ./assets/src
+          target: ./app/src
+        - action: rebuild
+          path: ./assets/package.json
+          target: ./app/package.json
+  server:
+    depends_on:
+      - mongo
+    build: ./server
     ports:
       - 3000:3000
     networks:
