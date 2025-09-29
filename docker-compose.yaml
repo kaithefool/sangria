@@ -6,22 +6,10 @@ services:
     volumes:
       - ./volumes/mongo/db:/data/db
       - ./volumes/mongo/configdb:/data/configdb
+    ports:
+      - 27017:27017
     networks:
       - dev
-  assets:
-    build: ./assets
-    ports:
-      - 80:80
-    volumes:
-      - ./assets/dist:/app/dist
-    develop:
-      watch:
-        - action: rebuild
-          path: ./assets/src
-          target: ./app/src
-        - action: rebuild
-          path: ./assets/package.json
-          target: ./app/package.json
   server:
     depends_on:
       - mongo

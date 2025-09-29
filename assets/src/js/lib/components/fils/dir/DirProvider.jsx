@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import mimer from 'mimer';
+// import mimer from 'mimer';
+import mimedb from 'mime-db';
 import isEqual from 'lodash/isEqual';
 
 import DirContext from './DirContext';
@@ -9,8 +10,13 @@ import useAlert from '../../alert/useAlert';
 const toMimes = (accept) => (
   accept
     .split(',')
-    .map((a) => a.trim())
-    .map((a) => (a.includes('/') ? a : mimer(a)))
+    .flatMap((s) => {
+      const a = s.trim();
+      if (a.includes('/')) return [a];
+
+      return Object.keys(mimedb)
+        .filter((m) => mimedb[m].extensions.includes(a));
+    })
 );
 
 const validateFiles = (files, {
