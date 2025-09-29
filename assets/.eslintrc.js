@@ -74,7 +74,6 @@ module.exports = {
     }],
 
     // resolve 'function-declaration' and 'unnamed function' conflict
-    // what a joke
     'react/function-component-definition': [
       2,
       { namedComponents: 'arrow-function' },

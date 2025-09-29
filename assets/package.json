@@ -2,8 +2,8 @@
   "name": "assets",
   "main": "webpack.config.js",
   "scripts": {
-    "dev": "node build.mjs",
-    "build": "webpack --mode=production"
+    "dev": "node build.mjs --watch",
+    "build": "node build.mjs"
   },
   "author": "Kai Lam <kai.chun.lam@gmail.com>",
   "license": "ISC",

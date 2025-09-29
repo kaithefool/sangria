@@ -3,9 +3,10 @@ import React from 'react';
 import BtnLng from '~/lib/components/btns/BtnLng';
 import { Fil } from '~/lib/components/fils';
 import Centered from '~/lib/components/layout/Centered';
+import def from '../../../../img/default-cover.mp4';
 
 const defaultCover = {
-  path: 'assets/img/default-cover.mp4',
+  path: `assets/${def}`,
   type: 'video/mp4',
 };
 

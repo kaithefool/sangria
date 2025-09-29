@@ -36,10 +36,7 @@ app.use(logger('dev'));
 // static files
 app.use('/locales', serveStatic('locales'));
 app.use('/uploads', serveStatic('../public/uploads'));
-app.use('/assets', serveStatic(
-  '../assets',
-  NODE_ENV === 'production' ? 'dist' : 'build',
-));
+app.use('/assets', serveStatic('../assets/dist'));
 
 app.use(express.json({
   verify: (req, res, buf) => {

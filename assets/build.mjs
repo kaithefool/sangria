@@ -3,6 +3,8 @@
 import * as esbuild from 'esbuild';
 import { sassPlugin } from 'esbuild-sass-plugin';
 
+const watch = process.argv.includes('--watch');
+
 const rebuildLog = {
   name: 'rebuild-log',
   setup({ onStart, onEnd }) {
@@ -33,6 +35,12 @@ const ctx = await esbuild.context({
   bundle: true,
   minify: true,
   sourcemap: true,
+  loader: {
+    '.mp4': 'file',
+    '.jpg': 'file',
+    '.png': 'file',
+    '.svg': 'file',
+  },
   outdir: './dist',
   entryPoints: [
     { in: 'src/js/home/index.jsx', out: 'home' },
@@ -40,4 +48,9 @@ const ctx = await esbuild.context({
   ],
 });
 
-await ctx.watch();
+if (watch) {
+  await ctx.watch();
+} else {
+  await ctx.rebuild();
+  process.exit();
+}
