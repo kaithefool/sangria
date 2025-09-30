@@ -3,7 +3,7 @@ import React from 'react';
 import BtnLng from '~/lib/components/btns/BtnLng';
 import { Fil } from '~/lib/components/fils';
 import Centered from '~/lib/components/layout/Centered';
-import defCoverUrl from '../../../../img/default-cover.mp4';
+import defCoverUrl from '~/../img/default-cover.mp4';
 
 const defaultCover = {
   path: `assets/${defCoverUrl}`,

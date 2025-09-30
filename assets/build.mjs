@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-
+/* eslint-disable import/no-extraneous-dependencies */
 import * as esbuild from 'esbuild';
 import { sassPlugin } from 'esbuild-sass-plugin';
 
@@ -38,13 +38,14 @@ const ctx = await esbuild.context({
   loader: {
     '.mp4': 'file',
     '.jpg': 'file',
+    '.jpeg': 'file',
     '.png': 'file',
     '.svg': 'file',
   },
   outdir: './dist',
   entryPoints: [
-    { in: 'src/js/home/index.jsx', out: 'home' },
-    { in: 'src/js/admin/index.jsx', out: 'admin' },
+    { in: './src/js/home/index.jsx', out: 'home' },
+    { in: './src/js/admin/index.jsx', out: 'admin' },
   ],
 });
 

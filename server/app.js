@@ -11,7 +11,6 @@ const { middleware: i18nMid } = require('./start/i18n');
 const api = require('./api');
 const pages = require('./pages');
 
-const { NODE_ENV } = process.env;
 const app = express();
 const serveStatic = (...paths) => {
   const mid = express.static(path.join(__dirname, ...paths));
