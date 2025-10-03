@@ -1,5 +1,6 @@
 {
   "name": "burgundy",
+  "version": "0.2.0",
   "private": true,
   "main": "bin/www",
   "scripts": {

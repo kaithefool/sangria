@@ -1,13 +1,11 @@
 {
   "name": "burgundy",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "",
   "main": "server/bin/www",
   "scripts": {
     "start": "npm run setup && npm run dev",
-    "dev": "run-p dev-server",
-    "dev-db-up": "cd docker && docker-compose up -d",
-    "dev-db-down": "cd docker && docker-compose down",
+    "dev": "run-p dev-server dev-assets",
     "dev-server": "cd server && npm run dev",
     "dev-assets": "cd assets && npm run dev",
     "postinstall": "npm run i-server && npm run i-assets",
