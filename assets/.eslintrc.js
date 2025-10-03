@@ -22,9 +22,13 @@ module.exports = {
     'import/resolver': {
       alias: {
         map: [
+          ['@', path.resolve(__dirname, './src')],
           ['~', path.resolve(__dirname, './src/js')],
         ],
-        extensions: ['.js', '.jsx'],
+        extensions: [
+          '.js', '.jsx',
+          '.scss', '.mp4', '.jpg', 'jpeg', '.png', '.svg',
+        ],
       },
     },
     react: {

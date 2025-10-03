@@ -3,7 +3,8 @@
     "baseUrl": ".",
     "module": "commonjs",
     "paths": {
-      "~/*": ["./assets/src/js/*"]
+      "~/*": ["./src/js/*"],
+      "@/*": ["./src/*"]
     }
   }
 }

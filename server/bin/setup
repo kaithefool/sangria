@@ -6,7 +6,8 @@ const path = require('path');
 
 const { name } = require('../../package.json');
 
-const envPath = path.resolve(__dirname, '../.env');
+const envDirPath = path.resolve(__dirname, '../secrets');
+const envPath = path.resolve(envDirPath, '.env');
 
 if (fs.existsSync(envPath)) {
   process.exit(0);
@@ -55,6 +56,7 @@ GOOGLE_RECAPTCHA_PUBIC_KEY=
 GOOGLE_RECAPTCHA_SECRET_KEY=
 `;
 
+fs.mkdirSync(envDirPath, { recursive: true });
 fs.writeFileSync(envPath, template());
 
 console.info('Environment file generated.');

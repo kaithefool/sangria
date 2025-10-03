@@ -13,7 +13,7 @@ services:
   server:
     depends_on:
       - mongo
-    build: ./server
+    build: ./
     ports:
       - 3000:3000
     networks:

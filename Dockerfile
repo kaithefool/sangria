@@ -1,10 +1,10 @@
 FROM node:22-alpine
 
-WORKDIR /app
+WORKDIR /app/server
 
-COPY package*.json ./
+COPY server/package*.json ./
 RUN npm install
-COPY . .
+COPY server/. .
 RUN node server/bin/setup
 
 EXPOSE 3000

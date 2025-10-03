@@ -13,4 +13,5 @@ package-lock.json
 .node_repl_history
 
 uploads/
+secrets/
 .env

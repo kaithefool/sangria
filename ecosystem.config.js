@@ -4,9 +4,9 @@ const {
 } = require('./package.json');
 
 const postSetup = () => [
-  'mkdir -p ../shared/public ../shared/private',
-  'ln -sf ../shared/public .',
-  'ln -sf ../shared/private .',
+  'mkdir -p ../shared/uploads ../shared/secrets',
+  'ln -sf ../shared/uploads .',
+  'ln -sf ../shared/secrets .',
 ].join(' && ');
 
 const postDeploy = (env) => [
