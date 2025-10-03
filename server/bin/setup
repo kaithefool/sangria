@@ -6,8 +6,7 @@ const path = require('path');
 
 const { name } = require('../../package.json');
 
-const envDirPath = path.resolve(__dirname, '../../private');
-const envPath = path.resolve(envDirPath, '.env');
+const envPath = path.resolve(__dirname, '../.env');
 
 if (fs.existsSync(envPath)) {
   process.exit(0);
@@ -30,10 +29,7 @@ OTP_EMAIL_MAX=3
 OTP_SMS_TTL=15m
 OTP_SMS_MAX=3
 
-FILE_STORAGE_UPLOADS=public/uploads
-FILE_STORAGE_TRASH=private/trash
-
-MONGO_URI=mongodb://mongo:27017/${name}
+MONGO_URI=mongodb://localhost:27017/${name}
 MONGO_SYNC_INDEX=0
 
 REDIS_URL=
@@ -59,7 +55,6 @@ GOOGLE_RECAPTCHA_PUBIC_KEY=
 GOOGLE_RECAPTCHA_SECRET_KEY=
 `;
 
-fs.mkdirSync(envDirPath, { recursive: true });
 fs.writeFileSync(envPath, template());
 
 console.info('Environment file generated.');

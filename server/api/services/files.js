@@ -7,14 +7,8 @@ const Service = require('../base/Service');
 const model = require('../models/files');
 const { recursiveFind } = require('../helpers/utils');
 
-const {
-  FILE_STORAGE_UPLOADS,
-  FILE_STORAGE_TRASH,
-} = process.env;
-
-const resolve = (...p) => (
-  path.resolve(__dirname, '../../../', ...p)
-);
+const uploadsPath = path.resolve(__dirname, '../../', 'uploads');
+const trashPath = path.resolve(__dirname, '../../', 'trash');
 
 class FileServ extends Service {
   // garbage collect files
@@ -69,7 +63,7 @@ class FileServ extends Service {
 
   async delete(filter, user) {
     const files = await this.find(filter, user);
-    const trashDir = resolve(FILE_STORAGE_TRASH);
+    const trashDir = trashPath;
 
     await super.delete(filter, user);
 
@@ -82,8 +76,8 @@ class FileServ extends Service {
     await Promise.all(files.map((f) => f.path).map(async (p) => {
       try {
         await fs.rename(
-          resolve(FILE_STORAGE_UPLOADS, p),
-          resolve(FILE_STORAGE_TRASH, p),
+          path.resolve(uploadsPath, p),
+          path.resolve(trashPath, p),
         );
       } catch (err) {
         console.error(err);
@@ -93,7 +87,7 @@ class FileServ extends Service {
 
   clean() {
     return fs.emptyDir(
-      resolve(FILE_STORAGE_TRASH),
+      trashPath,
       { recursive: true },
     );
   }

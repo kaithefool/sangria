@@ -10,17 +10,9 @@ const errHandler = require('./lib/err/errHandler');
 const { middleware: i18nMid } = require('./start/i18n');
 const api = require('./api');
 const pages = require('./pages');
+const statics = require('./api/responders/statics');
 
 const app = express();
-const serveStatic = (...paths) => {
-  const mid = express.static(path.join(__dirname, ...paths));
-
-  return (req, res, next) => {
-    mid(req, res, () => {
-      next(httpError(404, 'res.notFound'));
-    });
-  };
-};
 
 // view engine setup
 app.set('views', path.join(__dirname, 'pages/views'));
@@ -33,9 +25,9 @@ app.set(
 app.use(logger('dev'));
 
 // static files
-app.use('/locales', serveStatic('locales'));
-app.use('/uploads', serveStatic('../public/uploads'));
-app.use('/assets', serveStatic('../assets/dist'));
+app.use('/locales', statics(__dirname, 'locales'));
+app.use('/uploads', statics(__dirname, 'uploads'));
+app.use('/assets', statics(__dirname, '../assets/dist'));
 
 app.use(express.json({
   verify: (req, res, buf) => {

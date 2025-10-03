@@ -5,12 +5,7 @@
 logs
 *.log
 
-# Database
-.db/
-
 # Shared files
-public/
-private/
 volumes/
 
 # Packages

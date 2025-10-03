@@ -2,12 +2,9 @@ const path = require('path');
 const multer = require('multer');
 const { nanoid } = require('nanoid');
 
-const { FILE_STORAGE_UPLOADS } = process.env;
-
 const destination = path.resolve(
   __dirname,
-  '../../../',
-  FILE_STORAGE_UPLOADS,
+  '../../uploads',
 );
 
 const storage = multer.diskStorage({
