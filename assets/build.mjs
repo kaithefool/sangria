@@ -42,7 +42,7 @@ const ctx = await esbuild.context({
     '.png': 'file',
     '.svg': 'file',
   },
-  outdir: './dist',
+  outdir: '../server/assets',
   entryPoints: [
     { in: './src/js/home/index.jsx', out: 'home' },
     { in: './src/js/admin/index.jsx', out: 'admin' },

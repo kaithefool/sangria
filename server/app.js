@@ -27,7 +27,7 @@ app.use(logger('dev'));
 // static files
 app.use('/locales', statics(__dirname, 'locales'));
 app.use('/uploads', statics(__dirname, 'uploads'));
-app.use('/assets', statics(__dirname, '../assets/dist'));
+app.use('/assets', statics(__dirname, 'assets'));
 
 app.use(express.json({
   verify: (req, res, buf) => {

@@ -7,7 +7,7 @@ const redirectCookies = require('../api/helpers/redirectCookies');
 
 const {
   name: repoName, version: ver,
-} = require('../../package.json');
+} = require('../package.json');
 
 const {
   LNG, LNG_LABEL, LNG_FLAG,

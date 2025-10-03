@@ -4,7 +4,7 @@ const { nanoid } = require('nanoid');
 const fs = require('fs');
 const path = require('path');
 
-const { name } = require('../../package.json');
+const { name } = require('../package.json');
 
 const envDirPath = path.resolve(__dirname, '../secrets');
 const envPath = path.resolve(envDirPath, '.env');
