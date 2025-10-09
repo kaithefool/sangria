@@ -2,9 +2,9 @@ const ms = require('ms');
 const { parse, serialize } = require('cookie');
 
 const {
-  HTTPS,
-  JWT_ACCESS_TTL,
-  JWT_REFRESH_TTL,
+  HTTPS = '0',
+  JWT_ACCESS_TTL = '5m',
+  JWT_REFRESH_TTL = '15d',
 } = process.env;
 
 const cookieOpts = {

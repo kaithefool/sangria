@@ -1,13 +1,14 @@
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
 
+const { nanoid } = require('nanoid');
 const Service = require('../base/Service');
 const usersModel = require('../models/users');
 
 const {
-  JWT_ACCESS_TTL,
-  JWT_REFRESH_TTL,
-  SECRET,
+  JWT_SECRET = nanoid(32),
+  JWT_ACCESS_TTL = '5m',
+  JWT_REFRESH_TTL = '15d',
 } = process.env;
 
 // props to store within the token
@@ -61,19 +62,19 @@ class AuthServ extends Service {
       persist,
       access: jwt.sign(
         props,
-        SECRET,
+        JWT_SECRET,
         { expiresIn: JWT_ACCESS_TTL },
       ),
       refresh: jwt.sign(
         { _id: user._id, persist: Boolean(persist) },
-        SECRET,
+        JWT_SECRET,
         { expiresIn: JWT_REFRESH_TTL },
       ),
     };
   }
 
   verifyToken(token) {
-    return jwt.verify(token, SECRET);
+    return jwt.verify(token, JWT_SECRET);
   }
 
   async renewTokens(refreshTk) {

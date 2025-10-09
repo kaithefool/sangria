@@ -2,7 +2,7 @@ const Model = require('../base/Model');
 
 const { Schema } = Model;
 
-const { ACCESSLOG_TTL } = process.env;
+const { ACCESSLOG_TTL = '180d' } = process.env;
 
 module.exports = new Model('AccessLog', {
   action: { type: String, required: true },

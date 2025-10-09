@@ -3,7 +3,10 @@ const { nanoid } = require('nanoid');
 const User = require('./User');
 
 const { Schema } = User;
-const { OTP_SMS_TTL, OTP_EMAIL_TTL } = process.env;
+const {
+  OTP_SMS_TTL = '15m',
+  OTP_EMAIL_TTL = '60m',
+} = process.env;
 
 class Otp extends User {
   async setter(value, action) {

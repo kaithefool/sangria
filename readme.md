@@ -65,3 +65,77 @@ pm2 deploy [env] setup
 ```shell
 pm2 deploy [env]
 ```
+
+## Environment variables
+`HTTPS=0`
+  Set to 1 to enable HTTPS.
+`PORT=3000`
+  Port number the server listens on.  
+`ACCESSLOG_TTL=180d`
+  Access log time to live.  
+
+`JWT_ACCESS_TTL=5m`
+  Access token time to live.  
+`JWT_REFRESH_TTL=15d`
+  Refresh token time to live.  
+`OTP_EMAIL_TTL=60m`
+  OTP code sent via email time to live.  
+`OTP_EMAIL_MAX=3`
+  Maximum times a user can request for OTP code sent via email.  
+`OTP_SMS_TTL=15m`
+  OTP code sent via SMS time to live.  
+`OTP_SMS_MAX=3`
+  Maximum times a user can request for OTP code sent via SMS.  
+
+`MONGO_URI=mongodb://localhost:27017/{package_name}`
+  MongoDB connection URI.  
+`MONGO_SYNC_INDEX`
+  Set to enable automatic index synchronization.  
+`MONGO_SSH_HOST`
+  SSH host for MongoDB tunneling.  
+`MONGO_SSH_USER`
+  SSH username for MongoDB tunneling.  
+`MONGO_SSH_PORT`
+  SSH port for MongoDB tunneling. Default: `22`  
+`MONGO_SSH_DST_PORT`
+  Destination port for MongoDB on the SSH host.  
+`MONGO_SSH_LOCAL_PORT`
+  Local port for SSH tunnel.  
+`MONGO_SSH_KEY`
+  Path to SSH private key for MongoDB tunneling.  
+`MONGO_SSH_PASSWORD`
+  SSH password for MongoDB tunneling.  
+`REDIS_URL`
+  Redis connection URL. Set to enable Redis.  
+`SOCKET=0`
+  Set to `1` to enable Web Sockets.  
+`MAIL_ROOT_URL`
+  Root URL for email links.  
+`MAIL_HOST`
+  Set SMTP host for sending emails.  
+`MAIL_PORT`
+  Set SMTP port for sending emails.  
+`MAIL_USER`
+  Set SMTP username for sending emails.  
+`MAIL_PASSWORD`
+  Set SMTP password for sending emails.  
+`MAIL_DEFAULT_SENDER`
+  Default sender email address.  
+`SMS_ACC_SID`
+  Twilio account SID for sending SMS.  
+`SMS_AUTH_TOKEN`
+  Twilio account auth token for sending SMS.  
+`SMS_FROM_NO`
+  Twilio account phone no for sending SMS.  
+`GOOGLE_API_KEY`
+  Google API key for Google Maps and other services.  
+`GOOGLE_RECAPTCHA_PUBIC_KEY`
+  Google reCAPTCHA public key for client-side reCAPTCHA.  
+`GOOGLE_RECAPTCHA_SECRET_KEY`
+  Google reCAPTCHA secret key for server-side reCAPTCHA verification.  
+`LNG=en,zh-hant`
+  Languages to enable for i18n.  
+`LNG_LABEL=EN,中文`
+  Language labels corresponding to `LNG`.  
+`LNG_FLAG=🇬🇧,🇭🇰`
+  Language flags corresponding to `LNG`.  

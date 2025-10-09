@@ -3,7 +3,10 @@ const { createAdapter } = require('@socket.io/redis-adapter');
 
 const redis = require('./redis');
 
-const { SOCKET = '', REDIS_URL } = process.env;
+const {
+  SOCKET = '0',
+  REDIS_URL = '',
+} = process.env;
 
 let allowRequest = (req, cb) => cb(null, true);
 

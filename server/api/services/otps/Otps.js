@@ -3,7 +3,10 @@ const model = require('../../models/otps');
 const sms = require('../../../lib/sms');
 const mail = require('../../../lib/mail');
 
-const { OTP_SMS_MAX, OTP_EMAIL_MAX } = process.env;
+const {
+  OTP_SMS_MAX = '3',
+  OTP_EMAIL_MAX = '3',
+} = process.env;
 
 class OtpServ extends Service {
   constructor(m, opts = {}) {

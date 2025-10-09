@@ -2,7 +2,7 @@ const path = require('path');
 const Email = require('email-templates');
 
 const {
-  ROOT,
+  MAIL_ROOT_URL,
   MAIL_HOST,
   MAIL_PORT,
   MAIL_USER,
@@ -25,7 +25,7 @@ const email = new Email({
   views: {
     root: path.resolve(__dirname, 'templates'),
     locals: {
-      rootUrl: ROOT,
+      rootUrl: MAIL_ROOT_URL,
     },
   },
   message: {
