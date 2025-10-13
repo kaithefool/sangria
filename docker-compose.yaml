@@ -20,6 +20,8 @@ services:
       - 3000:3000
     networks:
       - dev
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/burgundy
     develop:
       watch:
         - action: sync+restart
