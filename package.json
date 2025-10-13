@@ -4,15 +4,12 @@
   "description": "",
   "main": "server/bin/www",
   "scripts": {
-    "start": "npm run setup && npm run dev",
+    "start": "node server/bin/www",
     "dev": "run-p dev-server dev-assets",
     "dev-server": "cd server && npm run dev",
     "dev-assets": "cd assets && npm run dev",
-    "postinstall": "npm run i-server && npm run i-assets",
-    "i-server": "cd server && npm i",
-    "i-assets": "cd assets && npm i",
+    "postinstall": "cd server && npm i && cd ../assets && npm i",
     "build": "cd assets && npm run build",
-    "setup": "node server/bin/setup",
     "postversion": "git push && git push --tags",
     "sync-fwk": "git fetch burgundy master:fwk"
   },
