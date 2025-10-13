@@ -15,8 +15,6 @@ const {
   MONGO_SSH_PASSWORD,
 } = process.env;
 
-console.log('Mongo Uri:', MONGO_URI);
-
 let db;
 
 const sshConfig = {

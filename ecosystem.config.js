@@ -4,14 +4,22 @@ const {
 } = require('./package.json');
 
 const postSetup = () => [
-  'mkdir -p ../shared/uploads ../shared/secrets',
+  'mkdir -p ../shared/secrets',
+  'touch ../shared/secrets/.env',
+  'mkdir -p ../shared/uploads',
   'ln -sf ../shared/uploads .',
-  'ln -sf ../shared/secrets .',
 ].join(' && ');
 
 const postDeploy = (env) => [
   'npm i',
   `pm2 startOrReload ecosystem.config.js --env=${env}`,
+].join(' && ');
+
+const cmd = () => [
+  'set -a',
+  '. ../shared/secrets/.env',
+  'set +a',
+  './server/bin/www',
 ].join(' && ');
 
 const scripts = (env) => ({
@@ -22,7 +30,7 @@ const scripts = (env) => ({
 module.exports = {
   apps: [{
     name,
-    script: './server/bin/www',
+    script: cmd(env),
     max_memory_restart: '1G',
     instances: 'max',
     env: { NODE_ENV: 'development' },
