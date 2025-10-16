@@ -5,6 +5,8 @@
   "main": "server/bin/www",
   "scripts": {
     "start": "node server/bin/www",
+    "up": "docker compose up --watch",
+    "down": "docker compose down",
     "dev": "run-p dev-server dev-assets",
     "dev-server": "cd server && npm run dev",
     "dev-assets": "cd assets && npm run dev",

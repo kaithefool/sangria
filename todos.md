@@ -1,4 +1,13 @@
 # Todos
+
+- Debuggers
+- Update
+    - Expressjs
+    - React
+    - Bootstrap
+- Typescript
+
+
 - Fetch and Alert
     - use Suspense? ErrorBoundary? Or just use their concept of throw and catch?
     - merge with alert? with routes? with btns? with anything that use http?
@@ -27,7 +36,6 @@
 - Rich text editor
     - Drop file handler
     - MaxSize and accept
-    - Migrate to Slatejs
 - i18n
     - Email templates
 - ObjectId validator

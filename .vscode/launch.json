@@ -5,14 +5,15 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "node",
-      "request": "launch",
-      "name": "Node: Nodemon",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["start"],
-      "outputCapture": "std",
-      "preLaunchTask": "docker: up",
-      "postDebugTask": "docker: down",
+      "localRoot": "${workspaceFolder}",
+      "name": "Debug Node",
+      "port": 9229,
+      "remoteRoot": "/app/server",
+      "request": "attach",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node"
     }
   ]
 }

@@ -10,6 +10,7 @@ services:
       - 27017:27017
     networks:
       - dev
+    command: --quiet --logpath /dev/null 
   server:
     depends_on:
       - mongo
@@ -18,6 +19,7 @@ services:
       - ./server/uploads:/app/server/uploads
     ports:
       - 3000:3000
+      - 9229:9229
     networks:
       - dev
     environment:
