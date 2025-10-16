@@ -4,6 +4,10 @@ import * as esbuild from 'esbuild';
 import { sassPlugin } from 'esbuild-sass-plugin';
 
 const watch = process.argv.includes('--watch');
+const outdir = process.argv
+  .find((a) => /^--outdir=/.test(a))
+  ?.replace(/^--outdir=/, '')
+  || '../server/assets';
 
 const rebuildLog = {
   name: 'rebuild-log',
@@ -42,7 +46,7 @@ const ctx = await esbuild.context({
     '.png': 'file',
     '.svg': 'file',
   },
-  outdir: '../server/assets',
+  outdir,
   entryPoints: [
     { in: './src/js/home/index.jsx', out: 'home' },
     { in: './src/js/admin/index.jsx', out: 'admin' },
