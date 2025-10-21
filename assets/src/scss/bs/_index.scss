@@ -12,7 +12,7 @@
 @import "bootstrap/scss/mixins";
 @import "bootstrap/scss/utilities";
 
-@import "extends";
+@import "utils";
 
 // Layout & components
 @import "bootstrap/scss/root";
@@ -55,4 +55,4 @@
 // scss-docs-end import-stack
 
 // Custom Styles related to bootstrap components
-@import "custom"
+@import "customs";
