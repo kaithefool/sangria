@@ -2,7 +2,6 @@
 
 - Debuggers
 - Update
-    - Expressjs
     - React
 - Typescript
 - Remove hygen
