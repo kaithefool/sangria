@@ -13,8 +13,7 @@ npm i
 ```shell
 npm start
 ```
-##### ... or if you are using Visual Studio Code
-Just simply press the F5 button to start the debug mode
+```
 
 ## Command line interface
 ##### Generate the first admin user

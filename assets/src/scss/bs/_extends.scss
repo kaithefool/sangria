@@ -1,0 +1,37 @@
+// https://getbootstrap.com/docs/5.1/utilities/api/#override-utilities
+
+$utilities: map-merge(
+  $utilities,
+  (
+    "cursor": (
+      property: cursor,
+      class: cursor,
+      values: (
+        pointer,
+        grab,
+      ),
+    ),
+    "max-viewport-width": (
+      property: max-width,
+      class: max-vw,
+      values: (
+        25: 25vw,
+        50: 50vw,
+        75: 75vw,
+        100: 100vw,
+      )
+    ),
+    "max-viewport-height": (
+      property: max-height,
+      class: max-vh,
+      responsive: true,
+      values: (
+        25: 25vh,
+        50: 50vh,
+        75: 75vh,
+        100: 100vh,
+      )
+    ),
+  )
+);
+

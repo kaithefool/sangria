@@ -4,8 +4,9 @@
 - Update
     - Expressjs
     - React
-    - Bootstrap
 - Typescript
+- Remove hygen
+- Update readme
 
 
 - Fetch and Alert
