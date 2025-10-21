@@ -16,7 +16,7 @@ services:
       - mongo
     build: ./server
     volumes:
-      - ./server/uploads:/app/server/uploads
+      - ./server/uploads:/app/uploads
     ports:
       - 3000:3000
       - 9229:9229
@@ -28,10 +28,21 @@ services:
       watch:
         - action: sync+restart
           path: ./server
-          target: ./app/server
+          target: ./app
           ignore:
             - node_modules/
             - uploads/
+  assets:
+    build: ./assets
+    volumes:
+      - ./server/assets:/app/dist
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./assets
+          target: ./app
+          ignore:
+            - node_modules/
 networks:
   dev:
     driver: bridge

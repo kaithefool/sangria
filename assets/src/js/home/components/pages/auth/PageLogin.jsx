@@ -7,6 +7,7 @@ import FormLogin from '../../forms/FormLogin';
 const PageLogin = () => (
   <PageCentered>
     <div className="text-center py-3">
+      <h2>Fo</h2>
       <Logo className="fs-3" />
     </div>
     <FormLogin />
