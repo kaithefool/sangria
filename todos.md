@@ -6,7 +6,7 @@
 - Typescript
 - Remove hygen
 - Update readme
-
+- Mongo operator injection
 
 - Fetch and Alert
     - use Suspense? ErrorBoundary? Or just use their concept of throw and catch?

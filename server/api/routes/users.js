@@ -37,7 +37,7 @@ module.exports = new Routes({
   create: true,
   patch: true,
   patchActive: {
-    path: '/active/:_id?',
+    path: ['/active/:_id', '/active'],
     method: 'patch',
   },
   delete: true,

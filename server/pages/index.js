@@ -50,7 +50,7 @@ routes.get('/logout', (req, res) => (
 ));
 
 routes.use(
-  ['/admin', '/admin/*'],
+  ['/admin', '/admin/{*splat}'],
   (req, res) => {
     if (req.user?.role !== 'admin') {
       redirectCookies.set(req, res, { base: '/admin' });

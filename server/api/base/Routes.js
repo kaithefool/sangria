@@ -6,7 +6,6 @@ const authorizer = require('./authorizer');
 const validator = require('./validator');
 const logAccess = require('../parsers/logAccess');
 
-const idMatch = '[0-9a-f]{24}';
 const responseOne = (req, res, next) => (
   res.locals.out ? next() : next(httpError(404, 'res.notFound'))
 );
@@ -19,15 +18,15 @@ const defaultNamedRoutes = {
     path: '/all',
   },
   findById: {
-    path: `/:_id(${idMatch})`,
+    path: '/:_id',
     serve: 'findOne',
     response: responseOne,
   },
   findOne: { response: responseOne },
   create: { method: 'post' },
-  patch: { method: 'patch', path: `/:_id(${idMatch})` },
+  patch: { method: 'patch', path: '/:_id' },
   upsert: { method: 'put' },
-  delete: { method: 'delete', path: `/:_id(${idMatch})?` },
+  delete: { method: 'delete', path: ['/:_id', ''] },
 };
 
 class Routes {

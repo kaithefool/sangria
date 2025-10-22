@@ -4,7 +4,6 @@ const path = require('path');
 const qs = require('qs');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const mongoSanitize = require('express-mongo-sanitize');
 
 const errHandler = require('./lib/err/errHandler');
 const { middleware: i18nMid } = require('./start/i18n');
@@ -35,7 +34,6 @@ app.use(express.json({
   },
 }));
 app.use(cookieParser());
-app.use(mongoSanitize({ allowDots: true }));
 
 app.use(i18nMid);
 app.use('/api', api);

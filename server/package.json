@@ -21,7 +21,7 @@
     "debug": "~4.3.2",
     "email-templates": "^8.0.8",
     "exceljs": "^4.3.0",
-    "express": "~5.1.0",
+    "express": "^5.1.0",
     "express-mongo-sanitize": "^2.2.0",
     "fs-extra": "^10.0.0",
     "http-errors": "~1.8.1",
