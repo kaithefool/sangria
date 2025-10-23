@@ -1,8 +1,17 @@
 {
   "eslint.workingDirectories": [
-    "."
+    "./server",
+    "./assets"
   ],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
+  },
+  "dbcode.connections": [],
+  "github.copilot.enable": {
+    "*": false,
+    "plaintext": false,
+    "markdown": true,
+    "scminput": false,
+    "typescript": false
   }
 }
