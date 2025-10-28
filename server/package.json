@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node bin/www",
     "setup": "node bin/setup",
-    "dev": "nodemon bin/www"
+    "dev": "nodemon bin/www",
+    "test": "jest --watchAll"
   },
   "author": "Kai Lam <kai.chun.lam@gmail.com>",
   "license": "ISC",
@@ -50,6 +51,7 @@
     "yup": "^0.32.11"
   },
   "devDependencies": {
+    "@jest/globals": "^30.2.0",
     "@stylistic/eslint-plugin": "^5.5.0",
     "@types/express": "^5.0.3",
     "eslint": "^9.38.0",

@@ -9,8 +9,8 @@ const {
   JWT_REFRESH_TTL = '15d',
 } = process.env
 
-const accessTtl = validateMsString(JWT_ACCESS_TTL)
-const refreshTtl = validateMsString(JWT_REFRESH_TTL)
+const envAccessTtl = validateMsString(JWT_ACCESS_TTL)
+const envRefreshTtl = validateMsString(JWT_REFRESH_TTL)
 
 function validateMsString(v: string): MsString {
   const s = v as MsString
@@ -52,24 +52,32 @@ function toJwtUser<U extends JwtUser>(user: U): JwtUser {
   }
 }
 
-export function signTokens<U extends JwtUser>(user: U, persist: false) {
+export function signTokens<U extends JwtUser>(
+  user: U,
+  persist = false,
+  {
+    secret = JWT_SECRET,
+    accessTtl = envAccessTtl,
+    refreshTtl = envRefreshTtl,
+  } = {},
+) {
   const ju = toJwtUser(user)
   const jr: JwtRefresh = { _id: ju._id, persist }
   return {
     access: jwt.sign(
       ju,
-      JWT_SECRET,
+      secret,
       { subject: 'access', expiresIn: accessTtl },
     ),
     refresh: jwt.sign(
       jr,
-      JWT_SECRET,
+      secret,
       { subject: 'refresh', expiresIn: refreshTtl },
     ),
   }
 }
 
-export const isVerifyErrors = (err: unknown): err is VerifyErrors => {
+const isVerifyErrors = (err: unknown): err is VerifyErrors => {
   return typeof err === 'object'
     && err !== null
     && 'name' in err
@@ -82,10 +90,10 @@ export const isVerifyErrors = (err: unknown): err is VerifyErrors => {
 }
 
 export function verifyToken<P extends object>(
-  token: string, sub?: string,
+  token: string, sub?: string, secret = JWT_SECRET,
 ): JwtPayload & P | null {
   try {
-    const payload = jwt.verify(token, JWT_SECRET) as JwtPayload & P
+    const payload = jwt.verify(token, secret) as JwtPayload & P
     if (sub && sub !== payload.sub) {
       return null
     }
@@ -99,13 +107,17 @@ export function verifyToken<P extends object>(
   }
 }
 
-export function verifyAccessToken(token: string): JwtUser | null {
-  const payload = verifyToken<JwtUser>(token, 'access')
+export function verifyAccessToken(
+  token: string, secret?: string,
+): JwtUser | null {
+  const payload = verifyToken<JwtUser>(token, 'access', secret)
   return payload ? toJwtUser(payload) : null
 }
 
-export function verifyRefreshToken(token: string): JwtRefresh | null {
-  const payload = verifyToken<JwtRefresh>(token, 'refresh')
+export function verifyRefreshToken(
+  token: string, secret?: string,
+): JwtRefresh | null {
+  const payload = verifyToken<JwtRefresh>(token, 'refresh', secret)
   if (payload) {
     return {
       _id: payload._id,
