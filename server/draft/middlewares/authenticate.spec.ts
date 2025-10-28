@@ -1,5 +1,7 @@
 import { describe, expect, it } from '@jest/globals'
-import { signTokens, verifyAccessToken, verifyRefreshToken } from './authToken'
+import {
+  signTokens, verifyAccessToken, verifyRefreshToken,
+} from './authenticate'
 
 describe('sign & verify tokens', () => {
   const validTokens = signTokens({
