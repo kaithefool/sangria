@@ -3,6 +3,7 @@ import { RequestHandler, Response, Request, CookieOptions } from 'express'
 import jwt, { JwtPayload, VerifyErrors } from 'jsonwebtoken'
 import { nanoid } from 'nanoid'
 import ms, { StringValue as MsString } from 'ms'
+import { unchain } from './helpers'
 import { Role } from '../consts'
 import { findUser } from '../services/servUsers'
 
@@ -61,6 +62,10 @@ function toJwtUser<U extends JwtUser>(user: U): JwtUser {
 export function getJwtUser(res: Response): JwtUser | undefined {
   const user = res.locals
   return isJwtUser(user) ? user : undefined
+}
+
+export function setJwtUser<U extends JwtUser>(res: Response, user: U) {
+  res.locals.user = toJwtUser(user)
 }
 
 export function signTokens<U extends JwtUser>(
@@ -186,10 +191,10 @@ export const authnByHeader: RequestHandler = ({ header }, res, next) => {
 
   const ju = verifyAccessToken(token)
   if (ju === null) {
-    next(createHttpError(400, 'invalidToken'))
+    return next(createHttpError(400, 'invalidToken'))
   }
-  res.locals.user = ju
-  next()
+  setJwtUser(res, ju)
+  return next()
 }
 
 export const authnByCookie: RequestHandler = async (req, res, next) => {
@@ -197,7 +202,7 @@ export const authnByCookie: RequestHandler = async (req, res, next) => {
   if (tokens.access) {
     const ju = verifyAccessToken(tokens.access)
     if (ju !== null) {
-      res.locals.user = ju
+      setJwtUser(res, ju)
       return next()
     }
   }
@@ -221,7 +226,7 @@ export const authnByCookie: RequestHandler = async (req, res, next) => {
     }
     const newTokens = signTokens(user, refresh.persist)
     setAuthnCookies(res, newTokens)
-    res.locals.user = toJwtUser(user)
+    setJwtUser(res, user)
     next()
   }
 }
@@ -229,6 +234,16 @@ export const authnByCookie: RequestHandler = async (req, res, next) => {
 export function authenticate({
   header = true,
   cookies = true,
-} = {}) {
-
+} = {}): RequestHandler {
+  return async (req, res, next) => {
+    if (header) {
+      const [, err] = await unchain(authnByHeader)(req, res)
+      if (err) return next(err)
+    }
+    if (cookies && getJwtUser(res) === undefined) {
+      const [, err] = await unchain(authnByCookie)(req, res)
+      if (err) return next(err)
+    }
+    return next()
+  }
 }
