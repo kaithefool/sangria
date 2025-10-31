@@ -11,26 +11,28 @@ describe('unchain middleware func', () => {
     const syncRh: RequestHandler = (req, res, next) => next()
     const asyncRh: RequestHandler = async (req, res, next) => next()
 
-    expect(await unchain(syncRh)(req, res)).toEqual([undefined, false])
-    expect(await unchain(asyncRh)(req, res)).toEqual([undefined, false])
+    expect(await unchain(syncRh)(req, res))
+      .toMatchObject({ err: undefined, end: false })
+    expect(await unchain(asyncRh)(req, res))
+      .toMatchObject({ err: undefined, end: false })
   })
   it('returns error if next func is called with parameter', async () => {
     const err = createHttpError(400, 'fake-err')
     const syncRh: RequestHandler = (req, res, next) => next(err)
-    const sOut = await unchain(syncRh)(req, res)
     const asyncRh: RequestHandler = async (req, res, next) => next(err)
-    const aOut = await unchain(asyncRh)(req, res)
 
-    expect(sOut[0]).toMatchObject(err)
-    expect(sOut[1]).toBe(true)
-    expect(aOut[0]).toMatchObject(err)
-    expect(aOut[1]).toBe(true)
+    expect(await unchain(syncRh)(req, res))
+      .toMatchObject({ err, end: true })
+    expect(await unchain(asyncRh)(req, res))
+      .toMatchObject({ err, end: true })
   })
   it('returns end as true if next func hasn\'t be called', async () => {
     const syncRh: RequestHandler = () => {}
     const asyncRh: RequestHandler = async () => {}
 
-    expect(await unchain(syncRh)(req, res)).toEqual([undefined, true])
-    expect(await unchain(asyncRh)(req, res)).toEqual([undefined, true])
+    expect(await unchain(syncRh)(req, res))
+      .toMatchObject({ err: undefined, end: true })
+    expect(await unchain(asyncRh)(req, res))
+      .toMatchObject({ err: undefined, end: true })
   })
 })

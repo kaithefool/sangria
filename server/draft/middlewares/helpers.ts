@@ -6,13 +6,16 @@ import { RequestHandler, Request, Response } from 'express'
  * and if it has signified the end of the response
  */
 export function unchain(rh: RequestHandler) {
-  return async (req: Request, res: Response): Promise<[unknown, boolean]> => {
+  return async (req: Request, res: Response): Promise<{
+    err: unknown
+    end: boolean
+  }> => {
     let err: unknown = undefined
     let end = true
     await rh(req, res, (e) => {
       if (e) err = e
       else end = false
     })
-    return [err, end]
+    return { err, end }
   }
 }

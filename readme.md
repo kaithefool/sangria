@@ -90,22 +90,8 @@ pm2 deploy [env]
 
 `MONGO_URI=mongodb://localhost:27017/{package_name}`
   MongoDB connection URI.  
-`MONGO_SYNC_INDEX`
+`MONGO_AUTO_INDEX`
   Set to enable automatic index synchronization.  
-`MONGO_SSH_HOST`
-  SSH host for MongoDB tunneling.  
-`MONGO_SSH_USER`
-  SSH username for MongoDB tunneling.  
-`MONGO_SSH_PORT`
-  SSH port for MongoDB tunneling. Default: `22`  
-`MONGO_SSH_DST_PORT`
-  Destination port for MongoDB on the SSH host.  
-`MONGO_SSH_LOCAL_PORT`
-  Local port for SSH tunnel.  
-`MONGO_SSH_KEY`
-  Path to SSH private key for MongoDB tunneling.  
-`MONGO_SSH_PASSWORD`
-  SSH password for MongoDB tunneling.  
 `REDIS_URL`
   Redis connection URL. Set to enable Redis.  
 `SOCKET=0`

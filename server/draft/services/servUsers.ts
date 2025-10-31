@@ -1,11 +1,4 @@
-import { Role } from '../consts'
-
-export type User = {
-  _id: string
-  role: Role
-  email?: string
-  lastLogoutAt?: Date
-}
+import { User } from '../models/mdlUsers'
 
 export type UserFilter = {
   _id?: string

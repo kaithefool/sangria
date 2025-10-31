@@ -21,6 +21,7 @@
   "author": "Kai Lam <kai.chun.lam@gmail.com>",
   "license": "ISC",
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
     "hygen": "^6.1.0"
   },
   "dependencies": {
