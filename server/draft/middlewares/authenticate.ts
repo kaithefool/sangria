@@ -212,7 +212,7 @@ export const authnByCookie: RequestHandler = async (req, res, next) => {
       clearAuthnCookies(res)
       return next()
     }
-    const user = await findUser(refresh._id)
+    const user = await findUser({ _id: refresh._id })
     if (
       !user
       || (
@@ -237,11 +237,11 @@ export function authenticate({
 } = {}): RequestHandler {
   return async (req, res, next) => {
     if (header) {
-      const [, err] = await unchain(authnByHeader)(req, res)
+      const [err] = await unchain(authnByHeader)(req, res)
       if (err) return next(err)
     }
     if (cookies && getJwtUser(res) === undefined) {
-      const [, err] = await unchain(authnByCookie)(req, res)
+      const [err] = await unchain(authnByCookie)(req, res)
       if (err) return next(err)
     }
     return next()
