@@ -6,10 +6,11 @@ export type User = {
   role: Role
   email?: string
   lastLogoutAt?: Date
+  deletedAt: Date
 }
 
 export const schema = new Schema<User>({
-  role: { required: true, enum: roles },
+  role: { enum: roles },
   email: String,
   lastLogoutAt: Date,
 })
