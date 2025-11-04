@@ -60,12 +60,12 @@ function toJwtUser<U extends JwtUser>(user: U): JwtUser {
 }
 
 export function getJwtUser(res: Response): JwtUser | undefined {
-  const user = res.locals
-  return isJwtUser(user) ? user : undefined
+  const { jwtUser } = res.locals
+  return isJwtUser(jwtUser) ? jwtUser : undefined
 }
 
 export function setJwtUser<U extends JwtUser>(res: Response, user: U) {
-  res.locals.user = toJwtUser(user)
+  res.locals.jwtUser = toJwtUser(user)
 }
 
 export function signTokens<U extends JwtUser>(
