@@ -1,18 +1,13 @@
 import { AnyKeys, FilterQuery, UpdateQuery } from 'mongoose'
 import mdlUsers, { User } from '../models/mdlUsers'
+import { matchSoftDelete } from './servBase'
 
 export type UsersFilter = FilterQuery<User>
-
-export function matchSoftDelete<T extends { deletedAt?: Date }>(
-  filter: FilterQuery<T>,
-): FilterQuery<T> {
-  return { ...filter, deletedAt: null }
-}
 
 export function matchUsers(
   filter: UsersFilter,
 ): FilterQuery<User> {
-  return filter
+  return matchSoftDelete(filter)
 }
 
 export async function findUser(

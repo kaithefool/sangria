@@ -6,7 +6,7 @@ export type User = {
   role: Role
   email?: string
   lastLogoutAt?: Date
-  deletedAt: Date
+  // deletedAt?: Date
 }
 
 export const schema = new Schema<User>({
