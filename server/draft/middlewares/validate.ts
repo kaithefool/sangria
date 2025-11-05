@@ -3,7 +3,7 @@ import createHttpError from 'http-errors'
 import * as z from 'zod'
 
 export function cfOpQuery(
-  schema: z.ZodDate,
+  schema: z.ZodDate | z.ZodNumber,
 ) {
   return z.object({
     eq: schema.optional(),
@@ -22,6 +22,17 @@ export function cfOpQuery(
     ...a.lt && { $lt: a.lt },
     ...a.lte && { $lte: a.lt },
   }))
+}
+
+export function searchQuery() {
+  return z.string().optional().transform((a) => {
+    if (a === undefined) return undefined
+    let query = a
+    query = a.trim()
+    query = a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // escape for regex
+    query = a.replace(/[ -_]/g, '[ -_]') // dashes, underscores and spaces
+    return new RegExp(query, 'i')
+  })
 }
 
 export function getValidInput<S extends z.ZodObject>(

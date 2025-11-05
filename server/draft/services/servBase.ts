@@ -5,8 +5,3 @@ export function matchSoftDelete<T extends { deletedAt?: Date }>(
 ): FilterQuery<T> {
   return { ...filter, deletedAt: null }
 }
-
-export function matchSearch<T>(
-  filter: FilterQuery<T>,
-  fields: keyof T[],
-) {}
