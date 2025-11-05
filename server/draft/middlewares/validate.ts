@@ -2,20 +2,26 @@ import { RequestHandler, Response } from 'express'
 import createHttpError from 'http-errors'
 import * as z from 'zod'
 
-const cfOpMap = {
-  eq: '$eq',
-  in: '$in',
-  nin: '$nin',
-  gt: '$gt',
-  gte: '$gte',
-  lt: '$lt',
-  lte: '$lte',
-}
-
-export type CfOp = keyof typeof cfOpMap
-
-export function transformCfOp(allow: CfOp[]) {
-
+export function cfOpQuery(
+  schema: z.ZodDate,
+) {
+  return z.object({
+    eq: schema.optional(),
+    in: schema.optional(),
+    nin: schema.optional(),
+    gt: schema.optional(),
+    gte: schema.optional(),
+    lt: schema.optional(),
+    lte: schema.optional(),
+  }).transform(a => ({
+    ...a.eq && { $eq: a.eq },
+    ...a.in && { $in: a.in },
+    ...a.nin && { $nin: a.nin },
+    ...a.gt && { $gt: a.gt },
+    ...a.gte && { $gte: a.gt },
+    ...a.lt && { $lt: a.lt },
+    ...a.lte && { $lte: a.lt },
+  }))
 }
 
 export function getValidInput<S extends z.ZodObject>(
