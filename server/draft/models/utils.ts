@@ -1,15 +1,24 @@
 import {
   ObjectId, InferSchemaType, FilterQuery, Model, pluralize,
   Document,
+  model,
 } from 'mongoose'
 
 export type InferSchemaTypeWithId<TSchema> = InferSchemaType<TSchema>
   & { _id: ObjectId }
 
+export function getArchiveMdlName(name: string) {
+  return `Deleted${name}`
+}
 export function getArchiveCollName<T>(mdl: Model<T>): string {
-  const name = pluralize()?.(`Deleted${mdl.modelName}`)
+  const name = pluralize()?.(getArchiveMdlName(mdl.modelName))
   if (name === undefined) throw new Error('pluralize func is absent')
   return name
+}
+
+export function delModel(...params: Parameters<typeof model>) {
+  const [name, ...rest] = params
+  model(getArchiveMdlName(name), ...rest)
 }
 
 export async function softDeleteOne<T>(

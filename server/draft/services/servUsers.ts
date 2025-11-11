@@ -1,47 +1,52 @@
-import { AnyKeys, FilterQuery, UpdateQuery } from 'mongoose'
+import { AnyKeys, FilterQuery, SortOrder, UpdateQuery } from 'mongoose'
 import mdlUsers, { User } from '../models/mdlUsers'
 
 export type UsersFilter = FilterQuery<User>
+export type UsersQuery = {
+  filter?: UsersFilter
+  sort?: { [x: string]: SortOrder }
+  skip?: number
+  limit?: number
+}
 
 export function matchUsers(
-  filter: UsersFilter,
+  filter?: UsersFilter,
 ): FilterQuery<User> {
-  return filter
+  return filter ?? {}
 }
 
 export async function findUser(
   filter: UsersFilter,
-): Promise<User | null> {
+) {
   return mdlUsers.findOne(matchUsers(filter))
 }
 
-export async function findUsers(
-  filter: UsersFilter,
-): Promise<User[]> {
-  return mdlUsers.find(matchUsers(filter))
+export async function findUsers(opt: UsersQuery = {}) {
+  let q = mdlUsers.find(matchUsers(opt.filter))
+  if (opt.sort) q = q.sort(opt.sort)
+  if (opt.skip) q.skip(opt.skip)
+  if (opt.limit) q.limit(opt.limit)
+  return q
 }
 
 export async function countUsers(
-  filter: UsersFilter,
+  filter?: UsersFilter,
 ) {
   return mdlUsers.countDocuments(matchUsers(filter))
 }
 
-export async function listUsers(
-  filter: UsersFilter,
-) {
+export async function listUsers(opt: UsersQuery = {}) {
   const [rows, total] = await Promise.all([
-    countUsers(matchUsers(filter)),
-    findUsers(matchUsers(filter)),
+    countUsers(opt.filter),
+    findUsers(opt),
   ])
   return { rows, total }
 }
 
 export async function createUsers(
   ...docs: AnyKeys<User>[]
-): Promise<{ _id: string }[]> {
-  const created = await mdlUsers.create(...docs)
-  return created.map(c => ({ _id: c._id }))
+) {
+  return mdlUsers.create(...docs)
 }
 
 export async function patchUsers(
@@ -54,5 +59,5 @@ export async function patchUsers(
 export async function deleteUsers(
   filter: UsersFilter,
 ) {
-  await mdlUsers.deleteMany(matchUsers(filter))
+  await mdlUsers.softDeleteMany(matchUsers(filter))
 }

@@ -1,6 +1,7 @@
 import { Schema, model } from 'mongoose'
 import {
-  InferSchemaTypeWithId, softDelete, softDeleteMany, softDeleteOne,
+  InferSchemaTypeWithId,
+  delModel, softDelete, softDeleteMany, softDeleteOne,
 } from './utils'
 import { roles } from '../consts'
 
@@ -19,7 +20,5 @@ export const schema = new Schema({
 })
 
 export type User = InferSchemaTypeWithId<typeof schema>
-export const mdlDeletedUsers = model('DeletedUser', schema)
-export const mdlUsers = model('User', schema)
-
-export default mdlUsers
+export const mdlDeletedUsers = delModel('User', schema)
+export default model('User', schema)
