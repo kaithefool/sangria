@@ -1,18 +1,25 @@
 import { Schema, model } from 'mongoose'
-import { Role, roles } from '../consts'
+import {
+  InferSchemaTypeWithId, softDelete, softDeleteMany, softDeleteOne,
+} from './utils'
+import { roles } from '../consts'
 
-export type User = {
-  _id: string
-  role: Role
-  email?: string
-  lastLogoutAt?: Date
-  // deletedAt?: Date
-}
-
-export const schema = new Schema<User>({
-  role: { enum: roles },
+export const schema = new Schema({
+  role: { type: String, enum: roles, required: true },
   email: String,
   lastLogoutAt: Date,
+}, {
+  statics: {
+    softDeleteOne,
+    softDeleteMany,
+  },
+  methods: {
+    softDelete,
+  },
 })
 
-export default model<User>('User', schema)
+export type User = InferSchemaTypeWithId<typeof schema>
+export const mdlDeletedUsers = model('DeletedUser', schema)
+export const mdlUsers = model('User', schema)
+
+export default mdlUsers
