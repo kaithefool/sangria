@@ -64,6 +64,12 @@ export function getJwtUser(res: Response): JwtUser | undefined {
   return isJwtUser(jwtUser) ? jwtUser : undefined
 }
 
+export function assertJwtUser(res: Response): JwtUser {
+  const jwtUser = getJwtUser(res)
+  if (jwtUser === undefined) throw new Error('missing jwt user')
+  return jwtUser
+}
+
 export function setJwtUser<U extends JwtUser>(res: Response, user: U) {
   res.locals.jwtUser = toJwtUser(user)
 }

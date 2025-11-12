@@ -21,11 +21,13 @@ export async function findUser(
   return mdlUsers.findOne(matchUsers(filter))
 }
 
-export async function findUsers(opt: UsersQuery = {}) {
-  let q = mdlUsers.find(matchUsers(opt.filter))
-  if (opt.sort) q = q.sort(opt.sort)
-  if (opt.skip) q.skip(opt.skip)
-  if (opt.limit) q.limit(opt.limit)
+export async function findUsers({
+  filter, sort, skip, limit = 60,
+}: UsersQuery = {}) {
+  let q = mdlUsers.find(matchUsers(filter))
+  if (sort) q = q.sort(sort)
+  if (skip) q.skip(skip)
+  if (limit) q.limit(limit)
   return q
 }
 
@@ -37,8 +39,8 @@ export async function countUsers(
 
 export async function listUsers(opt: UsersQuery = {}) {
   const [rows, total] = await Promise.all([
-    countUsers(opt.filter),
     findUsers(opt),
+    countUsers(opt.filter),
   ])
   return { rows, total }
 }
