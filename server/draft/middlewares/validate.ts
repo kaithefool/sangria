@@ -1,6 +1,6 @@
 import { RequestHandler, Response } from 'express'
 import createHttpError from 'http-errors'
-import { isValidObjectId } from 'mongoose'
+import { isValidObjectId, Types } from 'mongoose'
 import * as z from 'zod'
 
 export function getValidInput<S extends z.ZodObject>(
@@ -78,7 +78,7 @@ export function validSearchQuery() {
 export function validObjectId() {
   return z.stringFormat('id', (val) => {
     return isValidObjectId(val)
-  })
+  }).transform(a => new Types.ObjectId(a))
 }
 
 export function validListQuery<
