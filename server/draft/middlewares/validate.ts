@@ -82,9 +82,10 @@ export function validObjectId() {
 }
 
 export function validListQuery<
+  const F extends z.ZodRawShape,
   const S extends string[],
 >(
-  filter: z.ZodRawShape,
+  filter: F,
   sortable: S,
   maxLimit = 60,
 ) {

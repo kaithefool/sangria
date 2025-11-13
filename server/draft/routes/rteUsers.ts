@@ -1,8 +1,9 @@
 import { Router } from 'express'
+import z from 'zod'
 import validate, {
   assertValidInput, validListQuery, validObjectId,
+  validSearchQuery,
 } from '../middlewares/validate'
-import z from 'zod'
 import { authorize } from '../middlewares/authorize'
 import {
   createUsers, deleteUsers, findUser, listUsers, patchUsers,
@@ -15,6 +16,7 @@ router.use(authorize(['admin']))
 const listSchema = z.object({
   query: validListQuery({
     active: z.boolean().optional(),
+    search: validSearchQuery().optional(),
   }, ['email']),
 })
 router.get(

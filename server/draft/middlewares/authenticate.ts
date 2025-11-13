@@ -2,6 +2,7 @@ import createHttpError from 'http-errors'
 import { RequestHandler, Response, Request, CookieOptions } from 'express'
 import jwt, { JwtPayload, VerifyErrors } from 'jsonwebtoken'
 import { nanoid } from 'nanoid'
+import { Types } from 'mongoose'
 import ms, { StringValue as MsString } from 'ms'
 import { unchain } from './helpers'
 import { Role } from '../consts'
@@ -30,12 +31,12 @@ function validateMsString(v: string): MsString {
 }
 
 export type JwtUser = {
-  _id: string
+  _id: Types.ObjectId
   role: Role
   email?: string
 }
 export type JwtRefresh = {
-  _id: string
+  _id: Types.ObjectId
   persist: boolean
   issueAt?: Date
 }
@@ -45,7 +46,7 @@ export function isJwtUser(v: unknown): v is JwtUser {
     typeof v === 'object'
     && v !== null
     && '_id' in v
-    && typeof v._id === 'string'
+    && v._id instanceof Types.ObjectId
     && 'role' in v
     && typeof v.role === 'string'
   )
@@ -53,7 +54,7 @@ export function isJwtUser(v: unknown): v is JwtUser {
 
 function toJwtUser<U extends JwtUser>(user: U): JwtUser {
   return {
-    _id: user._id,
+    _id: new Types.ObjectId(user._id),
     role: user.role,
     email: user.email,
   }
@@ -115,11 +116,14 @@ export function verifyToken<P extends object>(
   token: string, sub?: string, secret = JWT_SECRET,
 ): JwtPayload & P | null {
   try {
-    const payload = jwt.verify(token, secret) as JwtPayload & P
+    const payload = jwt.verify(token, secret) as JwtPayload
     if (sub && sub !== payload.sub) {
       return null
     }
-    return payload
+    if ('_id' in payload && typeof payload._id === 'string') {
+      payload._id = new Types.ObjectId(payload._id)
+    }
+    return payload as JwtPayload & P
   }
   catch (err: unknown) {
     if (isVerifyErrors(err)) {

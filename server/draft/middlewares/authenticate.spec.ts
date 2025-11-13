@@ -2,10 +2,12 @@ import { describe, expect, it } from '@jest/globals'
 import {
   signTokens, verifyAccessToken, verifyRefreshToken,
 } from './authenticate'
+import { Types } from 'mongoose'
 
 describe('sign & verify tokens', () => {
+  const fakeId = new Types.ObjectId()
   const validTokens = signTokens({
-    _id: 'fakeId',
+    _id: fakeId,
     role: 'admin',
     email: 'user@foobar.com',
   })
@@ -20,7 +22,7 @@ describe('sign & verify tokens', () => {
   })
   it('invalidate expired tokens', (done) => {
     const expiredTokens = signTokens({
-      _id: 'fakeId',
+      _id: fakeId,
       role: 'admin',
       email: 'user@foobar.com',
     }, false, { accessTtl: '10ms', refreshTtl: '10ms' })
@@ -34,7 +36,7 @@ describe('sign & verify tokens', () => {
   it('invalidate tokens signed with wrong secret', () => {
     const secret = 'valid-secret'
     const invalidTokens = signTokens({
-      _id: 'fakeId',
+      _id: fakeId,
       role: 'admin',
       email: 'user@foobar.com',
     }, false, { secret: 'invalid-secret' })
