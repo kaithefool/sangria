@@ -9,9 +9,9 @@ import {
   createUsers, deleteUsers, findUser, listUsers, patchUsers,
 } from '../services/servUsers'
 
-const router = Router()
+const rteUsers = Router()
 
-router.use(authorize(['admin']))
+rteUsers.use(authorize(['admin']))
 
 const listSchema = z.object({
   query: validListQuery({
@@ -19,7 +19,7 @@ const listSchema = z.object({
     search: validSearchQuery().optional(),
   }, ['email']),
 })
-router.get(
+rteUsers.get(
   '/',
   validate(listSchema),
   async (req, res, next) => {
@@ -34,7 +34,7 @@ const findByIdSchema = z.object({
     _id: validObjectId(),
   }),
 })
-router.get(
+rteUsers.get(
   '/:_id',
   validate(findByIdSchema),
   async (req, res, next) => {
@@ -50,7 +50,7 @@ const createSchema = z.object({
     password: z.string().min(8),
   }),
 })
-router.post(
+rteUsers.post(
   '/',
   validate(createSchema),
   async (req, res, next) => {
@@ -69,7 +69,7 @@ const patchSchema = z.object({
     password: z.string().min(8).optional(),
   }),
 })
-router.post(
+rteUsers.post(
   '/:_id',
   validate(patchSchema),
   async (req, res, next) => {
@@ -84,7 +84,7 @@ const deleteSchema = z.object({
     _id: validObjectId(),
   }),
 })
-router.get(
+rteUsers.get(
   '/:_id',
   validate(deleteSchema),
   async (req, res, next) => {
@@ -93,3 +93,5 @@ router.get(
     return next()
   },
 )
+
+export default rteUsers

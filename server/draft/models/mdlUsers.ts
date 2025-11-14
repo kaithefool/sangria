@@ -9,6 +9,7 @@ export const schema = new Schema({
   role: { type: String, enum: roles, required: true },
   active: { type: Boolean, required: true },
   email: String,
+  password: String,
   lastLogoutAt: Date,
 }, {
   statics: {
