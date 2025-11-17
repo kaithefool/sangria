@@ -1,0 +1,17 @@
+doctype html
+html
+  head
+    block head
+      if env && env.meta
+        include meta
+      meta(
+        name='viewport'
+        content='width=device-width, user-scalable=no'
+      )
+      script#env(type='application/json')!= JSON.stringify(env)
+      link(rel='stylesheet', href=`/assets/${entry || 'home'}.css?v=${ver}`)
+  body(class=entry)
+    block body
+      if entry
+        #root
+        script(src=`/assets/${entry}.js?v=${ver}`)

@@ -11,7 +11,7 @@ import {
 
 const rteUsers = Router()
 
-rteUsers.use(authorize(['admin']))
+// rteUsers.use(authorize(['admin']))
 
 const listSchema = z.object({
   query: validListQuery({

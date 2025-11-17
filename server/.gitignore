@@ -4,6 +4,7 @@
 # Logs
 logs
 *.log
+coverage/
 
 # Dependency directories
 node_modules/

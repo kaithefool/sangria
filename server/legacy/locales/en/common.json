@@ -1,0 +1,124 @@
+{
+  "field": "{{path, field}}",
+  "arrayField": "{{parent, singularize, field}} {{index}}",
+  "arrayObjField": "$t(arrayField)'s {{child, field}}",
+  "res": {
+    "models": {
+      "User": {
+        "duplicates": "That {{keys, field, list(type:disjunction)}} is already in use"
+      }
+    },
+    "deleted": "Deleted",
+    "saved": "Saved",
+    "success": "Done",
+    "imported": "Imported",
+    "confirm": "Are you sure?",
+    "confirmDel": "Are you sure to delete?",
+    "userNotExists": "User doesn't exist",
+    "maxOtpsReached": "You've tried too many times",
+    "invalidKey": "Invalid or expired key",
+    "invalidReCaptcha": "Invalid reCAPTCHA. Please try again",
+    "invalidCredentials": "Incorrect username or password",
+    "userInactivated": "Your account has been deactivated",
+    "invalidToken": "Invalid token",
+    "invalidCsrf": "Invalid CSRF token",
+    "loggedOut": "You've logged out",
+    "notFound": "Not found",
+    "duplicates": "Duplicated record: {{values}}",
+    "invalidCsv": "Invalid CSV format",
+    "disconnected": "Cannot connect to server/network",
+    "timeout": "Connection timed out",
+    "goBack": "Back to Home",
+    "noRecord": "No record found",
+    "retryAfter": "Try again after {{seconds}} s",
+    "retryMaxReached": "You've tried too many times",
+    "userAlreadyExists": "This account has been registered"
+  },
+  "yup": {
+    "mixed": {
+      "default": "{{path, field}} is invalid",
+      "required": "{{path, field}} is a required field",
+      "oneOf": "{{path, field}} must be {{resolved, list(type:disjunction)}}",
+      "notOneOf": "{{path, field}} must not be {{resolved, list(type:disjunction}}",
+      "notType": "{{path, field}} must be a \"{{type}}\" type",
+      "defined": "{{path, field}} must be defined"
+    },
+    "string": {
+      "length": "{{path, field}} must be exactly {{length}} characters",
+      "min": "{{path, field}} must be at least {{min}} characters",
+      "max": "{{path, field}} must be at most {{max}} characters",
+      "matches": "{{path, field}} is incorrect",
+      "email": "{{path, field}} must be a valid email",
+      "url": "{{path, field}} must be a valid URL",
+      "uuid": "{{path, field}} must be a valid UUID",
+      "trim": "{{path, field}} must be a trimmed string",
+      "lowercase": "{{path, field}} must be a lowercase string",
+      "uppercase": "{{path, field}} must be a upper case string"
+    },
+    "number": {
+      "min": "{{path, field}} must be greater than or equal to {{min}}",
+      "max": "{{path, field}} must be less than or equal to {{max}}",
+      "lessThan": "{{path, field}} must be less than {{less}}",
+      "moreThan": "{{path, field}} must be greater than {{more}}",
+      "positive": "{{path, field}} must be a positive number",
+      "negative": "{{path, field}} must be a negative number",
+      "integer": "{{path, field}} must be an integer"
+    },
+    "date": {
+      "min": "{{path, field}} field must be later than {{min}}",
+      "max": "{{path, field}} field must be at earlier than {{max}}"
+    },
+    "boolean": {
+      "isValue": "{{path, field}} field must be {{value}}"
+    },
+    "object": {
+      "noUnknown": "{{path, field}} field has unspecified keys: {{unknown}}"
+    },
+    "array": {
+      "min": "{{path, field}} field must have at least {{min}} item(s)",
+      "max": "{{path, field}} field must have less than or equal to {{max}} item(s)",
+      "length": "{{path, field}} must have {{length}} item(s)"
+    },
+    "misc": {
+      "passwordConfirm": "{{path, field}} does not match"
+    }
+  },
+  "sms": {
+    "verify": "Your verification code is: {{verifyKey}}"
+  },
+  "pg": {
+    "auth": {
+      "title" : "Login",
+      "register": "Don't have an account? <1>Sign up</1>",
+      "pwdRecovery": "Forgot password?",
+      "submit": "Login"
+    },
+    "register" : {
+      "title": "Sign up",
+      "login": "Already have an account? <1>Login</1>",
+      "submit": "Register",
+      "mailSuccessTitle": "Sent",
+      "mailSuccessSubTitle": "Please check your inbox and follow the instruction",
+      "noEmail": "Didn't receive the email?",
+      "noEmailLink": "Resend",
+      "successTitle": "Success",
+      "successSubTitle": "You have verified your account.",
+      "successLink": "Login now"
+    },
+    "pwdReset": {
+      "mailTitle": "Forgot Password?",
+      "mailSubTitle": "We can help you to reset the password.",
+      "mailEmail": "First, please enter your account email...",
+      "mailSubmit": "Send Reset Email",
+      "mailBack": "Back to Login",
+      "mailSuccessTitle": "Sent",
+      "mailSuccessSubTitle": "Please check your inbox and follow the instruction",
+      "noEmail": "Didn't receive the email?",
+      "noEmailLink": "Resend",
+      "submit": "Reset Password",
+      "successTitle": "Success",
+      "successSubTitle": "You have reset your password.",
+      "successLink": "Login again"
+    }
+  }
+}

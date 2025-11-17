@@ -4,12 +4,16 @@ import {
   delModel, softDelete, softDeleteMany, softDeleteOne,
 } from './utils'
 import { roles } from '../consts'
+import { encrypt } from '../utils/crypto'
 
 export const schema = new Schema({
   role: { type: String, enum: roles, required: true },
   active: { type: Boolean, required: true },
   email: String,
-  password: String,
+  password: {
+    type: String,
+    set: encrypt,
+  },
   lastLogoutAt: Date,
 }, {
   statics: {
