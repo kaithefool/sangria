@@ -7,6 +7,7 @@ import validate, {
 import {
   createUsers, deleteUsers, findUser, listUsers, patchUsers,
 } from '../services/servUsers'
+import { roles } from '../consts'
 
 const rteUsers = Router()
 
@@ -43,6 +44,7 @@ rteUsers.get(
 
 const createSchema = z.object({
   body: z.object({
+    role: z.literal(roles),
     email: z.email(),
     password: z.string().min(8),
   }),

@@ -8,7 +8,7 @@ import { encrypt } from '../utils/crypto'
 
 export const schema = new Schema({
   role: { type: String, enum: roles, required: true },
-  active: { type: Boolean, required: true },
+  active: { type: Boolean, default: true },
   email: String,
   password: {
     type: String,

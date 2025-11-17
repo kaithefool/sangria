@@ -6,6 +6,8 @@ const {
   MONGO_AUTO_INDEX = '1',
 } = process.env
 
+mongoose.set('strictQuery', true)
+
 const db = mongoose.connect(MONGO_URI, {
   autoIndex: MONGO_AUTO_INDEX === '1',
 })
