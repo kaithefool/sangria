@@ -19,10 +19,10 @@ const listSchema = z.object({
 rteUsers.get(
   '/',
   validate(listSchema),
-  async (req, res, next) => {
+  async (req, res) => {
     const { query } = assertValidInput(res, listSchema)
-    res.locals.out = await listUsers(query)
-    return next()
+    const out = await listUsers(query)
+    return res.json(out)
   },
 )
 
@@ -34,10 +34,10 @@ const findByIdSchema = z.object({
 rteUsers.get(
   '/:_id',
   validate(findByIdSchema),
-  async (req, res, next) => {
+  async (req, res) => {
     const { params } = assertValidInput(res, findByIdSchema)
-    res.locals.out = await findUser({ _id: params._id })
-    return next()
+    const out = await findUser({ _id: params._id })
+    return res.json(out)
   },
 )
 
@@ -50,10 +50,10 @@ const createSchema = z.object({
 rteUsers.post(
   '/',
   validate(createSchema),
-  async (req, res, next) => {
+  async (req, res) => {
     const { body } = assertValidInput(res, createSchema)
-    res.locals.out = await createUsers(body)
-    return next()
+    const out = await createUsers(body)
+    return res.json(out)
   },
 )
 
@@ -69,10 +69,10 @@ const patchSchema = z.object({
 rteUsers.patch(
   '/:_id',
   validate(patchSchema),
-  async (req, res, next) => {
+  async (req, res) => {
     const { params, body } = assertValidInput(res, patchSchema)
     await patchUsers({ _id: params._id }, body)
-    return next()
+    return res.end()
   },
 )
 
@@ -84,10 +84,10 @@ const deleteSchema = z.object({
 rteUsers.delete(
   '/:_id',
   validate(deleteSchema),
-  async (req, res, next) => {
+  async (req, res) => {
     const { params } = assertValidInput(res, deleteSchema)
     await deleteUsers({ _id: params._id })
-    return next()
+    return res.end()
   },
 )
 
