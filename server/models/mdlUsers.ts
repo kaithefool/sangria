@@ -13,6 +13,7 @@ export const schema = new Schema({
   password: {
     type: String,
     set: encrypt,
+    select: false,
   },
   lastLogoutAt: Date,
 }, {

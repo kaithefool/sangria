@@ -52,7 +52,7 @@ describe('Users REST API routes', () => {
       role: testUser.role,
     })
   })
-  it('hides password field', async () => {
+  it('hides the password field', async () => {
     expect(userId).not.toBeUndefined()
     const res = await request
       .get(`${base}/${userId}`)
