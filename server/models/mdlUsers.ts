@@ -9,7 +9,7 @@ import { encrypt } from '../utils/crypto'
 export const schema = new Schema({
   role: { type: String, enum: roles, required: true },
   active: { type: Boolean, default: true },
-  email: String,
+  email: { type: String, unique: true },
   password: {
     type: String,
     set: encrypt,
