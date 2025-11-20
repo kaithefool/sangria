@@ -8,6 +8,7 @@ import {
   createUsers, deleteUsers, findUser, listUsers, patchUsers,
 } from '../services/servUsers'
 import { roles } from '../consts'
+import createHttpError from 'http-errors'
 
 const rteUsers = Router()
 
@@ -52,9 +53,10 @@ const createSchema = z.object({
 rteUsers.post(
   '/',
   validate(createSchema),
-  async (req, res) => {
+  async (req, res, next) => {
     const { body } = assertValidInput(res, createSchema)
-    const out = await createUsers(body)
+    const [dupErr, out] = await createUsers(body)
+    if (dupErr) return next(createHttpError(400))
     return res.json(out)
   },
 )
@@ -64,6 +66,7 @@ const patchSchema = z.object({
     _id: validObjectId(),
   }),
   body: z.object({
+    role: z.literal(roles),
     email: z.email().optional(),
     password: z.string().min(8).optional(),
   }),
@@ -71,9 +74,10 @@ const patchSchema = z.object({
 rteUsers.patch(
   '/:_id',
   validate(patchSchema),
-  async (req, res) => {
+  async (req, res, next) => {
     const { params, body } = assertValidInput(res, patchSchema)
-    await patchUsers({ _id: params._id }, body)
+    const [dupErr] = await patchUsers({ _id: params._id }, body)
+    if (dupErr) return next(createHttpError(400))
     return res.end()
   },
 )

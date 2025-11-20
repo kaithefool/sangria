@@ -1,5 +1,6 @@
 import { AnyKeys, FilterQuery, SortOrder, UpdateQuery } from 'mongoose'
 import mdlUsers, { User } from '../models/mdlUsers'
+import { catchDupErr } from './utils'
 
 export type UsersFilter = FilterQuery<User>
 export type UsersQuery = {
@@ -48,14 +49,16 @@ export async function listUsers(opt: UsersQuery = {}) {
 export async function createUsers(
   ...docs: AnyKeys<User>[]
 ) {
-  return mdlUsers.create(...docs)
+  return catchDupErr(() => mdlUsers.create(...docs))
 }
 
 export async function patchUsers(
   filter: UsersFilter,
   query: UpdateQuery<User>,
 ) {
-  await mdlUsers.updateMany(matchUsers(filter), query)
+  return catchDupErr(
+    () => mdlUsers.updateMany(matchUsers(filter), query),
+  )
 }
 
 export async function deleteUsers(
