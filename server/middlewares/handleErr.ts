@@ -1,0 +1,25 @@
+import { ErrorRequestHandler } from 'express'
+import createHttpError, { HttpError } from 'http-errors'
+
+export default function handleErr(
+  format: 'html' | 'json' = 'json',
+  stack = false,
+): ErrorRequestHandler {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  return (err, req, res, next) => {
+    const e = err instanceof HttpError
+      ? err
+      : createHttpError(500, err)
+
+    res.status(e.status)
+    res.locals.error = e
+    if (format === 'json') {
+      return res.json({
+        status: e.status,
+        message: e.message,
+        ...stack && { stack: e.stack },
+      })
+    }
+    return res.render('error')
+  }
+}

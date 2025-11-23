@@ -35,25 +35,6 @@ npx hygen new cms [resource] --singleton
 After logging in as admin,
 Visit [localhost:3000/admin/example](http://localhost:3000/admin/example) to see the showcase of CMS UI React components.
 
-## API
-#### Web Sockets
-Socket.io is available with authenication built-in.
-To turn it on, simply put these in the .env file:
-```env
-REDIS_URL=redis://localhost:6379
-SOCKET=1
-```
-... and in your assets script, connect the server with:
-```js
-import { io } from 'socket.io-client';
-import env from '~/lib/config/env';
-
-const socket = io({
-  extraHeaders: {
-    'x-csrf-token': env.csrf,
-  },
-});
-```
 ## Deploy
 ##### Setup directories in deploy environment
 ```shell
