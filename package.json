@@ -8,8 +8,8 @@
     "up": "docker compose up --watch",
     "down": "docker compose down",
     "dev": "run-p dev-server dev-assets",
-    "dev-server": "cd server && npm run dev",
-    "dev-assets": "cd assets && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "dev:assets": "cd assets && npm run dev",
     "postinstall": "cd server && npm i && cd ../assets && npm i",
     "postversion": "git push && git push --tags",
     "sync-fwk": "git fetch burgundy master:fwk"

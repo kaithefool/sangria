@@ -1,9 +1,11 @@
 import { ErrorRequestHandler } from 'express'
 import createHttpError, { HttpError } from 'http-errors'
 
+const { NODE_ENV } = process.env
+
 export default function handleErr(
   format: 'html' | 'json' = 'json',
-  stack = false,
+  stack = NODE_ENV !== 'production',
 ): ErrorRequestHandler {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   return (err, req, res, next) => {
