@@ -17,8 +17,10 @@ export function getArchiveCollName<T>(mdl: Model<T>): string {
 }
 
 export function delModel(...params: Parameters<typeof model>) {
-  const [name, ...rest] = params
-  model(getArchiveMdlName(name), ...rest)
+  const [name, schema, ...rest] = params
+  const s = schema?.clone()
+  if (s !== undefined) s.set('autoIndex', false)
+  model(getArchiveMdlName(name), s, ...rest)
 }
 
 export async function softDeleteOne<T>(

@@ -15,6 +15,9 @@ export default function handleErr(
 
     res.status(e.status)
     res.locals.error = e
+    if (e.status >= 500) {
+      console.error(e)
+    }
     if (format === 'json') {
       return res.json({
         status: e.status,

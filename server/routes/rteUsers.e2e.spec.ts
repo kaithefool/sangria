@@ -1,67 +1,44 @@
 import { afterEach, beforeAll, describe, expect, it } from '@jest/globals'
 import request, { ResponseError } from 'superagent'
-import { apiRoot } from '../test-helper'
+import { apiRoot, expectErr, expectOkCreate, expectOkList } from '../test-helper'
 
 const base = `${apiRoot}/api/users`
 
 describe('Users REST API routes', () => {
-  let userIds: string[] = []
   const testUser = {
     role: 'admin',
     email: 'foo@bar.com',
     password: '12345678',
   }
   beforeAll(async () => {
-    const { headers } = await request.options(`${base}`)
-  })
-  afterEach(async () => {
-    await Promise.all(userIds.map(_id => (
-      request.delete(`${base}/${_id}`)
-    )))
-    userIds = []
+    await request.options(`${base}`)
   })
 
   it('provides a POST create route', async () => {
-    const res = await request.post(base).send(testUser)
-    expect(res.status).toBe(200)
-    expect(res.headers['content-type']).toMatch(/application\/json/)
-    expect(typeof res.body?._id).toBe('string')
-    userIds.push(res.body._id)
+    await expectOkCreate(
+      request.post(base).send(testUser),
+    )
   })
   it('enforces unique email in create route', async () => {
-    expect.assertions(1)
-    const res0 = await request.post(base).send(testUser)
-    userIds.push(res0?.body?._id)
-    try {
-      const res1 = await request.post(base).send(testUser)
-      userIds.push(res1?.body?._id)
-    }
-    catch (err) {
-      const e = err as ResponseError
-      expect(e.status).toBe(400)
-    }
+    const res = await expectOkCreate(request.post(base).send(testUser))
+    await expectErr(request.post(base).send(testUser))
   })
+  it.todo('doesn\'t enforce unique index in archive collection')
   it('provides a GET list route', async () => {
-    const res = await request.get(base)
-    expect(res.status).toBe(200)
-    expect(res.headers['content-type']).toMatch(/application\/json/)
-    expect(Array.isArray(res.body.rows)).toBe(true)
-    expect(typeof res.body.total).toBe('number')
+    await expectOkList(request.get(base))
   })
   it('provides a GET find by id route', async () => {
     const res0 = await request.post(base).send(testUser)
-    userIds.push(res0?.body?._id)
     const res1 = await request.get(`${base}/${res0?.body?._id}`)
     expect(res1.status).toBe(200)
     expect(res1.headers['content-type']).toMatch(/application\/json/)
     expect(res1.body).toMatchObject({
-      _id: res0?.body?._id,
+      _id: res0.body._id,
       email: testUser.email,
       role: testUser.role,
     })
   })
   // it('hides the password field', async () => {
-  //   expect(userId).not.toBeUndefined()
   //   const res = await request
   //     .get(`${base}/${userId}`)
   //   expect(res.status).toBe(200)
