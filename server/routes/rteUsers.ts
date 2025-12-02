@@ -39,6 +39,9 @@ rteUsers.get(
   async (req, res) => {
     const { params } = assertValidInput(res, findByIdSchema)
     const out = await findUser({ _id: params._id })
+    if (out === null) {
+      throw createHttpError(404)
+    }
     return res.json(out)
   },
 )
