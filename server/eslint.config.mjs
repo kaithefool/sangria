@@ -1,5 +1,5 @@
-import ts from 'typescript-eslint';
-import stylistic from '@stylistic/eslint-plugin';
+import ts from 'typescript-eslint'
+import stylistic from '@stylistic/eslint-plugin'
 
 export default [
   ...ts.configs.recommended,
@@ -15,6 +15,7 @@ export default [
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['error', {
         caughtErrors: 'none',
+        ignoreRestSiblings: true,
       }],
     },
   },

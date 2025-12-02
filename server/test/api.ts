@@ -1,39 +1,11 @@
-import { afterEach, expect } from '@jest/globals'
+import { expect } from '@jest/globals'
 import request, { Request, Response, ResponseError } from 'superagent'
+import { afterThis } from './thisHooks'
 
-const { argv } = process
-
-export const apiRoot = argv
+export const apiRoot = process.argv
   .filter(a => a.match(/^--api=/))[0]
   ?.replace('--api=', '')
   ?? 'http://localhost:3000'
-
-const afterThisStack: {
-  [x: string]: Array<() => void>
-} = {}
-
-function getTestId() {
-  const s = expect.getState()
-  return `${s.testPath}:${s.currentTestName}`
-}
-
-afterEach(async () => {
-  const stack = afterThisStack[getTestId()]
-  if (stack !== undefined) {
-    const s = [...stack].reverse()
-    for (const fn of s) {
-      await fn()
-    }
-  }
-})
-
-export function afterThis(fn: () => void) {
-  const testId = getTestId()
-  afterThisStack[testId] = [
-    ...afterThisStack[testId] ?? [],
-    fn,
-  ]
-}
 
 export function expectJson(res: Response) {
   expect(res.headers['content-type']).toMatch(/application\/json/)
@@ -46,22 +18,16 @@ export async function expectOk(req: Request, status: number = 200) {
 }
 
 export async function expectErr(req: Request, status: number = 400) {
-  expect.assertions(1)
-  try {
-    await req
-  }
-  catch (e) {
-    const err = e as ResponseError
-    expect(err.status).toBe(status)
-    return err
-  }
+  await expect(req).rejects.toMatchObject({ status })
 }
 
-export async function expectOkCreate(req: Request) {
+export async function expectOkCreate(
+  req: Request, teardown?: (id: string) => void,
+) {
   let id: string | undefined = undefined
   afterThis(async () => {
-    if (id !== undefined) {
-      await request.delete(`${apiRoot}/api/users/${id}`)
+    if (id !== undefined && teardown !== undefined) {
+      await teardown(id)
     }
   })
   const res = await expectOk(req)
@@ -82,7 +48,7 @@ export async function expectOkFindOne(
 }
 
 export async function expectOkDelete(req: Request) {
-  const res = await expectOk(req)
+  await expectOk(req)
 }
 
 export async function expectOkList(req: Request) {

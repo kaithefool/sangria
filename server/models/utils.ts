@@ -19,6 +19,7 @@ export function getArchiveCollName<T>(mdl: Model<T>): string {
 export function delModel(...params: Parameters<typeof model>) {
   const [name, schema, ...rest] = params
   const s = schema?.clone()
+  // no unique index in archive collection
   if (s !== undefined) s.set('autoIndex', false)
   model(getArchiveMdlName(name), s, ...rest)
 }
