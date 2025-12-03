@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from '@jest/globals'
-import request, { Response } from 'superagent'
+import request, { Request } from 'superagent'
 import {
   apiRoot,
   afterThis,
@@ -10,10 +10,12 @@ import {
 
 const base = `${apiRoot}/api/users`
 
-function teardown(res: Response | undefined) {
+async function teardown(req: Request) {
+  const res = await req
   if (typeof res?.body?._id === 'string') {
     afterThis(() => request.delete(`${base}/${res.body._id}`))
   }
+  return res
 }
 
 describe('Users REST API routes', () => {
@@ -30,8 +32,7 @@ describe('Users REST API routes', () => {
   }
 
   it('provides a POST create route', async () => {
-    const res = await request.post(base).send(insert)
-    teardown(res)
+    const res = await teardown(request.post(base).send(insert))
     expectResCreated(res, doc)
   })
   it('provides a GET list route', async () => {
@@ -39,8 +40,7 @@ describe('Users REST API routes', () => {
     expectResList(res)
   })
   it('provides a GET find one by id route', async () => {
-    const createdRes = await request.post(base).send(insert)
-    teardown(createdRes)
+    const createdRes = await teardown(request.post(base).send(insert))
     const foundRes = await request.get(`${base}/${createdRes.body._id}`)
     expectResFoundOne(foundRes, doc)
   })
@@ -49,8 +49,7 @@ describe('Users REST API routes', () => {
       .rejects.toMatchObject({ status: 404 })
   })
   it('provides a PATCH patch route', async () => {
-    const createdRes = await request.post(base).send(insert)
-    teardown(createdRes)
+    const createdRes = await teardown(request.post(base).send(insert))
     await request.patch(`${base}/${createdRes.body._id}`)
       .send({ role: 'client' })
     const foundRes = await request.get(`${base}/${createdRes.body._id}`)
@@ -63,12 +62,9 @@ describe('Users REST API routes', () => {
       .rejects.toMatchObject({ status: 404 })
   })
   it('enforces unique email in create route', async () => {
-    const res0 = await request.post(base).send(insert)
-    teardown(res0)
-    await expect(async () => {
-      const res1 = await request.post(base).send(insert)
-      teardown(res1)
-    }).rejects.toMatchObject({ status: 400 })
+    await teardown(request.post(base).send(insert))
+    await expect(teardown(request.post(base).send(insert)))
+      .rejects.toMatchObject({ status: 400 })
   })
   it('does not enforce unique index in archive collection', async () => {
     const res0 = await request.post(base).send(insert)
@@ -77,15 +73,13 @@ describe('Users REST API routes', () => {
     await request.delete(`${base}/${res1.body?._id}`)
   })
   it('enforces unique email in patch route', async () => {
-    const res0 = await request.post(base).send(insert)
-    teardown(res0)
-    const res1 = await request.post(base).send({
+    await teardown(request.post(base).send(insert))
+    const res = await teardown(request.post(base).send({
       ...insert,
       email: 'bax@bar.com',
-    })
-    teardown(res1)
+    }))
     await expect(async () => {
-      await request.patch(`${base}/${res1.body._id}`)
+      await request.patch(`${base}/${res.body._id}`)
         .send({ email: insert.email })
     }).rejects.toMatchObject({ status: 400 })
   })
