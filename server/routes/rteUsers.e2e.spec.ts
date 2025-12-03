@@ -1,84 +1,75 @@
 import { beforeAll, describe, expect, it } from '@jest/globals'
-import request from 'superagent'
+import request, { Response } from 'superagent'
 import {
-  apiRoot, expectErrCreate, expectOkCreate, expectOkList, expectOkFindOne,
-  expectOkPatch,
-  expectOkDelete,
-  expectErr,
+  apiRoot,
+  afterThis,
+  expectResCreated,
+  expectResList,
+  expectResFoundOne,
 } from '../test'
 
 const base = `${apiRoot}/api/users`
 
-describe('Users REST API routes', () => {
-  const testUser = {
-    role: 'admin',
-    email: 'foo@bar.com',
-    password: '12345678',
+function teardown(res: Response | undefined) {
+  if (typeof res?.body?._id === 'string') {
+    afterThis(() => request.delete(`${base}/${res.body._id}`))
   }
+}
+
+describe('Users REST API routes', () => {
   beforeAll(async () => {
     // check if api server is available
     await request.head(`${base}`)
   })
+  const doc = {
+    role: 'admin',
+    email: 'foo@bar.com',
+  }
+  const insert = {
+    ...doc, password: '12345678',
+  }
 
   it('provides a POST create route', async () => {
-    await expectOkCreate(
-      request.post(base).send(testUser),
-      id => request.delete(`${base}/${id}`),
-    )
+    const res = await request.post(base).send(insert)
+    teardown(res)
+    expectResCreated(res, doc)
   })
   it('provides a GET list route', async () => {
-    await expectOkList(request.get(base))
+    const res = await request.get(base)
+    expectResList(res)
   })
-  it('provides a GET find by id route', async () => {
-    const created = await expectOkCreate(
-      request.post(base).send(testUser),
-      id => request.delete(`${base}/${id}`),
-    )
-    const { password, ...rest } = testUser
-    const found = await expectOkFindOne(
-      request.get(`${base}/${created.body._id}`),
-      { _id: created.body._id, ...rest },
-    )
-    expect(found.body.password).toBeUndefined()
+  it('provides a GET find one by id route', async () => {
+    const createdRes = await request.post(base).send(insert)
+    teardown(createdRes)
+    const foundRes = await request.get(`${base}/${createdRes.body._id}`)
+    expectResFoundOne(foundRes, doc)
+  })
+  it('returns 404 if doc does not exist', async () => {
+    expect(request.get(`${base}/000000000000000000000000`))
+      .rejects.toMatchObject({ status: 404 })
   })
   it('provides a PATCH patch route', async () => {
-    const created = await expectOkCreate(
-      request.post(base).send(testUser),
-      id => request.delete(`${base}/${id}`),
-    )
-    await expectOkPatch(
-      request.patch(`${base}/${created.body?._id}`)
-        .send({ role: 'client' }),
-    )
-    const { password, ...rest } = testUser
-    expectOkFindOne(
-      request.get(`${base}/${created.body?._id}`),
-      { ...rest, role: 'client' },
-    )
+    const createdRes = await request.post(base).send(insert)
+    teardown(createdRes)
+    await request.patch(`${base}/${createdRes.body._id}`)
+      .send({ role: 'client' })
+    const foundRes = await request.get(`${base}/${createdRes.body._id}`)
+    expectResFoundOne(foundRes, { ...doc, role: 'client' })
   })
   it('provides a DELETE delete route', async () => {
-    const created = await expectOkCreate(
-      request.post(base).send(testUser),
-      id => request.delete(`${base}/${id}`),
-    )
-    await expectOkDelete(
-      request.delete(`${base}/${created.body?._id}`),
-    )
-    await expectErr(
-      request.get(`${base}/${created.body?._id}`),
-      404,
-    )
+    const createdRes = await request.post(base).send(insert)
+    teardown(createdRes)
+    await request.delete(`${base}/${createdRes.body?._id}`)
+    expect(request.get(`${base}/${createdRes.body._id}`))
+      .rejects.toMatchObject({ status: 404 })
   })
   it('enforces unique email in create route', async () => {
-    await expectOkCreate(
-      request.post(base).send(testUser),
-      id => request.delete(`${base}/${id}`),
-    )
-    await expectErrCreate(
-      request.post(base).send(testUser),
-      400,
-      id => request.delete(`${base}/${id}`),
-    )
+    const res0 = await request.post(base).send(insert)
+    teardown(res0)
+    await expect(async () => {
+      const res1 = await request.post(base).send(insert)
+      teardown(res1)
+    }).rejects.toMatchObject({ status: 400 })
   })
 
   it.todo('does not enforce unique index in archive collection')

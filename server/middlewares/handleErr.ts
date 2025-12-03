@@ -22,7 +22,6 @@ export default function handleErr(
       return res.json({
         status: e.status,
         message: e.message,
-        ...stack && { stack: e.stack },
       })
     }
     return res.render('error')
