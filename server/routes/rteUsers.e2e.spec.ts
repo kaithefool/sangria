@@ -58,7 +58,6 @@ describe('Users REST API routes', () => {
   })
   it('provides a DELETE delete route', async () => {
     const createdRes = await request.post(base).send(insert)
-    teardown(createdRes)
     await request.delete(`${base}/${createdRes.body?._id}`)
     expect(request.get(`${base}/${createdRes.body._id}`))
       .rejects.toMatchObject({ status: 404 })
@@ -71,7 +70,23 @@ describe('Users REST API routes', () => {
       teardown(res1)
     }).rejects.toMatchObject({ status: 400 })
   })
-
-  it.todo('does not enforce unique index in archive collection')
-  it.todo('enforces unique email in patch route')
+  it('does not enforce unique index in archive collection', async () => {
+    const res0 = await request.post(base).send(insert)
+    await request.delete(`${base}/${res0.body?._id}`)
+    const res1 = await request.post(base).send(insert)
+    await request.delete(`${base}/${res1.body?._id}`)
+  })
+  it('enforces unique email in patch route', async () => {
+    const res0 = await request.post(base).send(insert)
+    teardown(res0)
+    const res1 = await request.post(base).send({
+      ...insert,
+      email: 'bax@bar.com',
+    })
+    teardown(res1)
+    await expect(async () => {
+      await request.patch(`${base}/${res1.body._id}`)
+        .send({ email: insert.email })
+    }).rejects.toMatchObject({ status: 400 })
+  })
 })

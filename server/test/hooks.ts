@@ -11,7 +11,6 @@ const afterThisStack: {
 
 afterEach(async () => {
   const stack = afterThisStack[getTestId()]
-  console.log('finally: ', stack)
   if (stack !== undefined) {
     const s = [...stack].reverse()
     for (const fn of s) {
@@ -26,7 +25,6 @@ export function afterThis(fn: () => void) {
     ...afterThisStack[testId] ?? [],
     fn,
   ]
-  console.log(afterThisStack[testId])
 }
 
 const beforeThisStack: {
