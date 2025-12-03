@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it } from '@jest/globals'
+import { describe, expect, it } from '@jest/globals'
 import request, { Request } from 'superagent'
 import {
   apiRoot,
@@ -19,10 +19,6 @@ async function teardown(req: Request) {
 }
 
 describe('Users REST API routes', () => {
-  beforeAll(async () => {
-    // check if api server is available
-    await request.head(`${base}`)
-  })
   const doc = {
     role: 'admin',
     email: 'foo@bar.com',
