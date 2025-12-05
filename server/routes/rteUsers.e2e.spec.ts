@@ -24,7 +24,9 @@ describe('Users API', () => {
   api.testGetFindOneById(base, insert, expected, teardown)
   api.testPatch(
     base,
-    insert, { role: 'client' }, { ...expected, role: 'client' },
+    insert,
+    { role: 'client' },
+    { ...expected, role: 'client' },
     teardown,
   )
   api.testDelete(base, insert)

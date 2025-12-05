@@ -125,13 +125,9 @@ export function testPatchUIdx(
   teardown: CreatedTeardownFunc = r => r,
 ) {
   it('enforces unique index in patch route', async () => {
-    await teardown(request.post(baseUrl).send(insert))
-    const res = await teardown(request.post(baseUrl).send({
-      ...insert, ...update,
-    }))
-    await expect(async () => {
-      await request.patch(`${baseUrl}/${res.body._id}`)
-        .send(update)
-    }).rejects.toMatchObject({ status: 400 })
+    await teardown(request.post(baseUrl).send({ ...insert, ...update }))
+    const res = await teardown(request.post(baseUrl).send(insert))
+    await expect(request.patch(`${baseUrl}/${res.body._id}`).send(update))
+      .rejects.toMatchObject({ status: 400 })
   })
 }

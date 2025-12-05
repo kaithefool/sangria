@@ -6,6 +6,7 @@ import validate, {
 } from '../middlewares/validate'
 import {
   createUsers, deleteUsers, findUser, listUsers, patchUsers,
+  userValidSchema,
 } from '../services/servUsers'
 import { roles } from '../consts'
 import createHttpError from 'http-errors'
@@ -39,19 +40,14 @@ rteUsers.get(
   async (req, res) => {
     const { params } = assertValidInput(res, findByIdSchema)
     const out = await findUser({ _id: params._id })
-    if (out === null) {
-      throw createHttpError(404)
-    }
+    if (out === null) throw createHttpError(404)
+
     return res.json(out)
   },
 )
 
 const createSchema = z.object({
-  body: z.object({
-    role: z.literal(roles),
-    email: z.email(),
-    password: z.string().min(8),
-  }),
+  body: userValidSchema,
 })
 rteUsers.post(
   '/',
@@ -68,11 +64,7 @@ const patchSchema = z.object({
   params: z.object({
     _id: validObjectId(),
   }),
-  body: z.object({
-    role: z.literal(roles),
-    email: z.email().optional(),
-    password: z.string().min(8).optional(),
-  }),
+  body: userValidSchema.partial(),
 })
 rteUsers.patch(
   '/:_id',
