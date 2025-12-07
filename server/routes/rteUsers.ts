@@ -8,7 +8,6 @@ import {
   createUsers, deleteUsers, findUser, listUsers, patchUsers,
   userValidSchema,
 } from '../services/servUsers'
-import { roles } from '../consts'
 import createHttpError from 'http-errors'
 
 const rteUsers = Router()

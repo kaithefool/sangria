@@ -1,12 +1,12 @@
 import { describe, it, expect } from '@jest/globals'
-import { encrypt, verify } from './crypto'
+import { encryptPwd, verifyPwd } from './crypto'
 
 describe('crypto', () => {
   it('encrypts and verifies password', () => {
     const password = 'foo bar baz qux'
-    const hashed = encrypt(password)
+    const hashed = encryptPwd(password)
 
-    expect(verify(password, hashed)).toBe(true)
-    expect(verify(`${password} `, hashed)).toBe(false)
+    expect(verifyPwd(password, hashed)).toBe(true)
+    expect(verifyPwd(`${password} `, hashed)).toBe(false)
   })
 })
