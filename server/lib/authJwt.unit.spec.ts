@@ -3,20 +3,23 @@ import {
   signTokens, verifyAccessToken, verifyRefreshToken,
 } from './authJwt'
 import { Types } from 'mongoose'
+import { roles } from '../consts'
 
 describe('sign & verify tokens', () => {
   const fakeId = new Types.ObjectId()
-  const validTokens = signTokens({
+  const user = {
     _id: fakeId,
-    role: 'admin',
+    role: roles[0],
     email: 'foo@bar.com',
-  })
+  } as const
 
   it('signs access & refresh tokens', () => {
+    const validTokens = signTokens(user)
     expect(typeof validTokens.access).toBe('string')
     expect(typeof validTokens.refresh).toBe('string')
   })
   it('verifies valid access & refresh tokens', () => {
+    const validTokens = signTokens(user)
     const access = verifyAccessToken(validTokens.access)
     const refresh = verifyRefreshToken(validTokens.refresh)
     expect(access).not.toBeNull()

@@ -1,5 +1,5 @@
 import createHttpError from 'http-errors'
-import { findUser } from './servUsers'
+import { findUser, patchUsers } from './servUsers'
 import { verifyPwd } from '../lib/crypto'
 import { signTokens } from '../lib/authJwt'
 import { ObjectId } from 'mongoose'
@@ -23,5 +23,5 @@ export async function login(cred: AuthCredentials, persist: boolean) {
 }
 
 export async function logout(userId: ObjectId | string) {
-
+  await patchUsers({ _id: userId }, { lastLogoutAt: new Date() })
 }
