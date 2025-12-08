@@ -3,7 +3,7 @@ import validate, { assertValidInput } from '../middlewares/validate'
 import z from 'zod'
 import { userValidSchema } from '../services/servUsers'
 import { authorize } from '../middlewares/authorize'
-import { login, logout } from '../services/servAuth'
+import { login, logout, refreshTokens } from '../services/servAuth'
 import { getJwtUser, setAuthnCookies } from '../middlewares/authenticate'
 import createHttpError from 'http-errors'
 
@@ -36,6 +36,22 @@ rteAuth.post(
   },
 )
 
+const refreshSchema = z.object({
+  body: z.object({
+    refresh: z.string(),
+  }),
+})
+rteAuth.post(
+  '/refresh',
+  validate(refreshSchema),
+  async (req, res, next) => {
+    const { body: { refresh } } = assertValidInput(res, refreshSchema)
+    const { err, authTokens } = await refreshTokens(refresh)
+    if (err) return next(createHttpError(400, err))
+    return res.json(authTokens)
+  },
+)
+
 rteAuth.post(
   '/logout',
   async (req, res) => {
@@ -45,6 +61,11 @@ rteAuth.post(
     }
     return res.end()
   },
+)
+
+rteAuth.get(
+  '/ping',
+  (req, res) => res.end('pong'),
 )
 
 export default rteAuth

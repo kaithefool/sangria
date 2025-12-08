@@ -2,8 +2,8 @@ import createHttpError from 'http-errors'
 import ms from 'ms'
 import { RequestHandler, Response, Request, CookieOptions } from 'express'
 import { unchain } from './helpers'
-import { findUser } from '../services/servUsers'
 import * as aJwt from '../lib/authJwt'
+import { refreshTokens } from '../services/servAuth'
 
 const {
   HTTPS = '0',
@@ -87,25 +87,12 @@ export const authnByCookie: RequestHandler = async (req, res, next) => {
     }
   }
   if (tokens.refresh) {
-    const refresh = aJwt.verifyRefreshToken(tokens.refresh)
-    if (!refresh) {
+    const { err, authTokens, user } = await refreshTokens(tokens.refresh)
+    if (err) {
       clearAuthnCookies(res)
       return next()
     }
-    const user = await findUser({ _id: refresh._id })
-    if (
-      !user
-      || (
-        user.lastLogoutAt
-        && refresh.issueAt
-        && user.lastLogoutAt > tokens.refresh.iat
-      )
-    ) {
-      clearAuthnCookies(res)
-      return next()
-    }
-    const newTokens = aJwt.signTokens(user, refresh.persist)
-    setAuthnCookies(res, newTokens)
+    setAuthnCookies(res, authTokens)
     setJwtUser(res, user)
     next()
   }
