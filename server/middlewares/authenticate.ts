@@ -7,7 +7,6 @@ import * as aJwt from '../lib/authJwt'
 
 const {
   HTTPS = '0',
-  COOKIE_SECRET,
 } = process.env
 
 export function getJwtUser(res: Response): aJwt.JwtUser | undefined {
@@ -48,7 +47,7 @@ export function setAuthnCookies(
     path: '/',
     httpOnly: true,
     sameSite: 'strict',
-    signed: COOKIE_SECRET !== '',
+    signed: true,
   },
 ) {
   res.cookie('access.id', tokens.access, {

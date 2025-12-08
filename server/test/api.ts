@@ -141,7 +141,7 @@ export async function setupTestUser(attrs: {
   const insert = {
     role: 'admin',
     email: 'foo@bar.com',
-    password: '12345678',
+    password: 'right-Passw0rd',
     ...attrs,
   }
   const user = await request.post(`${root}/api/users`).send(insert)

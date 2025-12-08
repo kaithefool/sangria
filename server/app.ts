@@ -6,7 +6,11 @@ import qs from 'qs'
 import './start'
 import statics from './middlewares/statics'
 import routes from './routes'
+import { nanoid } from 'nanoid'
 
+const {
+  COOKIE_SECRET = nanoid(32),
+} = process.env
 const app = express()
 
 app.set('view engine', 'hbs')
@@ -17,7 +21,7 @@ app.set(
 )
 
 app.use(morgan('dev'))
-app.use(cookieParser())
+app.use(cookieParser(COOKIE_SECRET))
 app.use('/locales', statics(__dirname, 'locales'))
 app.use('/uploads', statics(__dirname, 'uploads'))
 app.use('/assets', statics(__dirname, 'assets'))

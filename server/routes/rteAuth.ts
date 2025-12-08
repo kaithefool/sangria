@@ -5,6 +5,7 @@ import { userValidSchema } from '../services/servUsers'
 import { authorize } from '../middlewares/authorize'
 import { login, logout } from '../services/servAuth'
 import { getJwtUser, setAuthnCookies } from '../middlewares/authenticate'
+import createHttpError from 'http-errors'
 
 const rteAuth = Router()
 
@@ -21,11 +22,12 @@ rteAuth.post(
   '/login',
   authorize('guest'),
   validate(loginSchema),
-  async (req, res) => {
+  async (req, res, next) => {
     const {
       body: { persist = false, cookies = false, ...cred },
     } = assertValidInput(res, loginSchema)
-    const authTokens = await login(cred, persist)
+    const { err, authTokens } = await login(cred, persist)
+    if (err) return next(createHttpError(400, err))
     if (cookies) {
       setAuthnCookies(res, authTokens)
       return res.end()

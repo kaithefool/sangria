@@ -1,4 +1,3 @@
-import createHttpError from 'http-errors'
 import { Types } from 'mongoose'
 import { findUser, patchUsers } from './servUsers'
 import { verifyPwd } from '../lib/crypto'
@@ -9,19 +8,19 @@ export type AuthCredentials = {
   password: string
 }
 
-export async function login(cred: AuthCredentials, persist: boolean) {
-  console.log(cred)
+export async function login(
+  cred: AuthCredentials, persist: boolean,
+) {
   const user = await findUser({ email: cred.email }, '+password')
-  console.log(user)
 
-  if (!user) throw createHttpError(400, 'invalid-credentials')
-  if (!user.active) throw createHttpError(400, 'user-inactive')
+  if (!user) return { err: new Error('invalid-credentials') }
+  if (!user.active) return { err: new Error('invalid-credentials') }
   if (
     user.password === undefined
     || !verifyPwd(cred.password, user.password)
-  ) throw createHttpError(400, 'invalid-credentials')
+  ) return { err: new Error('invalid-credentials') }
 
-  return signTokens(user, persist)
+  return { authTokens: signTokens(user, persist) }
 }
 
 export async function logout(userId: Types.ObjectId) {
