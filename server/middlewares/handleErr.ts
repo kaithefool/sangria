@@ -5,7 +5,6 @@ const { NODE_ENV } = process.env
 
 export default function handleErr(
   format: 'html' | 'json' = 'json',
-  stack = NODE_ENV !== 'production',
 ): ErrorRequestHandler {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   return (err, req, res, next) => {

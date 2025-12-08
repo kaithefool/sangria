@@ -1,4 +1,4 @@
-import { AnyKeys, FilterQuery, SortOrder, UpdateQuery } from 'mongoose'
+import { AnyKeys, FilterQuery, ProjectionType, SortOrder, UpdateQuery } from 'mongoose'
 import z from 'zod'
 import mdlUsers, { User } from '../models/mdlUsers'
 import { catchDupErr } from './utils'
@@ -26,8 +26,9 @@ export function matchUsers(
 
 export async function findUser(
   filter: UsersFilter,
+  projection?: ProjectionType<User>,
 ) {
-  return mdlUsers.findOne(matchUsers(filter))
+  return mdlUsers.findOne(matchUsers(filter), projection)
 }
 
 export async function findUsers({

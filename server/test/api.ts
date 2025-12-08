@@ -1,5 +1,6 @@
 import { expect, it } from '@jest/globals'
 import request, { Request, Response } from 'superagent'
+import { afterThis } from './hooks'
 
 export const root = process.argv
   .filter(a => a.match(/^--api=/))[0]
@@ -32,7 +33,7 @@ export function expectResFoundOne(
   expect(res.body).toMatchObject(expected)
 }
 
-export interface CreatedTeardownFunc {
+export interface TeardownFunc {
   (req: Request): Promise<Response>
 }
 
@@ -40,7 +41,7 @@ export function testPost(
   baseUrl: string,
   insert: Record<string, unknown>,
   expected: Record<string, unknown> = insert,
-  teardown: CreatedTeardownFunc = r => r,
+  teardown: TeardownFunc = r => r,
 ) {
   it('provides a POST create route', async () => {
     const res = await teardown(request.post(baseUrl).send(insert))
@@ -59,7 +60,7 @@ export function testGetFindOneById(
   baseUrl: string,
   insert: Record<string, unknown>,
   expected: Record<string, unknown> = insert,
-  teardown: CreatedTeardownFunc = r => r,
+  teardown: TeardownFunc = r => r,
 ) {
   it('provides a GET find one by id route', async () => {
     const createdRes = await teardown(request.post(baseUrl).send(insert))
@@ -77,7 +78,7 @@ export function testPatch(
   insert: Record<string, unknown>,
   update: Record<string, unknown>,
   expected: Record<string, unknown> = { ...insert, ...update },
-  teardown: CreatedTeardownFunc = r => r,
+  teardown: TeardownFunc = r => r,
 ) {
   it('provides a PATCH patch route', async () => {
     const createdRes = await teardown(request.post(baseUrl).send(insert))
@@ -103,7 +104,7 @@ export function testDelete(
 export function testPostUIdx(
   baseUrl: string,
   insert: Record<string, unknown>,
-  teardown: CreatedTeardownFunc = r => r,
+  teardown: TeardownFunc = r => r,
 ) {
   it('enforces unique index in create route', async () => {
     await teardown(request.post(baseUrl).send(insert))
@@ -122,7 +123,7 @@ export function testPatchUIdx(
   baseUrl: string,
   insert: Record<string, unknown>,
   update: Record<string, unknown>,
-  teardown: CreatedTeardownFunc = r => r,
+  teardown: TeardownFunc = r => r,
 ) {
   it('enforces unique index in patch route', async () => {
     await teardown(request.post(baseUrl).send({ ...insert, ...update }))
@@ -130,4 +131,22 @@ export function testPatchUIdx(
     await expect(request.patch(`${baseUrl}/${res.body._id}`).send(update))
       .rejects.toMatchObject({ status: 400 })
   })
+}
+
+export async function setupTestUser(attrs: {
+  role?: string
+  email?: string
+  password?: string
+}) {
+  const insert = {
+    role: 'admin',
+    email: 'foo@bar.com',
+    password: '12345678',
+    ...attrs,
+  }
+  const user = await request.post(`${root}/api/users`).send(insert)
+  if (typeof user?.body?._id === 'string') {
+    afterThis(() => request.delete(`${root}/api/users/${user.body._id}`))
+  }
+  return user
 }

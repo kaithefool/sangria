@@ -1,8 +1,8 @@
 import createHttpError from 'http-errors'
+import { Types } from 'mongoose'
 import { findUser, patchUsers } from './servUsers'
 import { verifyPwd } from '../lib/crypto'
 import { signTokens } from '../lib/authJwt'
-import { ObjectId } from 'mongoose'
 
 export type AuthCredentials = {
   email: string
@@ -10,7 +10,9 @@ export type AuthCredentials = {
 }
 
 export async function login(cred: AuthCredentials, persist: boolean) {
-  const user = await findUser({ email: cred.email })
+  console.log(cred)
+  const user = await findUser({ email: cred.email }, '+password')
+  console.log(user)
 
   if (!user) throw createHttpError(400, 'invalid-credentials')
   if (!user.active) throw createHttpError(400, 'user-inactive')
@@ -22,6 +24,6 @@ export async function login(cred: AuthCredentials, persist: boolean) {
   return signTokens(user, persist)
 }
 
-export async function logout(userId: ObjectId | string) {
+export async function logout(userId: Types.ObjectId) {
   await patchUsers({ _id: userId }, { lastLogoutAt: new Date() })
 }
