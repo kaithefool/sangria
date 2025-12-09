@@ -23,6 +23,7 @@ export default function handleErr(
       return res.json({
         status: e.status,
         message: e.message,
+        reason: e.reason,
       })
     }
     return res.render('error')

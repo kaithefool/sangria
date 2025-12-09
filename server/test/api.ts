@@ -109,7 +109,15 @@ export function testPostUIdx(
   it('enforces unique index in create route', async () => {
     await teardown(request.post(baseUrl).send(insert))
     await expect(teardown(request.post(baseUrl).send(insert)))
-      .rejects.toMatchObject({ status: 400 })
+      .rejects.toMatchObject({
+        status: 400,
+        response: {
+          body: {
+            message: 'duplicate-key',
+            reason: expect.any(Object),
+          },
+        },
+      })
   })
   it('does not enforce unique index on soft deleted docs', async () => {
     const res0 = await request.post(baseUrl).send(insert)
@@ -129,7 +137,15 @@ export function testPatchUIdx(
     await teardown(request.post(baseUrl).send({ ...insert, ...update }))
     const res = await teardown(request.post(baseUrl).send(insert))
     await expect(request.patch(`${baseUrl}/${res.body._id}`).send(update))
-      .rejects.toMatchObject({ status: 400 })
+      .rejects.toMatchObject({
+        status: 400,
+        response: {
+          body: {
+            message: 'duplicate-key',
+            reason: expect.any(Object),
+          },
+        },
+      })
   })
 }
 

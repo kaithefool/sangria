@@ -1,4 +1,6 @@
-import { AnyKeys, FilterQuery, ProjectionType, SortOrder, UpdateQuery } from 'mongoose'
+import {
+  AnyKeys, FilterQuery, ProjectionType, SortOrder, UpdateQuery,
+} from 'mongoose'
 import z from 'zod'
 import mdlUsers, { User } from '../models/mdlUsers'
 import { catchDupErr } from './utils'

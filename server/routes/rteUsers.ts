@@ -54,7 +54,9 @@ rteUsers.post(
   async (req, res, next) => {
     const { body } = assertValidInput(res, createSchema)
     const [dupErr, out] = await createUsers(body)
-    if (dupErr) return next(createHttpError(400))
+    if (dupErr) return next(createHttpError(400, 'duplicate-key', {
+      reason: dupErr.keyValue,
+    }))
     return res.json(out)
   },
 )
@@ -71,7 +73,9 @@ rteUsers.patch(
   async (req, res, next) => {
     const { params, body } = assertValidInput(res, patchSchema)
     const [dupErr] = await patchUsers({ _id: params._id }, body)
-    if (dupErr) return next(createHttpError(400))
+    if (dupErr) return next(createHttpError(400, 'duplicate-key', {
+      reason: dupErr.keyValue,
+    }))
     return res.end()
   },
 )
