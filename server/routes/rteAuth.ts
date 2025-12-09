@@ -4,7 +4,7 @@ import z from 'zod'
 import { userValidSchema } from '../services/servUsers'
 import { authorize } from '../middlewares/authorize'
 import { login, logout, refreshTokens } from '../services/servAuth'
-import { getJwtUser, setAuthnCookies } from '../middlewares/authenticate'
+import { clearAuthnCookies, getAuthnCookies, getJwtUser, setAuthnCookies } from '../middlewares/authenticate'
 import createHttpError from 'http-errors'
 
 const rteAuth = Router()
@@ -29,7 +29,7 @@ rteAuth.post(
     const { err, authTokens } = await login(cred, persist)
     if (err) return next(createHttpError(400, err))
     if (cookies) {
-      setAuthnCookies(res, authTokens)
+      setAuthnCookies(res, authTokens, { persist })
       return res.end()
     }
     return res.json(authTokens)
@@ -59,13 +59,20 @@ rteAuth.post(
     if (jwtUser) {
       await logout(jwtUser._id)
     }
+    const ac = getAuthnCookies(req)
+    if (ac.access || ac.refresh) {
+      clearAuthnCookies(res)
+    }
     return res.end()
   },
 )
 
 rteAuth.get(
   '/ping',
-  (req, res) => res.end('pong'),
+  (req, res) => {
+    const jwtUser = getJwtUser(res)
+    return res.json(jwtUser)
+  },
 )
 
 export default rteAuth

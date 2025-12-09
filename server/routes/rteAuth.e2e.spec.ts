@@ -28,6 +28,14 @@ describe('Authentication API', () => {
     expect(typeof res.body?.access).toBe('string')
     expect(typeof res.body?.refresh).toBe('string')
   })
+  it('authenticates with valid JWT token', async () => {
+    await api.setupTestUser(testCreds)
+    const loginRes = await request.post(`${base}/login`).send(testCreds)
+    const pingRes = await request.get(`${base}/ping`)
+      .set('Authorization', `Bearer ${loginRes.body.access}`)
+    const { password, ...userAttrs } = testCreds
+    expect(pingRes.body).toMatchObject(userAttrs)
+  })
   it('rejects invalid user credentials', async () => {
     await api.setupTestUser(testCreds)
     await expect(request.post(`${base}/login`).send({
@@ -63,6 +71,34 @@ describe('Authentication API', () => {
       },
     })
   })
+  it('persists authentication cookies when requested', async () => {
+    await api.setupTestUser(testCreds)
+    const res = await request.post(`${base}/login`).send({
+      ...testCreds, cookies: true, persist: true,
+    })
+    const sc = res.headers['set-cookie']
+    expect(sc).toBeDefined()
+    const { access, refresh } = parseSetAuthCookie(sc)
+    expect(access?.expires).toBeInstanceOf(Date)
+    expect(refresh?.expires).toBeInstanceOf(Date)
+  })
+  it('authenticates with valid auth cookies', async () => {
+    await api.setupTestUser(testCreds)
+    const loginRes = await request.post(`${base}/login`).send({
+      ...testCreds, cookies: true,
+    })
+    const sc = loginRes.headers['set-cookie']
+    expect(sc).toBeDefined()
+    const { access, refresh } = parseSetAuthCookie(sc)
+    expect(access).toBeDefined()
+    const pingRes = await request.get(`${base}/ping`)
+      .set('Cookie', stringifyCookie({
+        'access.id': access?.value,
+        'refresh.id': refresh?.value,
+      }))
+    const { password, ...userAttrs } = testCreds
+    expect(pingRes.body).toMatchObject(userAttrs)
+  })
   it('refreshes authentication tokens', async () => {
     await api.setupTestUser(testCreds)
     const loginRes = await request.post(`${base}/login`).send(testCreds)
@@ -95,4 +131,55 @@ describe('Authentication API', () => {
       },
     })
   })
+  it('persists refreshed authentication cookies when requested', async () => {
+    await api.setupTestUser(testCreds)
+    const loginRes = await request.post(`${base}/login`).send({
+      ...testCreds, cookies: true, persist: true,
+    })
+    const sc = loginRes.headers['set-cookie']
+    expect(sc).toBeDefined()
+    const { refresh } = parseSetAuthCookie(sc)
+    expect(refresh).toBeDefined()
+    const pingRes = await request.get(`${base}/ping`)
+      .set('Cookie', stringifyCookie({ 'refresh.id': refresh?.value }))
+    const newSc = pingRes.headers['set-cookie']
+    const { access: newAccess, refresh: newRefresh } = parseSetAuthCookie(newSc)
+    expect(newAccess?.expires).toBeInstanceOf(Date)
+    expect(newRefresh?.expires).toBeInstanceOf(Date)
+  })
+  it('invalidates refresh token on logout', async () => {
+    await api.setupTestUser(testCreds)
+    const loginRes = await request.post(`${base}/login`).send(testCreds)
+    expect(typeof loginRes.body?.access).toBe('string')
+    expect(typeof loginRes.body?.refresh).toBe('string')
+    await request.post(`${base}/logout`)
+      .set('Authorization', `Bearer ${loginRes.body.access}`)
+    await expect(request.post(`${base}/refresh`).send({
+      refresh: loginRes.body.refresh,
+    })).rejects.toMatchObject({
+      status: 400,
+      response: { body: { message: 'invalid-token' } },
+    })
+  })
+  it('clears authentication cookies on logout', async () => {
+    await api.setupTestUser(testCreds)
+    const loginRes = await request.post(`${base}/login`).send({
+      ...testCreds, cookies: true,
+    })
+    const sc = loginRes.headers['set-cookie']
+    expect(sc).toBeDefined()
+    const { access, refresh } = parseSetAuthCookie(sc)
+    expect(access).toBeDefined()
+    const logoutRes = await request.post(`${base}/logout`)
+      .set('Cookie', stringifyCookie({
+        'access.id': access?.value,
+        'refresh.id': refresh?.value,
+      }))
+    const logoutSc = logoutRes.headers['set-cookie']
+    expect(parseSetAuthCookie(logoutSc)).toMatchObject({
+      access: { expires: expect.any(Date) },
+      refresh: { expires: expect.any(Date) },
+    })
+  })
+  it.todo('rejects expired tokens')
 })

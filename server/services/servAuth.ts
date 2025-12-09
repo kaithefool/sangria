@@ -42,5 +42,6 @@ export async function refreshTokens(refreshToken: string) {
   return {
     user: toJwtUser(user),
     authTokens: signTokens(user, refresh.persist),
+    persist: refresh.persist,
   }
 }

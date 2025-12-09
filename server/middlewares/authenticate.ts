@@ -39,6 +39,7 @@ export function setAuthnCookies(
     refresh: string
   },
   {
+    persist = false,
     accessTtl = aJwt.envAccessTtl,
     refreshTtl = aJwt.envRefreshTtl,
   } = {},
@@ -51,10 +52,12 @@ export function setAuthnCookies(
   },
 ) {
   res.cookie('access.id', tokens.access, {
-    maxAge: ms(accessTtl), ...cookieOpts,
+    ...persist && { maxAge: ms(accessTtl) },
+    ...cookieOpts,
   })
   res.cookie('refresh.id', tokens.refresh, {
-    maxAge: ms(refreshTtl), ...cookieOpts,
+    ...persist && { maxAge: ms(refreshTtl) },
+    ...cookieOpts,
   })
 }
 
@@ -87,12 +90,14 @@ export const authnByCookie: RequestHandler = async (req, res, next) => {
     }
   }
   if (tokens.refresh) {
-    const { err, authTokens, user } = await refreshTokens(tokens.refresh)
+    const {
+      err, authTokens, user, persist,
+    } = await refreshTokens(tokens.refresh)
     if (err) {
       clearAuthnCookies(res)
       return next()
     }
-    setAuthnCookies(res, authTokens)
+    setAuthnCookies(res, authTokens, { persist })
     setJwtUser(res, user)
     next()
   }
