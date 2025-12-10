@@ -1,16 +1,5 @@
 name: sangria
 services:
-  mongo:
-    image: mongo:6
-    restart: always
-    volumes:
-      - ./volumes/mongo/db:/data/db
-      - ./volumes/mongo/configdb:/data/configdb
-    ports:
-      - 27017:27017
-    networks:
-      - dev
-    command: --quiet --logpath /dev/null 
   server:
     depends_on:
       - mongo
@@ -23,7 +12,6 @@ services:
     networks:
       - dev
     environment:
-      - MONGO_URI=mongodb://mongo:27017/sangria
     develop:
       watch:
         - action: sync+restart
