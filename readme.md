@@ -1,4 +1,4 @@
-# Burgundy
+# Sangria
 
 ## Getting Start
 ##### Prerequisites

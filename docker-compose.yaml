@@ -1,4 +1,4 @@
-name: burgundy
+name: sangria
 services:
   mongo:
     image: mongo:6
@@ -23,7 +23,7 @@ services:
     networks:
       - dev
     environment:
-      - MONGO_URI=mongodb://mongo:27017/burgundy
+      - MONGO_URI=mongodb://mongo:27017/sangria
     develop:
       watch:
         - action: sync+restart
