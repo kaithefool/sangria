@@ -1,15 +1,40 @@
-import mongoose from 'mongoose'
-import { name } from '../package.json'
+import { v7 as uuid } from 'uuid'
+import sqlite3 from 'sqlite3'
+import { open } from 'sqlite'
+import { join } from 'node:path'
 
-const {
-  MONGO_URI = `mongodb://localhost:27017/${name}`,
-  MONGO_AUTO_INDEX = '1',
-} = process.env
+const dbPath = join(
+  import.meta.dirname,
+  '../../volumes/db/app.db',
+)
 
-mongoose.set('strictQuery', true)
+export function dbId(idInStr?: string) {
+  return Buffer.from(idInStr ?? uuid(), 'binary')
+}
 
-const db = mongoose.connect(MONGO_URI, {
-  autoIndex: MONGO_AUTO_INDEX === '1',
-})
+async function connect() {
+  return open({
+    filename: dbPath,
+    driver: sqlite3.Database,
+  })
+}
 
-export default db
+export default await connect()
+
+// const db = new sqlite.Database(dbPath, () => {
+//   db.all(`
+//     INSERT INTO users (id, role, email, password)
+//     VALUES ($id, $role, $email, $password);
+//   `, {
+//     $id: Buffer.from(uuid(), 'binary'),
+//     $role: 'admin',
+//     $email: 'foo@bar.com',
+//     $password: 'pwd',
+//   }, (err, rows) => {
+//     console.log('insert: ', rows)
+//   })
+
+//   db.all('SELECT * FROM users', (err, rows) => {
+//     console.log(rows)
+//   })
+// })
