@@ -1,40 +1,26 @@
-import { v7 as uuid } from 'uuid'
+import { v7 } from 'uuid'
 import sqlite3 from 'sqlite3'
 import { open } from 'sqlite'
 import { join } from 'node:path'
 
-const dbPath = join(
-  import.meta.dirname,
-  '../../volumes/db/app.db',
-)
+const { dirname } = import.meta
+const dbPath = join(dirname, '../../volumes/db/app.db')
 
-export function dbId(idInStr?: string) {
-  return Buffer.from(idInStr ?? uuid(), 'binary')
+export function uuid(idInStr?: string) {
+  return Buffer.from(idInStr ?? v7(), 'binary')
 }
 
 async function connect() {
-  return open({
+  const db = await open({
     filename: dbPath,
     driver: sqlite3.Database,
   })
+  await db.run('PRAGMA journal_mode=WAL;')
+  await db.migrate({
+    force: true,
+    migrationsPath: join(dirname, '../migrations'),
+  })
+  return db
 }
 
 export default await connect()
-
-// const db = new sqlite.Database(dbPath, () => {
-//   db.all(`
-//     INSERT INTO users (id, role, email, password)
-//     VALUES ($id, $role, $email, $password);
-//   `, {
-//     $id: Buffer.from(uuid(), 'binary'),
-//     $role: 'admin',
-//     $email: 'foo@bar.com',
-//     $password: 'pwd',
-//   }, (err, rows) => {
-//     console.log('insert: ', rows)
-//   })
-
-//   db.all('SELECT * FROM users', (err, rows) => {
-//     console.log(rows)
-//   })
-// })

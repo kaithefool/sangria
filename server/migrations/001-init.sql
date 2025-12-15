@@ -1,0 +1,23 @@
+-- Up
+CREATE TABLE users (
+  id BLOB PRIMARY KEY,
+  role TEXT NOT NULL,
+  email TEXT UNIQUE,
+  password TEXT,
+  created_at DATE,
+  last_logout_at DATE
+);
+
+CREATE TABLE deleted_users (
+  id BLOB NOT NULL,
+  role TEXT NOT NULL,
+  email TEXT,
+  password TEXT,
+  created_at DATE
+  last_logout_at DATE,
+  deleted_at DATE NOT NULL
+);
+
+-- Down
+DROP TABLE users;
+DROP TABLE deleted_users;
