@@ -1,7 +1,7 @@
 import { ISqlite } from 'sqlite'
 
-type SqlDataType = string | number | boolean | Date | Buffer | null
-type SqlStmt = ISqlite.SQLStatement
+export type SqlDataType = string | number | boolean | Date | Buffer | null
+export type SqlStmt = ISqlite.SQLStatement
 
 function isSqlStmt(v: SqlDataType | SqlStmt): v is SqlStmt {
   return typeof v === 'object'
@@ -58,18 +58,27 @@ export function values(
   }
 
   return {
-    sql: `(${colSql.join(', ')}) VALUES (${valSql.join(', ')})`,
+    sql: `(${
+      colSql.map(c => `"${c}"`).join(', ')
+    }) VALUES (${
+      valSql.join(', ')
+    })`,
     ...values.length && { values },
   }
 }
 
-export function where(
-  criteria,
-): SqlStmt {
+export class SqlWhereStmt implements SqlStmt {
+  constructor(
+    conditions: { [x: string]: SqlDataType | SqlStmt | SqlWhereStmt },
+    whereClause = true,
+  ) {
 
+  }
+
+  and(): SqlWhereStmt {}
+  or(): SqlWhereStmt {}
 }
 
 q.values = values
-q.where = where
 
 export default q
