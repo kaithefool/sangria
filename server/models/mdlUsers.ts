@@ -1,6 +1,6 @@
 import { Role } from '../consts'
 import { encryptPwd } from '../lib/crypto'
-import db, { uuid } from '../start/db'
+import db, { q, uuid } from '../start/db'
 
 export type User = {
   id: Buffer<ArrayBuffer>
@@ -19,16 +19,12 @@ export async function insertUser({
   password?: string | null
 }) {
   const id = uuid()
-  await db.run(`
-    INSERT INTO users (id, role, email, password, created_at)
-    VALUES (?, ?, ?, ?, ?);
-  `, [
-    id,
-    role,
-    email,
-    typeof password === 'string' ? encryptPwd(password) : null,
-    new Date(),
-  ])
+  await db.run(q`
+    INSERT INTO users ${q.values({
+      id, role, email,
+      password: password ? encryptPwd(password) : password,
+    })};
+  `)
   return id
 }
 

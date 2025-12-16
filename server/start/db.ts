@@ -2,9 +2,12 @@ import { v7 } from 'uuid'
 import sqlite3 from 'sqlite3'
 import { open } from 'sqlite'
 import { join } from 'node:path'
+import q from '../lib/query'
 
 const { dirname } = import.meta
 const dbPath = join(dirname, '../../volumes/db/app.db')
+
+export { q }
 
 export function uuid(idInStr?: string) {
   return Buffer.from(idInStr ?? v7(), 'binary')

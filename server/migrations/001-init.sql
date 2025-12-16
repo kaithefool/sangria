@@ -4,7 +4,7 @@ CREATE TABLE users (
   role TEXT NOT NULL,
   email TEXT UNIQUE,
   password TEXT,
-  created_at DATE,
+  created_at DATE DEFAULT CURRENT_TIMESTAMP,
   last_logout_at DATE
 );
 
@@ -15,7 +15,7 @@ CREATE TABLE deleted_users (
   password TEXT,
   created_at DATE
   last_logout_at DATE,
-  deleted_at DATE NOT NULL
+  deleted_at DATE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Down
