@@ -124,12 +124,16 @@ export function cfStmt<O extends keyof SqlCf>(
   return { sql, values }
 }
 
+export type SqlCfMap = {
+  [x: string]: SqlDataType | Partial<SqlCf> | SqlStmt
+}
+
 export function compare(
-  cf: { [x: string]: SqlDataType | Partial<SqlCf> | SqlStmt },
+  cfMap: SqlCfMap,
 ): SqlStmt {
   const sql: string[] = []
   const values: SqlDataType[] = []
-  const ent = Object.entries(cf)
+  const ent = Object.entries(cfMap)
   for (let i = 0; i < ent.length; i += 1) {
     const [col, v] = ent[i]
     if (isSqlStmt(v)) {
@@ -157,20 +161,50 @@ export function compare(
   }
 }
 
+export function isAndClause(sql: string) {
+  return /(^| )and($| )/im.test(sql)
+    && !/\(.*? and .*?\)/im.test(sql)
+    && !/'.*? and .*?'/im.test(sql)
+    && !/".*? and .*?"/im.test(sql)
+}
+
 export class SqlWhereStmt implements SqlStmt {
-  constructor(
-    conditions: SqlConditions,
-    whereClause = true,
-  ) {
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  values?: any[]
+  sql: string = ''
+  constructor(opts?: SqlStmt | SqlCfMap) {
+    if (opts !== undefined) {
+      const stmt = isSqlStmt(opts) ? opts : compare(opts)
+      this.sql = stmt.sql
+      if (this.values !== undefined) this.values = stmt.values
+    }
   }
 
-  compare() {
+  and(opts: SqlStmt | SqlCfMap): SqlWhereStmt {
+    const stmt = isSqlStmt(opts) ? opts : compare(opts)
+    const values = [...this.values ?? [], ...stmt.values ?? []]
+    const sql = this.sql.trim() !== ''
+      ? `${this.sql} AND ${stmt.sql}`
+      : stmt.sql
 
+    return this.constructor({
+      sql, ...values.length && { values },
+    })
   }
 
-  and(): SqlWhereStmt {}
-  or(): SqlWhereStmt {}
+  or(opts: SqlStmt | SqlCfMap): SqlWhereStmt {
+    const stmt = isSqlStmt(opts) ? opts : compare(opts)
+    const values = [...this.values ?? [], ...stmt.values ?? []]
+    const foreSql = isAndClause(this.sql) ? `(${this.sql})` : this.sql
+    const aftSql = isAndClause(stmt.sql) ? `(${stmt.sql})` : stmt.sql
+    const sql = this.sql.trim() !== ''
+      ? `${foreSql} OR ${aftSql}`
+      : stmt.sql
+
+    return this.constructor({
+      sql, ...values.length && { values },
+    })
+  }
 }
 
 export function where() {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals'
-import q, { cfStmt, compare, values } from './query'
+import q, { cfStmt, compare, isAndClause, values } from './query'
 
 describe('query', () => {
   it.each([
@@ -170,5 +170,33 @@ describe('query comparison builder', () => {
     ],
   ])('accepts sql statements', (actual, expected) => {
     expect(actual).toEqual(expected)
+  })
+})
+
+describe('query isAndClause', () => {
+  it('detect AND keyword in the case-insensitive way', () => {
+    expect(isAndClause('WHERE a = 3 AND b = \'meh\'')).toBe(true)
+    expect(isAndClause('WHERE a = 3 and b = \'meh\'')).toBe(true)
+    expect(isAndClause('AND b = \'meh\'')).toBe(true)
+    expect(isAndClause('b = \'meh\' AND')).toBe(true)
+    expect(isAndClause('WHERE ANDMEH = 3')).toBe(false)
+    expect(isAndClause('WHERE andmeh = 3')).toBe(false)
+    expect(isAndClause('WHERE foo_AND = 3')).toBe(false)
+    expect(isAndClause('WHERE foo_and = 3')).toBe(false)
+  })
+  it('ignores AND in string data', () => {
+    expect(isAndClause('WHERE a = \'WHERE a = 3 AND b = 4\'')).toBe(false)
+    expect(isAndClause('WHERE a = \'WHERE a = 3 and b = 4\'')).toBe(false)
+    expect(isAndClause('WHERE "AND" = "WHERE a = 3 AND b = 4"')).toBe(false)
+    expect(isAndClause('WHERE "and" = "WHERE a = 3 and b = 4"')).toBe(false)
+    expect(isAndClause('WHERE a = "AND" OR b = 3')).toBe(false)
+    expect(isAndClause('WHERE a = "and" OR b = 3')).toBe(false)
+  })
+  it('ignores AND in parenthesis', () => {
+    expect(isAndClause('WHERE a = (SELECT * FROM t WHERE b AND c)')).toBe(false)
+    expect(isAndClause('WHERE a IN (1, 2, 3) AND b = 4')).toBe(true)
+    expect(isAndClause('WHERE (a = 1 AND b = 2) AND c = 3')).toBe(false)
+    expect(isAndClause('WHERE a = (1 AND 2)')).toBe(false)
+    expect(isAndClause('WHERE func(a AND b) = 1')).toBe(false)
   })
 })
