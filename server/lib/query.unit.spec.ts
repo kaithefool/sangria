@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals'
-import q from './query'
+import q, { cfStmt, values } from './query'
 
 describe('query', () => {
   it.each([
@@ -54,10 +54,10 @@ describe('query', () => {
 
 describe('query VALUES builder', () => {
   it.each([
-    q.values({}),
-    q.values({ id: Buffer.from('random_id', 'binary') }),
-    q.values({ role: 'admin', last_login_at: q`CURRENT_TIMESTAMP` }),
-    q.values({ expires_at: q`DATETIME('now', ${'+5 days'})` }),
+    values({}),
+    values({ id: Buffer.from('random_id', 'binary') }),
+    values({ role: 'admin', last_login_at: q`CURRENT_TIMESTAMP` }),
+    values({ expires_at: q`datetime('now', ${'+5 days'})` }),
   ])('returns an object implementing SQLStatement interface', (stmt) => {
     expect(typeof stmt).toBe('object')
     const { sql, values } = stmt
@@ -65,37 +65,58 @@ describe('query VALUES builder', () => {
     expect(values === undefined || Array.isArray(values)).toBe(true)
   })
   it.each([
-    [q.values({}), undefined],
+    [values({}), undefined],
     [
-      q.values({ id: Buffer.from('random_id', 'binary') }),
+      values({ id: Buffer.from('random_id', 'binary') }),
       [Buffer.from('random_id', 'binary')],
     ],
     [
-      q.values({ role: 'admin', last_login_at: q`CURRENT_TIMESTAMP` }),
+      values({ role: 'admin', last_login_at: q`CURRENT_TIMESTAMP` }),
       ['admin'],
     ],
     [
-      q.values({ expires_at: q`DATETIME('now', ${'+5 days'})` }),
+      values({ expires_at: q`datetime('now', ${'+5 days'})` }),
       ['+5 days'],
     ],
   ])('returns values in the correct sequence', (stmt, values) => {
     expect(stmt.values).toEqual(values)
   })
   it.each([
-    [q.values({}), 'DEFAULT VALUES'],
+    [values({}), 'DEFAULT VALUES'],
     [
-      q.values({ id: Buffer.from('random_id', 'binary') }),
-      '(id) VALUES (?)',
+      values({ id: Buffer.from('random_id', 'binary') }),
+      '("id") VALUES (?)',
     ],
     [
-      q.values({ role: 'admin', last_logout_at: q`CURRENT_TIMESTAMP` }),
-      '(role, last_logout_at) VALUES (?, CURRENT_TIMESTAMP)',
+      values({ role: 'admin', last_logout_at: q`CURRENT_TIMESTAMP` }),
+      '("role", "last_logout_at") VALUES (?, CURRENT_TIMESTAMP)',
     ],
     [
-      q.values({ expires_at: q`DATETIME('now', ${'+5 days'})` }),
-      '(expires_at) VALUES (DATETIME(\'now\', ?))',
+      values({ expires_at: q`datetime('now', ${'+5 days'})` }),
+      '("expires_at") VALUES (datetime(\'now\', ?))',
     ],
   ])('return statement with question marks', (stmt, values) => {
     expect(stmt.sql).toEqual(values)
+  })
+})
+
+describe('query cfStmt builder', () => {
+  it.each([
+    [cfStmt('a', 'eq', 8), { sql: '"a" = ?', values: [8] }],
+    [cfStmt('a', 'ne', 8), { sql: '"a" != ?', values: [8] }],
+    [
+      cfStmt('a', 'in', [8, 10, 12]),
+      { sql: '"a" IN (?, ?, ?)', values: [8, 10, 12] },
+    ],
+    [
+      cfStmt('a', 'nin', [8, 10, 12]),
+      { sql: '"a" NOT IN (?, ?, ?)', values: [8, 10, 12] },
+    ],
+    [cfStmt('a', 'gt', 8), { sql: '"a" > ?', values: [8] }],
+    [cfStmt('a', 'gte', 8), { sql: '"a" >= ?', values: [8] }],
+    [cfStmt('a', 'lt', 8), { sql: '"a" < ?', values: [8] }],
+    [cfStmt('a', 'lte', 8), { sql: '"a" <= ?', values: [8] }],
+  ])('returns correct statement object', (actual, expected) => {
+    expect(actual).toEqual(expected)
   })
 })

@@ -3,12 +3,21 @@ import { ISqlite } from 'sqlite'
 export type SqlDataType = string | number | boolean | Date | Buffer | null
 export type SqlStmt = ISqlite.SQLStatement
 
-function isSqlStmt(v: SqlDataType | SqlStmt): v is SqlStmt {
+function isSqlStmt(v: unknown): v is SqlStmt {
   return typeof v === 'object'
     && v !== null
     && 'sql' in v
     && typeof v.sql === 'string'
     && !('values' in v && !Array.isArray(v.values))
+}
+
+function isSqlDataType(v: unknown): v is SqlDataType {
+  return typeof v === 'string'
+    || typeof v === 'number'
+    || typeof v === 'boolean'
+    || v instanceof Date
+    || v instanceof Buffer
+    || v === null
 }
 
 function q(
@@ -67,18 +76,94 @@ export function values(
   }
 }
 
+export type SqlCf = {
+  eq: SqlDataType
+  ne: SqlDataType
+  in: SqlDataType[]
+  nin: SqlDataType[]
+  gt: SqlDataType
+  gte: SqlDataType
+  lt: SqlDataType
+  lte: SqlDataType
+}
+
+export function cfStmt<O extends keyof SqlCf>(
+  col: string,
+  operator: O,
+  value: SqlCf[O],
+): SqlStmt {
+  let sql = ''
+  const values = Array.isArray(value) ? value : [value]
+  const qm = Array(values.length).fill('?').join(', ')
+  switch (operator) {
+    case 'eq':
+      sql = `"${col}" = ?`
+      break
+    case 'ne':
+      sql = `"${col}" != ?`
+      break
+    case 'in':
+      sql = `"${col}" IN (${qm})`
+      break
+    case 'nin':
+      sql = `"${col}" NOT IN (${qm})`
+      break
+    case 'gt':
+      sql = `"${col}" > ?`
+      break
+    case 'gte':
+      sql = `"${col}" >= ?`
+      break
+    case 'lt':
+      sql = `"${col}" < ?`
+      break
+    case 'lte':
+      sql = `"${col}" <= ?`
+      break
+  }
+  return { sql, values }
+}
+
+export function compare(
+  cf: { [x: string]: SqlDataType | SqlCf | SqlStmt },
+): SqlStmt {
+  const sql: string[] = []
+  const values: SqlDataType[] = []
+  const ent = Object.entries(cf)
+  for (let i = 0; i < ent.length; i += 1) {
+    const [col, v] = ent[i]
+    if (isSqlStmt(v)) {
+      sql.push(`"${col}" ${sql}`)
+      values.push(...v.values ?? [])
+    }
+    else if (isSqlDataType(v)) {
+      sql.push(`"${col}" = ?`)
+      values.push(v)
+    }
+    else {
+
+    }
+  }
+}
+
 export class SqlWhereStmt implements SqlStmt {
   constructor(
-    conditions: { [x: string]: SqlDataType | SqlStmt | SqlWhereStmt },
+    conditions: SqlConditions,
     whereClause = true,
   ) {
 
   }
 
+  noWhere(): SqlWhereStmt {}
   and(): SqlWhereStmt {}
   or(): SqlWhereStmt {}
 }
 
+export function where() {
+
+}
+
 q.values = values
+q.where = where
 
 export default q
