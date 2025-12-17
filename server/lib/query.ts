@@ -125,7 +125,7 @@ export function cfStmt<O extends keyof SqlCf>(
 }
 
 export function compare(
-  cf: { [x: string]: SqlDataType | SqlCf | SqlStmt },
+  cf: { [x: string]: SqlDataType | Partial<SqlCf> | SqlStmt },
 ): SqlStmt {
   const sql: string[] = []
   const values: SqlDataType[] = []
@@ -133,16 +133,27 @@ export function compare(
   for (let i = 0; i < ent.length; i += 1) {
     const [col, v] = ent[i]
     if (isSqlStmt(v)) {
-      sql.push(`"${col}" ${sql}`)
+      sql.push(`"${col}" ${v.sql}`)
       values.push(...v.values ?? [])
     }
     else if (isSqlDataType(v)) {
-      sql.push(`"${col}" = ?`)
-      values.push(v)
+      const s = cfStmt(col, 'eq', v)
+      sql.push(s.sql)
+      values.push(...s.values ?? [])
     }
     else {
-
+      const e = Object.entries(v)
+      for (let k = 0; k < e.length; k += 1) {
+        const [operator, d] = e[k]
+        const s = cfStmt(col, operator as keyof SqlCf, d)
+        sql.push(s.sql)
+        values.push(...s.values ?? [])
+      }
     }
+  }
+  return {
+    sql: sql.join(' AND '),
+    ...values.length && { values },
   }
 }
 
@@ -154,7 +165,10 @@ export class SqlWhereStmt implements SqlStmt {
 
   }
 
-  noWhere(): SqlWhereStmt {}
+  compare() {
+
+  }
+
   and(): SqlWhereStmt {}
   or(): SqlWhereStmt {}
 }

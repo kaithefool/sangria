@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals'
-import q, { cfStmt, values } from './query'
+import q, { cfStmt, compare, values } from './query'
 
 describe('query', () => {
   it.each([
@@ -117,6 +117,58 @@ describe('query cfStmt builder', () => {
     [cfStmt('a', 'lt', 8), { sql: '"a" < ?', values: [8] }],
     [cfStmt('a', 'lte', 8), { sql: '"a" <= ?', values: [8] }],
   ])('returns correct statement object', (actual, expected) => {
+    expect(actual).toEqual(expected)
+  })
+})
+
+describe('query comparison builder', () => {
+  it.each([
+    [compare({ a: 3 }), { sql: '"a" = ?', values: [3] }],
+    [
+      compare({ a: 3, b: 'meh' }),
+      { sql: '"a" = ? AND "b" = ?', values: [3, 'meh'] },
+    ],
+    [
+      compare({ id: Buffer.from('test', 'binary'), active: true }),
+      {
+        sql: '"id" = ? AND "active" = ?',
+        values: [Buffer.from('test', 'binary'), true],
+      },
+    ],
+  ])('accepts sql data types and return equal comparison query', (
+    actual, expected,
+  ) => {
+    expect(actual).toEqual(expected)
+  })
+  it.each([
+    [compare({ a: { eq: 3 } }), { sql: '"a" = ?', values: [3] }],
+    [compare({ a: { ne: 3 } }), { sql: '"a" != ?', values: [3] }],
+    [compare({ a: { gt: 3 } }), { sql: '"a" > ?', values: [3] }],
+    [compare({ a: { gte: 3 } }), { sql: '"a" >= ?', values: [3] }],
+    [compare({ a: { lt: 3 } }), { sql: '"a" < ?', values: [3] }],
+    [compare({ a: { lte: 3 } }), { sql: '"a" <= ?', values: [3] }],
+    [
+      compare({ a: { in: [1, 2, 3] } }),
+      { sql: '"a" IN (?, ?, ?)', values: [1, 2, 3] },
+    ],
+    [
+      compare({ a: { nin: [1, 2, 3] } }),
+      { sql: '"a" NOT IN (?, ?, ?)', values: [1, 2, 3] },
+    ],
+    [
+      compare({ a: { in: [1, 2, 3], ne: 4 } }),
+      { sql: '"a" IN (?, ?, ?) AND "a" != ?', values: [1, 2, 3, 4] },
+    ],
+  ])('accepts comparison operators', (actual, expected) => {
+    expect(actual).toEqual(expected)
+  })
+  it.each([
+    [compare({ a: q`> ${3}` }), { sql: '"a" > ?', values: [3] }],
+    [
+      compare({ a: q`> CURRENT_TIMESTAMP` }),
+      { sql: '"a" > CURRENT_TIMESTAMP' },
+    ],
+  ])('accepts sql statements', (actual, expected) => {
     expect(actual).toEqual(expected)
   })
 })
