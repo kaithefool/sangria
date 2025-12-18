@@ -1,5 +1,7 @@
 import { describe, expect, it } from '@jest/globals'
-import q, { cfStmt, compare, isAndClause, values } from './query'
+import q, {
+  cfStmt, compare, isAndClause, prependWhere, rmWhere, SqlWhereStmt, values,
+} from './query'
 
 describe('query', () => {
   it.each([
@@ -52,7 +54,7 @@ describe('query', () => {
   })
 })
 
-describe('query VALUES builder', () => {
+describe('VALUES builder', () => {
   it.each([
     values({}),
     values({ id: Buffer.from('random_id', 'binary') }),
@@ -100,7 +102,7 @@ describe('query VALUES builder', () => {
   })
 })
 
-describe('query cfStmt builder', () => {
+describe('cfStmt builder', () => {
   it.each([
     [cfStmt('a', 'eq', 8), { sql: '"a" = ?', values: [8] }],
     [cfStmt('a', 'ne', 8), { sql: '"a" != ?', values: [8] }],
@@ -121,7 +123,7 @@ describe('query cfStmt builder', () => {
   })
 })
 
-describe('query comparison builder', () => {
+describe('comparison builder', () => {
   it.each([
     [compare({ a: 3 }), { sql: '"a" = ?', values: [3] }],
     [
@@ -173,7 +175,7 @@ describe('query comparison builder', () => {
   })
 })
 
-describe('query isAndClause', () => {
+describe('isAndClause', () => {
   it('detect AND keyword in the case-insensitive way', () => {
     expect(isAndClause('WHERE a = 3 AND b = \'meh\'')).toBe(true)
     expect(isAndClause('WHERE a = 3 and b = \'meh\'')).toBe(true)
@@ -198,5 +200,113 @@ describe('query isAndClause', () => {
     expect(isAndClause('WHERE (a = 1 AND b = 2) AND c = 3')).toBe(false)
     expect(isAndClause('WHERE a = (1 AND 2)')).toBe(false)
     expect(isAndClause('WHERE func(a AND b) = 1')).toBe(false)
+  })
+})
+
+describe('rmWhere', () => {
+  it('removes WHERE keyword at the beginning of the string', () => {
+    expect(rmWhere('WHERE a = 3')).toBe('a = 3')
+    expect(rmWhere('where a = 3')).toBe('a = 3')
+    expect(rmWhere('WHERE a = 3 AND b = 4')).toBe('a = 3 AND b = 4')
+    expect(rmWhere('a = 3')).toBe('a = 3')
+    expect(rmWhere('')).toBe('')
+  })
+  it('handles whitespace correctly', () => {
+    expect(rmWhere('WHERE  a = 3')).toBe('a = 3')
+    expect(rmWhere('WHERE\ta = 3')).toBe('a = 3')
+  })
+  it('only removes WHERE at the start', () => {
+    expect(rmWhere('a = 3 WHERE b = 4')).toBe('a = 3 WHERE b = 4')
+  })
+})
+
+describe('prependWhere', () => {
+  it('prepends WHERE keyword if not present', () => {
+    expect(prependWhere('a = 3')).toBe('WHERE a = 3')
+    expect(prependWhere('a = 3 AND b = 4')).toBe('WHERE a = 3 AND b = 4')
+  })
+  it('does not prepend WHERE if already present', () => {
+    expect(prependWhere('WHERE a = 3')).toBe('WHERE a = 3')
+    expect(prependWhere('where a = 3')).toBe('where a = 3')
+    expect(prependWhere('WHERE a = 3 AND b = 4')).toBe('WHERE a = 3 AND b = 4')
+  })
+  it('handles whitespace correctly', () => {
+    expect(prependWhere('  a = 3')).toBe('WHERE a = 3')
+    expect(prependWhere('\ta = 3')).toBe('WHERE a = 3')
+    expect(prependWhere(`\ra = 3`)).toBe('WHERE a = 3')
+  })
+  it('handles empty string', () => {
+    expect(prependWhere('')).toBe('')
+  })
+})
+
+describe('SqlWhereStmt', () => {
+  it('accepts SqlStmt and prepend "WHERE" correctly', () => {
+    expect(new SqlWhereStmt(q``)).toEqual({
+      sql: '',
+    })
+    expect(new SqlWhereStmt(q`a = ${3}`)).toEqual({
+      sql: 'WHERE a = ?', values: [3],
+    })
+    expect(new SqlWhereStmt(q`a = 3`, false)).toEqual({
+      sql: 'a = 3',
+    })
+  })
+  it('accepts SqlCfMap and prepend "WHERE" correctly', () => {
+    expect(new SqlWhereStmt({})).toEqual({
+      sql: '',
+    })
+    expect(new SqlWhereStmt({ a: 3, b: 'foo' })).toEqual({
+      sql: 'WHERE "a" = ? AND "b" = ?', values: [3, 'foo'],
+    })
+    expect(new SqlWhereStmt({ a: 3 }, false)).toEqual({
+      sql: '"a" = ?', values: [3],
+    })
+  })
+  it('accepts SqlWhereStmt and prepend "WHERE" correctly', () => {
+    expect(new SqlWhereStmt(new SqlWhereStmt({}))).toEqual({
+      sql: '',
+    })
+    expect(new SqlWhereStmt(new SqlWhereStmt({ a: 3, b: 'foo' }))).toEqual({
+      sql: 'WHERE "a" = ? AND "b" = ?', values: [3, 'foo'],
+    })
+    expect(new SqlWhereStmt(new SqlWhereStmt({ a: 3 }), false)).toEqual({
+      sql: '"a" = ?', values: [3],
+    })
+  })
+  it('appends statement with "AND"', () => {
+    expect(new SqlWhereStmt({}).and(q`a = 3`)).toEqual({
+      sql: 'WHERE a = 3',
+    })
+    expect(new SqlWhereStmt({ b: 'foo' }).and(q`a = 3`)).toEqual({
+      sql: 'WHERE "b" = ? AND a = 3', values: ['foo'],
+    })
+    expect(new SqlWhereStmt(q`b = ${'foo'}`).and({ a: 3 })).toEqual({
+      sql: 'WHERE b = ? AND "a" = ?', values: ['foo', 3],
+    })
+  })
+  it('appends statement with "OR"', () => {
+    expect(new SqlWhereStmt({}).or(q`a = 3`)).toEqual({
+      sql: 'WHERE a = 3',
+    })
+    expect(new SqlWhereStmt({ b: 'foo' }).or(q`a = 3`)).toEqual({
+      sql: 'WHERE "b" = ? OR a = 3', values: ['foo'],
+    })
+    expect(new SqlWhereStmt(q`b = ${'foo'}`).or({ a: 3 })).toEqual({
+      sql: 'WHERE b = ? OR "a" = ?', values: ['foo', 3],
+    })
+  })
+  it('wraps AND statements with parenthesis when appending OR', () => {
+    expect(new SqlWhereStmt({ a: 3, b: 'foo' }).or({ c: true })).toEqual({
+      sql: 'WHERE ("a" = ? AND "b" = ?) OR "c" = ?', values: [3, 'foo', true],
+    })
+    expect(new SqlWhereStmt({ c: true }).or({ a: 3, b: 'foo' })).toEqual({
+      sql: 'WHERE "c" = ? OR ("a" = ? AND "b" = ?)', values: [true, 3, 'foo'],
+    })
+  })
+  it('does not wraps statement with unnecessary parenthesis', () => {
+    expect(new SqlWhereStmt(q`a = 3 OR b = 'foo'`).or({ c: true })).toEqual({
+      sql: 'WHERE a = 3 OR b = \'foo\' OR "c" = ?', values: [true],
+    })
   })
 })
