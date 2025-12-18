@@ -308,5 +308,12 @@ describe('SqlWhereStmt', () => {
     expect(new SqlWhereStmt(q`a = 3 OR b = 'foo'`).or({ c: true })).toEqual({
       sql: 'WHERE a = 3 OR b = \'foo\' OR "c" = ?', values: [true],
     })
+    expect(
+      new SqlWhereStmt(q`a = 3 OR (b = ${'foo'} AND c = 0)`).or({ d: 'bar' }),
+    ).toEqual({
+      sql: 'WHERE a = 3 OR (b = ? AND c = 0) OR "d" = ?',
+      values: ['foo', 'bar'],
+    })
   })
+  it.todo('removes duplicated WHERE keyword')
 })

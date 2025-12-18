@@ -172,6 +172,11 @@ export function rmWhere(sql: string) {
   return sql.replace(/^where\s*/i, '')
 }
 
+export function hasWhere(sql: string) {
+  const s = sql.trim()
+  return /^where /i.test(s)
+}
+
 export function prependWhere(sql: string) {
   const s = sql.trim()
   if (/^where /i.test(s)) return sql
@@ -203,7 +208,7 @@ export class SqlWhereStmt implements SqlStmt {
 
     return new SqlWhereStmt({
       sql, ...values.length && { values },
-    })
+    }, hasWhere(sql))
   }
 
   or(opts: SqlStmt | SqlCfMap) {
@@ -217,7 +222,7 @@ export class SqlWhereStmt implements SqlStmt {
 
     return new SqlWhereStmt({
       sql, ...values.length && { values },
-    })
+    }, hasWhere(sql))
   }
 }
 
