@@ -1,6 +1,8 @@
 import { describe, expect, it } from '@jest/globals'
 import q, {
-  cfStmt, compare, isAndClause, prependWhere, rmWhere, SqlWhereStmt, values,
+  cfStmt, compare, isAndClause,
+  prependWhere, hasWhere, rmWhere,
+  SqlWhereStmt, values,
 } from './query'
 
 describe('query', () => {
@@ -217,6 +219,29 @@ describe('rmWhere', () => {
   })
   it('only removes WHERE at the start', () => {
     expect(rmWhere('a = 3 WHERE b = 4')).toBe('a = 3 WHERE b = 4')
+  })
+})
+
+describe('hasWhere', () => {
+  it('detects WHERE keyword at the beginning of the string', () => {
+    expect(hasWhere('WHERE a = 3')).toBe(true)
+    expect(hasWhere('where a = 3')).toBe(true)
+    expect(hasWhere('WHERE a = 3 AND b = 4')).toBe(true)
+  })
+  it('returns false when WHERE is not present', () => {
+    expect(hasWhere('a = 3')).toBe(false)
+    expect(hasWhere('a = 3 AND b = 4')).toBe(false)
+    expect(hasWhere('')).toBe(false)
+  })
+  it('handles whitespace correctly', () => {
+    expect(hasWhere('  WHERE a = 3')).toBe(true)
+    expect(hasWhere('WHERE  a = 3')).toBe(true)
+    expect(hasWhere('WHERE\ta = 3')).toBe(true)
+    expect(hasWhere('WHERE\ra = 3')).toBe(true)
+  })
+  it('returns false when WHERE appears only at the end', () => {
+    expect(hasWhere('a = 3 WHERE b = 4')).toBe(false)
+    expect(hasWhere('a = 3 WHERE')).toBe(false)
   })
 })
 

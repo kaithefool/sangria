@@ -174,7 +174,7 @@ export function rmWhere(sql: string) {
 
 export function hasWhere(sql: string) {
   const s = sql.trim()
-  return /^where /i.test(s)
+  return /^where( |\t|\r|\r\n)/i.test(s)
 }
 
 export function prependWhere(sql: string) {
