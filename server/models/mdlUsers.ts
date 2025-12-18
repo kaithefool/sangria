@@ -28,21 +28,27 @@ export async function insertUser({
   return id
 }
 
-export function selectUsers() {
+export function selectUsers(id?: any) {
+  if (id) {
+    return db.all(q`SELECT * FROM users WHERE id = ${id}`)
+  }
   return db.all(`
     SELECT * FROM users;
   `)
 }
 
 async function run() {
-  await insertUser({
+  const id = await insertUser({
     role: 'admin',
     email: 'foo@bar.com',
     password: '12345678',
   })
 
+  console.log('inserted', id)
+
   const users = await selectUsers()
   console.log(users)
+  console.log(await selectUsers(users[0].id))
 }
 
 run()

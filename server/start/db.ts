@@ -9,8 +9,8 @@ const dbPath = join(dirname, '../../volumes/db/app.db')
 
 export { q }
 
-export function uuid(idInStr?: string) {
-  return Buffer.from(idInStr ?? v7(), 'binary')
+export function uuid() {
+  return v7()
 }
 
 async function connect() {

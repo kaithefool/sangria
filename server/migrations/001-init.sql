@@ -1,6 +1,6 @@
 -- Up
 CREATE TABLE users (
-  id BLOB PRIMARY KEY,
+  id TEXT PRIMARY KEY,
   role TEXT NOT NULL,
   email TEXT UNIQUE,
   password TEXT,
@@ -9,7 +9,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE deleted_users (
-  id BLOB NOT NULL,
+  id TEXT NOT NULL,
   role TEXT NOT NULL,
   email TEXT,
   password TEXT,

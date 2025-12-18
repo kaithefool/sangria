@@ -162,10 +162,14 @@ export function compare(
 }
 
 export function isAndClause(sql: string) {
-  return /(^| )and($| )/im.test(sql)
-    && !/\(.*? and .*?\)/im.test(sql)
-    && !/'.*? and .*?'/im.test(sql)
-    && !/".*? and .*?"/im.test(sql)
+  if (!/(^| )and($| )/im.test(sql)) return false
+  const s = sql.split(/[()]/)
+
+  return true
+}
+
+export function isOrClause(sql: string) {
+  return true
 }
 
 export function rmWhere(sql: string) {
@@ -188,10 +192,13 @@ export class SqlWhereStmt implements SqlStmt {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   values?: any[]
   sql: string = ''
+  private whereKeyword: boolean
+
   constructor(
     opts?: SqlStmt | SqlCfMap,
     whereKeyword = true,
   ) {
+    this.whereKeyword = whereKeyword
     if (opts !== undefined) {
       const stmt = isSqlStmt(opts) ? opts : compare(opts)
       this.sql = whereKeyword ? prependWhere(stmt.sql) : rmWhere(stmt.sql)
@@ -208,7 +215,7 @@ export class SqlWhereStmt implements SqlStmt {
 
     return new SqlWhereStmt({
       sql, ...values.length && { values },
-    }, hasWhere(sql))
+    }, this.whereKeyword)
   }
 
   or(opts: SqlStmt | SqlCfMap) {
@@ -222,12 +229,12 @@ export class SqlWhereStmt implements SqlStmt {
 
     return new SqlWhereStmt({
       sql, ...values.length && { values },
-    }, hasWhere(sql))
+    }, this.whereKeyword)
   }
 }
 
-export function where() {
-
+export function where(stmt: SqlStmt | SqlCfMap, whereKeyword?: boolean) {
+  return new SqlWhereStmt(stmt, whereKeyword)
 }
 
 q.values = values
