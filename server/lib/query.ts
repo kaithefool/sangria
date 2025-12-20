@@ -161,15 +161,23 @@ export function compare(
   }
 }
 
-export function isAndClause(sql: string) {
-  if (!/(^| )and($| )/im.test(sql)) return false
-  const s = sql.split(/[()]/)
-
-  return true
-}
-
-export function isOrClause(sql: string) {
-  return true
+export function hasLogical(operator: 'AND' | 'OR', sql: string) {
+  const regex = new RegExp(`(^| )${operator}($| )`, 'im')
+  const ss = sql.trim()
+    .replace(/'[^']*?'/gm, '')
+    .replace(/"[^"]*?"/gm, '')
+    .split(/([()])/)
+  let opened = 0
+  let s = ''
+  for (let i = 0; i < ss.length; i += 1) {
+    const c = ss[i]
+    if (c === '(') opened += 1
+    else if (c === ')') opened -= 1
+    else if (opened === 0) {
+      s += ' ' + c
+    }
+  }
+  return regex.test(s)
 }
 
 export function rmWhere(sql: string) {
@@ -221,8 +229,8 @@ export class SqlWhereStmt implements SqlStmt {
   or(opts: SqlStmt | SqlCfMap) {
     const stmt = isSqlStmt(opts) ? opts : compare(opts)
     const values = [...this.values ?? [], ...stmt.values ?? []]
-    const foreSql = isAndClause(this.sql) ? `(${this.sql})` : this.sql
-    const aftSql = isAndClause(stmt.sql) ? `(${stmt.sql})` : stmt.sql
+    const foreSql = hasLogical('AND', this.sql) ? `(${this.sql})` : this.sql
+    const aftSql = hasLogical('AND', stmt.sql) ? `(${stmt.sql})` : stmt.sql
     const sql = this.sql.trim() !== ''
       ? `${foreSql} OR ${aftSql}`
       : stmt.sql
