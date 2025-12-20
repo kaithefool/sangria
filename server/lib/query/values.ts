@@ -1,0 +1,30 @@
+import { SqlDataType, SqlStmt, isSqlStmt } from './q'
+
+export function values(
+  input: { [x: string]: SqlDataType | SqlStmt },
+): SqlStmt {
+  const ent = Object.entries(input)
+  const values: SqlDataType[] = []
+  let colSql: string[] = []
+  const valSql: string[] = []
+  if (!ent.length) return { sql: 'DEFAULT VALUES' }
+  for (let i = 0; i < ent.length; i += 1) {
+    const [c, v] = ent[i]
+    colSql.push(c)
+    if (isSqlStmt(v)) {
+      valSql.push(v.sql)
+      values.push(...v.values ?? [])
+    }
+    else {
+      valSql.push('?')
+      values.push(v)
+    }
+  }
+  colSql = colSql.map(c => `"${c}"`)
+  return {
+    sql: `(${colSql.join(', ')}) VALUES (${valSql.join(', ')})`,
+    ...values.length && { values },
+  }
+}
+
+export default values

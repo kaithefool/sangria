@@ -1,80 +1,4 @@
-import { ISqlite } from 'sqlite'
-
-export type SqlDataType = string | number | boolean | Date | Buffer | null
-export type SqlStmt = ISqlite.SQLStatement
-
-function isSqlStmt(v: unknown): v is SqlStmt {
-  return typeof v === 'object'
-    && v !== null
-    && 'sql' in v
-    && typeof v.sql === 'string'
-    && !('values' in v && !Array.isArray(v.values))
-}
-
-function isSqlDataType(v: unknown): v is SqlDataType {
-  return typeof v === 'string'
-    || typeof v === 'number'
-    || typeof v === 'boolean'
-    || v instanceof Date
-    || v instanceof Buffer
-    || v === null
-}
-
-function q(
-  tpl: TemplateStringsArray,
-  ...vals: (SqlDataType | SqlStmt)[]
-): SqlStmt {
-  let sql = ''
-  const values: SqlDataType[] = []
-  for (let i = 0; i < tpl.length; i += 1) {
-    sql += tpl[i]
-    const v = vals[i]
-    if (isSqlStmt(v)) {
-      sql += v.sql
-      values.push(...v.values ?? [])
-    }
-    else if (v !== undefined) {
-      sql += '?'
-      values.push(v)
-    }
-  }
-
-  return {
-    sql,
-    ...values.length && { values },
-  }
-}
-
-export function values(
-  input: { [x: string]: SqlDataType | SqlStmt },
-): SqlStmt {
-  const ent = Object.entries(input)
-  const values: SqlDataType[] = []
-  const colSql: string[] = []
-  const valSql: string[] = []
-  if (!ent.length) return { sql: 'DEFAULT VALUES' }
-  for (let i = 0; i < ent.length; i += 1) {
-    const [c, v] = ent[i]
-    colSql.push(c)
-    if (isSqlStmt(v)) {
-      valSql.push(v.sql)
-      values.push(...v.values ?? [])
-    }
-    else {
-      valSql.push('?')
-      values.push(v)
-    }
-  }
-
-  return {
-    sql: `(${
-      colSql.map(c => `"${c}"`).join(', ')
-    }) VALUES (${
-      valSql.join(', ')
-    })`,
-    ...values.length && { values },
-  }
-}
+import { SqlDataType, SqlStmt, isSqlStmt, isSqlDataType } from './q'
 
 export type SqlCf = {
   eq: SqlDataType
@@ -245,7 +169,4 @@ export function where(stmt: SqlStmt | SqlCfMap, whereKeyword?: boolean) {
   return new SqlWhereStmt(stmt, whereKeyword)
 }
 
-q.values = values
-q.where = where
-
-export default q
+export default where
