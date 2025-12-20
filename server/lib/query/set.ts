@@ -7,21 +7,21 @@ export function set(
   const ent = Object.entries(input)
   if (!ent.length) throw new Error('Cannot SET empty values.')
   const values: SqlDataType[] = []
-  let sql = setKeyword ? 'SET ' : ''
+  const sql: string[] = []
   for (let i = 0; i < ent.length; i += 1) {
     const [c, v] = ent[i]
-    sql += `"${c}" = `
     if (isSqlStmt(v)) {
-      sql += v.sql
+      sql.push(`"${c}" = ${v.sql}`)
       values.push(...v.values ?? [])
     }
     else {
-      sql += '?'
+      sql.push(`"${c}" = ?`)
       values.push(v)
     }
   }
   return {
-    sql, ...values.length && { values },
+    sql: `${setKeyword ? 'SET ' : ''}${sql.join(', ')}`,
+    ...values.length && { values },
   }
 }
 
