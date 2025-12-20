@@ -1,6 +1,7 @@
 import { ISqlite } from 'sqlite'
 import { where } from './where'
 import { values } from './values'
+import set from './set'
 
 export type SqlDataType = string | number | boolean | Date | Buffer | null
 export type SqlStmt = ISqlite.SQLStatement
@@ -49,5 +50,6 @@ function q(
 
 q.values = values
 q.where = where
+q.set = set
 
 export default q
