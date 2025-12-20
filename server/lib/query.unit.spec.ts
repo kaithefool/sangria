@@ -351,6 +351,35 @@ describe('SqlWhereStmt', () => {
       sql: 'WHERE b = ? AND "a" = ?', values: ['foo', 3],
     })
   })
+  it('wraps OR statements with parenthesis when appending AND', () => {
+    expect(
+      new SqlWhereStmt({ a: 3 }).or({ b: 'foo' }).and({ c: true }),
+    ).toMatchObject({
+      sql: 'WHERE ("a" = ? OR "b" = ?) AND "c" = ?', values: [3, 'foo', true],
+    })
+    expect(
+      new SqlWhereStmt({ c: true }).and(
+        new SqlWhereStmt({ a: 3 }).or({ b: 'foo' }),
+      ),
+    ).toMatchObject({
+      sql: 'WHERE "c" = ? AND ("a" = ? OR "b" = ?)', values: [true, 3, 'foo'],
+    })
+  })
+  it('does not wraps statement with unnecessary parenthesis', () => {
+    expect(
+      new SqlWhereStmt(q`a = 3 AND b = 'foo'`).and({ c: true }),
+    ).toMatchObject({
+      sql: 'WHERE a = 3 AND b = \'foo\' AND "c" = ?', values: [true],
+    })
+    expect(
+      new SqlWhereStmt(
+        q`a = 3 AND (b = ${'foo'} OR c = 0)`,
+      ).and({ d: 'bar' }),
+    ).toMatchObject({
+      sql: 'WHERE a = 3 AND (b = ? OR c = 0) AND "d" = ?',
+      values: ['foo', 'bar'],
+    })
+  })
   it('appends statement with "OR"', () => {
     expect(new SqlWhereStmt({}).or(q`a = 3`)).toMatchObject({
       sql: 'WHERE a = 3',
@@ -385,5 +414,13 @@ describe('SqlWhereStmt', () => {
       values: ['foo', 'bar'],
     })
   })
-  it.todo('removes duplicated WHERE keyword')
+  it('removes duplicated WHERE keyword', () => {
+    expect(
+      new SqlWhereStmt(
+        new SqlWhereStmt(
+          new SqlWhereStmt({ a: 3 }),
+        ),
+      ),
+    ).toMatchObject({ sql: 'WHERE "a" = ?', values: [3] })
+  })
 })

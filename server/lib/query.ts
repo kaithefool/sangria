@@ -217,26 +217,26 @@ export class SqlWhereStmt implements SqlStmt {
   and(opts: SqlStmt | SqlCfMap) {
     const stmt = isSqlStmt(opts) ? opts : compare(opts)
     const values = [...this.values ?? [], ...stmt.values ?? []]
-    const sql = this.sql.trim() !== ''
-      ? `${this.sql} AND ${rmWhere(stmt.sql)}`
-      : stmt.sql
-
+    const sql = [this.sql, stmt.sql].filter(s => s).map((s) => {
+      let r = rmWhere(s)
+      r = hasLogical('OR', r) ? `(${r})` : r
+      return r
+    })
     return new SqlWhereStmt({
-      sql, ...values.length && { values },
+      sql: sql.join(' AND '), ...values.length && { values },
     }, this.whereKeyword)
   }
 
   or(opts: SqlStmt | SqlCfMap) {
     const stmt = isSqlStmt(opts) ? opts : compare(opts)
     const values = [...this.values ?? [], ...stmt.values ?? []]
-    const foreSql = hasLogical('AND', this.sql) ? `(${this.sql})` : this.sql
-    const aftSql = hasLogical('AND', stmt.sql) ? `(${stmt.sql})` : stmt.sql
-    const sql = this.sql.trim() !== ''
-      ? `${foreSql} OR ${aftSql}`
-      : stmt.sql
-
+    const sql = [this.sql, stmt.sql].filter(s => s).map((s) => {
+      let r = rmWhere(s)
+      r = hasLogical('AND', r) ? `(${r})` : r
+      return r
+    })
     return new SqlWhereStmt({
-      sql, ...values.length && { values },
+      sql: sql.join(' OR '), ...values.length && { values },
     }, this.whereKeyword)
   }
 }
