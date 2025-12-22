@@ -79,10 +79,7 @@ export function compare(
       }
     }
   }
-  return {
-    sql: sql.join(' AND '),
-    ...values.length && { values },
-  }
+  return { sql: sql.join(' AND '), values }
 }
 
 export function hasLogical(operator: 'AND' | 'OR', sql: string) {
@@ -122,7 +119,7 @@ export function prependWhere(sql: string) {
 
 export class SqlWhereStmt implements SqlStmt {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  values?: any[]
+  values: any[] = []
   sql: string = ''
   private whereKeyword: boolean
 
@@ -134,33 +131,33 @@ export class SqlWhereStmt implements SqlStmt {
     if (opts !== undefined) {
       const stmt = isSqlStmt(opts) ? opts : compare(opts)
       this.sql = whereKeyword ? prependWhere(stmt.sql) : rmWhere(stmt.sql)
-      if (stmt.values !== undefined) this.values = stmt.values
+      this.values = stmt.values
     }
   }
 
   and(opts: SqlStmt | SqlCfMap) {
     const stmt = isSqlStmt(opts) ? opts : compare(opts)
-    const values = [...this.values ?? [], ...stmt.values ?? []]
+    const values = [...this.values, ...stmt.values]
     const sql = [this.sql, stmt.sql].filter(s => s).map((s) => {
       let r = rmWhere(s)
       r = hasLogical('OR', r) ? `(${r})` : r
       return r
     })
     return new SqlWhereStmt({
-      sql: sql.join(' AND '), ...values.length && { values },
+      sql: sql.join(' AND '), values,
     }, this.whereKeyword)
   }
 
   or(opts: SqlStmt | SqlCfMap) {
     const stmt = isSqlStmt(opts) ? opts : compare(opts)
-    const values = [...this.values ?? [], ...stmt.values ?? []]
+    const values = [...this.values, ...stmt.values]
     const sql = [this.sql, stmt.sql].filter(s => s).map((s) => {
       let r = rmWhere(s)
       r = hasLogical('AND', r) ? `(${r})` : r
       return r
     })
     return new SqlWhereStmt({
-      sql: sql.join(' OR '), ...values.length && { values },
+      sql: sql.join(' OR '), values,
     }, this.whereKeyword)
   }
 }

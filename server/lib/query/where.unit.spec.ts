@@ -72,7 +72,7 @@ describe('comparison builder', () => {
     [compare({ a: q`> ${3}` }), { sql: '"a" > ?', values: [3] }],
     [
       compare({ a: q`> CURRENT_TIMESTAMP` }),
-      { sql: '"a" > CURRENT_TIMESTAMP' },
+      { sql: '"a" > CURRENT_TIMESTAMP', values: [] },
     ],
   ])('accepts sql statements', (actual, expected) => {
     expect(actual).toEqual(expected)

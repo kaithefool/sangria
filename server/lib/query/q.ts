@@ -4,7 +4,7 @@ import { values } from './values'
 import set from './set'
 
 export type SqlDataType = string | number | boolean | Date | Buffer | null
-export type SqlStmt = ISqlite.SQLStatement
+export type SqlStmt = Required<ISqlite.SQLStatement>
 
 export function isSqlStmt(v: unknown): v is SqlStmt {
   return typeof v === 'object'
@@ -42,10 +42,7 @@ function q(
     }
   }
 
-  return {
-    sql,
-    ...values.length && { values },
-  }
+  return { sql, values }
 }
 
 q.values = values

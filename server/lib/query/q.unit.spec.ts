@@ -12,11 +12,11 @@ describe('query', () => {
     expect(typeof stmt).toBe('object')
     const { sql, values } = stmt
     expect(typeof sql).toBe('string')
-    expect(values === undefined || Array.isArray(values)).toBe(true)
+    expect(Array.isArray(values)).toBe(true)
   })
   it.each([
-    [q``, undefined],
-    [q`SELECT * FROM users;`, undefined],
+    [q``, []],
+    [q`SELECT * FROM users;`, []],
     [
       q`SELECT ${'id'}, ${'role'} FROM users;`,
       ['id', 'role'],

@@ -7,7 +7,7 @@ export function values(
   const values: SqlDataType[] = []
   let colSql: string[] = []
   const valSql: string[] = []
-  if (!ent.length) return { sql: 'DEFAULT VALUES' }
+  if (!ent.length) return { sql: 'DEFAULT VALUES', values: [] }
   for (let i = 0; i < ent.length; i += 1) {
     const [c, v] = ent[i]
     colSql.push(c)
@@ -23,7 +23,7 @@ export function values(
   colSql = colSql.map(c => `"${c}"`)
   return {
     sql: `(${colSql.join(', ')}) VALUES (${valSql.join(', ')})`,
-    ...values.length && { values },
+    values,
   }
 }
 

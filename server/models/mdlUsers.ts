@@ -2,8 +2,8 @@ import { Role } from '../consts'
 import { encryptPwd } from '../lib/crypto'
 import db, { q, uuid } from '../start/db'
 
-export type User = {
-  id: Buffer<ArrayBuffer>
+export type UserRow = {
+  id: string
   role: Role
   email: string | null
   password: string | null
@@ -28,12 +28,27 @@ export async function insertUser({
   return id
 }
 
-export function selectUsers(id?: any) {
-  if (id) {
-    return db.all(q`SELECT * FROM users WHERE id = ${id}`)
-  }
-  return db.all(`
-    SELECT * FROM users;
+export type UserFilter = {
+  id?: string | { ne: string }
+  role?: Role
+  email?: string
+}
+
+export type SelectUsersOpts = {
+  filter?: UserFilter
+  skip?: number
+  limit?: number
+  password?: boolean
+}
+
+export function selectUsers({
+  filter = {}, skip, limit, password = false,
+}: SelectUsersOpts) {
+  let cols = 'id, role, email, created_at'
+  if (password) cols += ', password'
+
+  return db.all<UserRow[]>(q`
+    SELECT ${{ sql: cols }} FROM users ${q.where(filter)};
   `)
 }
 
@@ -43,12 +58,8 @@ async function run() {
     email: 'foo@bar.com',
     password: '12345678',
   })
-
-  console.log('inserted', id)
-
-  const users = await selectUsers()
+  const users = await selectUsers({ filter: { id } })
   console.log(users)
-  console.log(await selectUsers(users[0].id))
 }
 
 run()

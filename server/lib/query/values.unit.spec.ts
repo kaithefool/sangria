@@ -12,10 +12,10 @@ describe('VALUES builder', () => {
     expect(typeof stmt).toBe('object')
     const { sql, values } = stmt
     expect(typeof sql).toBe('string')
-    expect(values === undefined || Array.isArray(values)).toBe(true)
+    expect(Array.isArray(values)).toBe(true)
   })
   it.each([
-    [values({}), undefined],
+    [values({}), []],
     [
       values({ id: Buffer.from('random_id', 'binary') }),
       [Buffer.from('random_id', 'binary')],
