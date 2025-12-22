@@ -4,6 +4,7 @@ import { values } from './values'
 import set from './set'
 
 export type SqlDataType = string | number | boolean | Date | Buffer | null
+// values array has been required in some sqlite func
 export type SqlStmt = Required<ISqlite.SQLStatement>
 
 export function isSqlStmt(v: unknown): v is SqlStmt {
@@ -45,6 +46,10 @@ function q(
   return { sql, values }
 }
 
+export function raw(sql: string) {
+  return { sql, values: [] }
+}
+q.raw = raw
 q.values = values
 q.where = where
 q.set = set
