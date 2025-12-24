@@ -2,6 +2,7 @@ import { ISqlite } from 'sqlite'
 import { where } from './where'
 import { values } from './values'
 import set from './set'
+import { catchDupErr } from './catchDupErr'
 
 export type SqlDataType = string | number | boolean | Date | Buffer | null
 // values array has been required in some sqlite func
@@ -53,5 +54,6 @@ q.raw = raw
 q.values = values
 q.where = where
 q.set = set
+q.catchDupErr = catchDupErr
 
 export default q

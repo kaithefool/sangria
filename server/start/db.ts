@@ -15,8 +15,8 @@ export function uuid() {
 
 async function connect() {
   const db = await open({
-    filename: dbPath,
     driver: sqlite3.Database,
+    filename: dbPath,
   })
   await db.run('PRAGMA journal_mode=WAL;')
   await db.migrate({
