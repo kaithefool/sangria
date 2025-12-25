@@ -23,6 +23,7 @@ export class SqlDupErr extends Error {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function catchDupErr<F extends () => any>(
   fn: F,
 ): Promise<[SqlDupErr] | [null, Awaited<ReturnType<F>>]> {

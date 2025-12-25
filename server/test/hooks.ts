@@ -10,9 +10,11 @@ const afterThisStack: {
 } = {}
 
 afterEach(async () => {
-  const stack = afterThisStack[getTestId()]
+  const id = getTestId()
+  const stack = afterThisStack[id]
   if (stack !== undefined) {
     const s = [...stack].reverse()
+    delete afterThisStack[id]
     for (const fn of s) {
       await fn()
     }

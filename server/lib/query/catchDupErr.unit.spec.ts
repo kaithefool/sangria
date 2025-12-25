@@ -19,22 +19,34 @@ describe('query error catcher', () => {
       expect(r).toEqual(result)
     },
   )
-  it('catches unique constraint error', async () => {
-    const db = await open({
-      driver: sqlite3.Database,
-      filename: '',
-    })
-    afterThis(() => db.close())
-    await db.run(`
-      CREATE TABLE test_tbl (
+  it.each([
+    [
+      `CREATE TABLE test_tbl (
         row_0 TEXT PRIMARY KEY
-      ); 
-    `)
-    const insertSql = `INSERT INTO test_tbl (row_0) VALUES ('foobar')`
-    await db.run(insertSql)
-    const [err] = await catchDupErr(() => db.run(insertSql))
-    expect(err).not.toBeNull()
-    expect(err instanceof SqlDupErr).toBe(true)
-    expect(err?.col).toBe('test_tbl.row_0')
-  })
+      );`,
+      `INSERT INTO test_tbl (row_0) VALUES ('foobar')`,
+      'test_tbl.row_0',
+    ],
+    [
+      `CREATE TABLE test_tbl (
+        row_0 TEXT PRIMARY KEY,
+        row_1 TEXT UNIQUE
+      )`,
+      `INSERT INTO test_tbl (row_0, row_1) VALUES ('foobar', 'meh')`,
+      'test_tbl.row_1',
+    ],
+  ])('catches unique constraint error',
+    async (createTblSql, insertSql, result) => {
+      const db = await open({
+        driver: sqlite3.Database,
+        filename: '',
+      })
+      afterThis(() => db.close())
+      await db.run(createTblSql)
+      await db.run(insertSql)
+      const [err] = await catchDupErr(() => db.run(insertSql))
+      expect(err).not.toBeNull()
+      expect(err instanceof SqlDupErr).toBe(true)
+      expect(err?.col).toBe(result)
+    })
 })

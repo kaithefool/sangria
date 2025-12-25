@@ -87,8 +87,3 @@ export async function deleteUsers(filter: UsersFilter = {}) {
     DELETE FROM users ${q.where(filter)};
   `)
 }
-
-async function run() {
-}
-
-run()
