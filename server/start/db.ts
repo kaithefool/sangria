@@ -1,8 +1,8 @@
 import { v7 } from 'uuid'
-import sqlite3 from 'sqlite3'
-import { open } from 'sqlite'
+import Database from 'better-sqlite3'
 import { join } from 'node:path'
 import q from '../lib/query'
+import migrate from '../lib/migrate'
 
 const { dirname } = import.meta
 const dbPath = join(dirname, '../../volumes/db/app.db')
@@ -14,15 +14,10 @@ export function uuid() {
 }
 
 async function connect() {
-  const db = await open({
-    driver: sqlite3.Database,
-    filename: dbPath,
-  })
-  await db.run('PRAGMA journal_mode=WAL;')
-  await db.migrate({
-    force: true,
-    migrationsPath: join(dirname, '../migrations'),
-  })
+  const db = new Database(dbPath)
+  await db.pragma('journal_mode = WAL')
+  await migrate(db)
+
   return db
 }
 

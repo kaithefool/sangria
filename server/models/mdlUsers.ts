@@ -1,7 +1,7 @@
 import { Role } from '../consts'
 import { encryptPwd } from '../lib/crypto'
+import { SqlDupErr } from '../lib/query/catchDupErr'
 import db, { q, uuid } from '../start/db'
-import sqlite, { } from 'sqlite'
 
 export type UserRow = {
   id: string
@@ -21,15 +21,16 @@ export type UserInsert = {
 
 export async function insertUser({
   role, email = null, password = null,
-}: UserInsert) {
+}: UserInsert): Promise<[SqlDupErr] | [null, string]> {
   const id = uuid()
-  await db.run(q`
+  const [err] = await q.catchDupErr(() => db.run(q`
     INSERT INTO users ${q.values({
       id, role, email,
       password: password ? encryptPwd(password) : password,
     })};
-  `)
-  return id
+  `))
+  if (err) return [err]
+  return [null, id]
 }
 
 export type UsersFilter = {
@@ -76,14 +77,27 @@ export async function updateUsers(
 ) {
   const u = { ...update }
   if (u.password) u.password = encryptPwd(u.password)
-  return db.run(q`
+  return q.catchDupErr(() => db.run(q`
     UPDATE users ${q.set(update)}
     ${q.where(filter)};
-  `)
+  `))
 }
 
 export async function deleteUsers(filter: UsersFilter = {}) {
-  return db.run(q`
-    DELETE FROM users ${q.where(filter)};
-  `)
+  const where = q.where(filter)
+  await db.exec('BEGIN TRANSACTION;')
+  await db.run(q`INSERT INTO deleted_users SELECT * FROM users ${where};`)
+  await db.run(q`DELETE FROM users ${where};`)
+  await db.exec('COMMIT;')
 }
+
+async function test() {
+  const [, id] = await insertUser({
+    role: 'admin', email: 'foo@bar.com', password: '12345678',
+  })
+  console.log(await selectUsers({ filter: { id } }))
+  await deleteUsers({ id })
+  console.log(await selectUsers({ filter: { id } }))
+}
+
+test()

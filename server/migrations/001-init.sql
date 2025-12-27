@@ -1,4 +1,3 @@
--- Up
 CREATE TABLE users (
   id TEXT PRIMARY KEY,
   role TEXT NOT NULL,
@@ -17,7 +16,3 @@ CREATE TABLE deleted_users (
   last_logout_at DATE,
   deleted_at DATE DEFAULT CURRENT_TIMESTAMP
 );
-
--- Down
-DROP TABLE users;
-DROP TABLE deleted_users;
