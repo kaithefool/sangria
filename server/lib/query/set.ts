@@ -1,16 +1,16 @@
-import { isSqlStmt, SqlDataType, SqlStmt } from './q'
+import { isSqlQuery, SqlDataType, SqlQuery } from './q'
 
 export function set(
-  input: { [x: string]: SqlDataType | SqlStmt },
+  input: { [x: string]: SqlDataType | SqlQuery },
   setKeyword = true,
-): SqlStmt {
+): SqlQuery {
   const ent = Object.entries(input)
   if (!ent.length) throw new Error('Cannot SET empty values.')
   const values: SqlDataType[] = []
   const sql: string[] = []
   for (let i = 0; i < ent.length; i += 1) {
     const [c, v] = ent[i]
-    if (isSqlStmt(v)) {
+    if (isSqlQuery(v)) {
       sql.push(`"${c}" = ${v.sql}`)
       values.push(...v.values ?? [])
     }

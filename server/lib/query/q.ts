@@ -1,4 +1,3 @@
-import { ISqlite } from 'sqlite'
 import { where } from './where'
 import { values } from './values'
 import set from './set'
@@ -6,9 +5,12 @@ import { catchDupErr } from './catchDupErr'
 
 export type SqlDataType = string | number | boolean | Date | Buffer | null
 // values array has been required in some sqlite func
-export type SqlStmt = Required<ISqlite.SQLStatement>
+export type SqlQuery = {
+  sql: string
+  values: SqlDataType[]
+}
 
-export function isSqlStmt(v: unknown): v is SqlStmt {
+export function isSqlQuery(v: unknown): v is SqlQuery {
   return typeof v === 'object'
     && v !== null
     && 'sql' in v
@@ -27,14 +29,14 @@ export function isSqlDataType(v: unknown): v is SqlDataType {
 
 function q(
   tpl: TemplateStringsArray,
-  ...vals: (SqlDataType | SqlStmt)[]
-): SqlStmt {
+  ...vals: (SqlDataType | SqlQuery)[]
+): SqlQuery {
   let sql = ''
   const values: SqlDataType[] = []
   for (let i = 0; i < tpl.length; i += 1) {
     sql += tpl[i]
     const v = vals[i]
-    if (isSqlStmt(v)) {
+    if (isSqlQuery(v)) {
       sql += v.sql
       values.push(...v.values ?? [])
     }
