@@ -8,9 +8,9 @@ describe('VALUES builder', () => {
     values({ id: Buffer.from('random_id', 'binary') }),
     values({ role: 'admin', last_login_at: q`CURRENT_TIMESTAMP` }),
     values({ expires_at: q`datetime('now', ${'+5 days'})` }),
-  ])('returns an object implementing SQLStatement interface', (stmt) => {
-    expect(typeof stmt).toBe('object')
-    const { sql, values } = stmt
+  ])('returns an object implementing SQLStatement interface', (query) => {
+    expect(typeof query).toBe('object')
+    const { sql, values } = query
     expect(typeof sql).toBe('string')
     expect(Array.isArray(values)).toBe(true)
   })
@@ -28,8 +28,8 @@ describe('VALUES builder', () => {
       values({ expires_at: q`datetime('now', ${'+5 days'})` }),
       ['+5 days'],
     ],
-  ])('returns values in the correct sequence', (stmt, values) => {
-    expect(stmt.values).toEqual(values)
+  ])('returns values in the correct sequence', (query, values) => {
+    expect(query.values).toEqual(values)
   })
   it.each([
     [values({}), 'DEFAULT VALUES'],
@@ -45,7 +45,7 @@ describe('VALUES builder', () => {
       values({ expires_at: q`datetime('now', ${'+5 days'})` }),
       '("expires_at") VALUES (datetime(\'now\', ?))',
     ],
-  ])('return statement with question marks', (stmt, values) => {
-    expect(stmt.sql).toEqual(values)
+  ])('return statement with question marks', (query, values) => {
+    expect(query.sql).toEqual(values)
   })
 })

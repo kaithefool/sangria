@@ -1,27 +1,27 @@
 import { describe, it, expect } from '@jest/globals'
 import q from './q'
 import {
-  cfStmt, compare, hasLogical,
+  cfQuery, compare, hasLogical,
   prependWhere, hasWhere, rmWhere,
-  SqlWhereStmt,
+  SqlWhereQuery,
 } from './where'
 
-describe('cfStmt builder', () => {
+describe('cfQuery builder', () => {
   it.each([
-    [cfStmt('a', 'eq', 8), { sql: '"a" = ?', values: [8] }],
-    [cfStmt('a', 'ne', 8), { sql: '"a" != ?', values: [8] }],
+    [cfQuery('a', 'eq', 8), { sql: '"a" = ?', values: [8] }],
+    [cfQuery('a', 'ne', 8), { sql: '"a" != ?', values: [8] }],
     [
-      cfStmt('a', 'in', [8, 10, 12]),
+      cfQuery('a', 'in', [8, 10, 12]),
       { sql: '"a" IN (?, ?, ?)', values: [8, 10, 12] },
     ],
     [
-      cfStmt('a', 'nin', [8, 10, 12]),
+      cfQuery('a', 'nin', [8, 10, 12]),
       { sql: '"a" NOT IN (?, ?, ?)', values: [8, 10, 12] },
     ],
-    [cfStmt('a', 'gt', 8), { sql: '"a" > ?', values: [8] }],
-    [cfStmt('a', 'gte', 8), { sql: '"a" >= ?', values: [8] }],
-    [cfStmt('a', 'lt', 8), { sql: '"a" < ?', values: [8] }],
-    [cfStmt('a', 'lte', 8), { sql: '"a" <= ?', values: [8] }],
+    [cfQuery('a', 'gt', 8), { sql: '"a" > ?', values: [8] }],
+    [cfQuery('a', 'gte', 8), { sql: '"a" >= ?', values: [8] }],
+    [cfQuery('a', 'lt', 8), { sql: '"a" < ?', values: [8] }],
+    [cfQuery('a', 'lte', 8), { sql: '"a" <= ?', values: [8] }],
   ])('returns correct statement object', (actual, expected) => {
     expect(actual).toEqual(expected)
   })
@@ -206,62 +206,62 @@ describe('prependWhere', () => {
   })
 })
 
-describe('SqlWhereStmt', () => {
-  it('accepts SqlStmt and prepend "WHERE" correctly', () => {
-    expect(new SqlWhereStmt(q``)).toMatchObject({
+describe('SqlWhereQuery', () => {
+  it('accepts SqlQuery and prepend "WHERE" correctly', () => {
+    expect(new SqlWhereQuery(q``)).toMatchObject({
       sql: '',
     })
-    expect(new SqlWhereStmt(q`a = ${3}`)).toMatchObject({
+    expect(new SqlWhereQuery(q`a = ${3}`)).toMatchObject({
       sql: 'WHERE a = ?', values: [3],
     })
-    expect(new SqlWhereStmt(q`a = 3`, false)).toMatchObject({
+    expect(new SqlWhereQuery(q`a = 3`, false)).toMatchObject({
       sql: 'a = 3',
     })
   })
   it('accepts SqlCfMap and prepend "WHERE" correctly', () => {
-    expect(new SqlWhereStmt({})).toMatchObject({
+    expect(new SqlWhereQuery({})).toMatchObject({
       sql: '',
     })
-    expect(new SqlWhereStmt({ a: 3, b: 'foo' })).toMatchObject({
+    expect(new SqlWhereQuery({ a: 3, b: 'foo' })).toMatchObject({
       sql: 'WHERE "a" = ? AND "b" = ?', values: [3, 'foo'],
     })
-    expect(new SqlWhereStmt({ a: 3 }, false)).toMatchObject({
+    expect(new SqlWhereQuery({ a: 3 }, false)).toMatchObject({
       sql: '"a" = ?', values: [3],
     })
   })
-  it('accepts SqlWhereStmt and prepend "WHERE" correctly', () => {
-    expect(new SqlWhereStmt(new SqlWhereStmt({}))).toMatchObject({
+  it('accepts SqlWhereQuery and prepend "WHERE" correctly', () => {
+    expect(new SqlWhereQuery(new SqlWhereQuery({}))).toMatchObject({
       sql: '',
     })
     expect(
-      new SqlWhereStmt(new SqlWhereStmt({ a: 3, b: 'foo' })),
+      new SqlWhereQuery(new SqlWhereQuery({ a: 3, b: 'foo' })),
     ).toMatchObject({
       sql: 'WHERE "a" = ? AND "b" = ?', values: [3, 'foo'],
     })
-    expect(new SqlWhereStmt(new SqlWhereStmt({ a: 3 }), false)).toMatchObject({
+    expect(new SqlWhereQuery(new SqlWhereQuery({ a: 3 }), false)).toMatchObject({
       sql: '"a" = ?', values: [3],
     })
   })
   it('appends statement with "AND"', () => {
-    expect(new SqlWhereStmt({}).and(q`a = 3`)).toMatchObject({
+    expect(new SqlWhereQuery({}).and(q`a = 3`)).toMatchObject({
       sql: 'WHERE a = 3',
     })
-    expect(new SqlWhereStmt({ b: 'foo' }).and(q`a = 3`)).toMatchObject({
+    expect(new SqlWhereQuery({ b: 'foo' }).and(q`a = 3`)).toMatchObject({
       sql: 'WHERE "b" = ? AND a = 3', values: ['foo'],
     })
-    expect(new SqlWhereStmt(q`b = ${'foo'}`).and({ a: 3 })).toMatchObject({
+    expect(new SqlWhereQuery(q`b = ${'foo'}`).and({ a: 3 })).toMatchObject({
       sql: 'WHERE b = ? AND "a" = ?', values: ['foo', 3],
     })
   })
   it('wraps OR statements with parenthesis when appending AND', () => {
     expect(
-      new SqlWhereStmt({ a: 3 }).or({ b: 'foo' }).and({ c: true }),
+      new SqlWhereQuery({ a: 3 }).or({ b: 'foo' }).and({ c: true }),
     ).toMatchObject({
       sql: 'WHERE ("a" = ? OR "b" = ?) AND "c" = ?', values: [3, 'foo', true],
     })
     expect(
-      new SqlWhereStmt({ c: true }).and(
-        new SqlWhereStmt({ a: 3 }).or({ b: 'foo' }),
+      new SqlWhereQuery({ c: true }).and(
+        new SqlWhereQuery({ a: 3 }).or({ b: 'foo' }),
       ),
     ).toMatchObject({
       sql: 'WHERE "c" = ? AND ("a" = ? OR "b" = ?)', values: [true, 3, 'foo'],
@@ -269,12 +269,12 @@ describe('SqlWhereStmt', () => {
   })
   it('does not wraps statement with unnecessary parenthesis', () => {
     expect(
-      new SqlWhereStmt(q`a = 3 AND b = 'foo'`).and({ c: true }),
+      new SqlWhereQuery(q`a = 3 AND b = 'foo'`).and({ c: true }),
     ).toMatchObject({
       sql: 'WHERE a = 3 AND b = \'foo\' AND "c" = ?', values: [true],
     })
     expect(
-      new SqlWhereStmt(
+      new SqlWhereQuery(
         q`a = 3 AND (b = ${'foo'} OR c = 0)`,
       ).and({ d: 'bar' }),
     ).toMatchObject({
@@ -283,34 +283,34 @@ describe('SqlWhereStmt', () => {
     })
   })
   it('appends statement with "OR"', () => {
-    expect(new SqlWhereStmt({}).or(q`a = 3`)).toMatchObject({
+    expect(new SqlWhereQuery({}).or(q`a = 3`)).toMatchObject({
       sql: 'WHERE a = 3',
     })
-    expect(new SqlWhereStmt({ b: 'foo' }).or(q`a = 3`)).toMatchObject({
+    expect(new SqlWhereQuery({ b: 'foo' }).or(q`a = 3`)).toMatchObject({
       sql: 'WHERE "b" = ? OR a = 3', values: ['foo'],
     })
-    expect(new SqlWhereStmt(q`b = ${'foo'}`).or({ a: 3 })).toMatchObject({
+    expect(new SqlWhereQuery(q`b = ${'foo'}`).or({ a: 3 })).toMatchObject({
       sql: 'WHERE b = ? OR "a" = ?', values: ['foo', 3],
     })
   })
   it('wraps AND statements with parenthesis when appending OR', () => {
     expect(
-      new SqlWhereStmt({ a: 3, b: 'foo' }).or({ c: true }),
+      new SqlWhereQuery({ a: 3, b: 'foo' }).or({ c: true }),
     ).toMatchObject({
       sql: 'WHERE ("a" = ? AND "b" = ?) OR "c" = ?', values: [3, 'foo', true],
     })
-    expect(new SqlWhereStmt({ c: true }).or({ a: 3, b: 'foo' })).toMatchObject({
+    expect(new SqlWhereQuery({ c: true }).or({ a: 3, b: 'foo' })).toMatchObject({
       sql: 'WHERE "c" = ? OR ("a" = ? AND "b" = ?)', values: [true, 3, 'foo'],
     })
   })
   it('does not wraps statement with unnecessary parenthesis', () => {
     expect(
-      new SqlWhereStmt(q`a = 3 OR b = 'foo'`).or({ c: true }),
+      new SqlWhereQuery(q`a = 3 OR b = 'foo'`).or({ c: true }),
     ).toMatchObject({
       sql: 'WHERE a = 3 OR b = \'foo\' OR "c" = ?', values: [true],
     })
     expect(
-      new SqlWhereStmt(q`a = 3 OR (b = ${'foo'} AND c = 0)`).or({ d: 'bar' }),
+      new SqlWhereQuery(q`a = 3 OR (b = ${'foo'} AND c = 0)`).or({ d: 'bar' }),
     ).toMatchObject({
       sql: 'WHERE a = 3 OR (b = ? AND c = 0) OR "d" = ?',
       values: ['foo', 'bar'],
@@ -318,9 +318,9 @@ describe('SqlWhereStmt', () => {
   })
   it('removes duplicated WHERE keyword', () => {
     expect(
-      new SqlWhereStmt(
-        new SqlWhereStmt(
-          new SqlWhereStmt({ a: 3 }),
+      new SqlWhereQuery(
+        new SqlWhereQuery(
+          new SqlWhereQuery({ a: 3 }),
         ),
       ),
     ).toMatchObject({ sql: 'WHERE "a" = ?', values: [3] })

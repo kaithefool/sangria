@@ -11,7 +11,7 @@ export type SqlCf = {
   lte: SqlDataType
 }
 
-export function cfStmt<O extends keyof SqlCf>(
+export function cfQuery<O extends keyof SqlCf>(
   col: string,
   operator: O,
   value: SqlCf[O],
@@ -67,7 +67,7 @@ export function compare(
       values.push(...v.values ?? [])
     }
     else if (isSqlDataType(v)) {
-      const s = cfStmt(col, 'eq', v)
+      const s = cfQuery(col, 'eq', v)
       sql.push(s.sql)
       values.push(...s.values ?? [])
     }
@@ -75,7 +75,7 @@ export function compare(
       const e = Object.entries(v)
       for (let k = 0; k < e.length; k += 1) {
         const [operator, d] = e[k]
-        const s = cfStmt(col, operator as keyof SqlCf, d)
+        const s = cfQuery(col, operator as keyof SqlCf, d)
         sql.push(s.sql)
         values.push(...s.values ?? [])
       }
@@ -119,7 +119,7 @@ export function prependWhere(sql: string) {
   return `WHERE ${s}`
 }
 
-export class SqlWhereStmt implements SqlQuery {
+export class SqlWhereQuery implements SqlQuery {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   values: any[] = []
   sql: string = ''
@@ -131,41 +131,41 @@ export class SqlWhereStmt implements SqlQuery {
   ) {
     this.whereKeyword = whereKeyword
     if (opts !== undefined) {
-      const stmt = isSqlQuery(opts) ? opts : compare(opts)
-      this.sql = whereKeyword ? prependWhere(stmt.sql) : rmWhere(stmt.sql)
-      this.values = stmt.values
+      const query = isSqlQuery(opts) ? opts : compare(opts)
+      this.sql = whereKeyword ? prependWhere(query.sql) : rmWhere(query.sql)
+      this.values = query.values
     }
   }
 
   and(opts: SqlQuery | SqlCfMap) {
-    const stmt = isSqlQuery(opts) ? opts : compare(opts)
-    const values = [...this.values, ...stmt.values]
-    const sql = [this.sql, stmt.sql].filter(s => s).map((s) => {
+    const query = isSqlQuery(opts) ? opts : compare(opts)
+    const values = [...this.values, ...query.values]
+    const sql = [this.sql, query.sql].filter(s => s).map((s) => {
       let r = rmWhere(s)
       r = hasLogical('OR', r) ? `(${r})` : r
       return r
     })
-    return new SqlWhereStmt({
+    return new SqlWhereQuery({
       sql: sql.join(' AND '), values,
     }, this.whereKeyword)
   }
 
   or(opts: SqlQuery | SqlCfMap) {
-    const stmt = isSqlQuery(opts) ? opts : compare(opts)
-    const values = [...this.values, ...stmt.values]
-    const sql = [this.sql, stmt.sql].filter(s => s).map((s) => {
+    const query = isSqlQuery(opts) ? opts : compare(opts)
+    const values = [...this.values, ...query.values]
+    const sql = [this.sql, query.sql].filter(s => s).map((s) => {
       let r = rmWhere(s)
       r = hasLogical('AND', r) ? `(${r})` : r
       return r
     })
-    return new SqlWhereStmt({
+    return new SqlWhereQuery({
       sql: sql.join(' OR '), values,
     }, this.whereKeyword)
   }
 }
 
-export function where(stmt: SqlQuery | SqlCfMap, whereKeyword?: boolean) {
-  return new SqlWhereStmt(stmt, whereKeyword)
+export function where(query: SqlQuery | SqlCfMap, whereKeyword?: boolean) {
+  return new SqlWhereQuery(query, whereKeyword)
 }
 
 export default where

@@ -21,7 +21,7 @@ export function set(
   }
   return {
     sql: `${setKeyword ? 'SET ' : ''}${sql.join(', ')}`,
-    ...values.length && { values },
+    values,
   }
 }
 

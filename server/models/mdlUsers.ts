@@ -93,9 +93,13 @@ export function selectUsers<P extends boolean = false>(
 // }
 
 async function test() {
-  const [, id] = await insertUser({
+  const [err, id] = await insertUser({
     role: 'admin', email: 'foo@bar.com', password: '12345678',
   })
+  if (err) {
+    console.error(err)
+    return
+  }
   console.log(id)
   // console.log(await selectUsers({ filter: { id } }))
   // await deleteUsers({ id })
