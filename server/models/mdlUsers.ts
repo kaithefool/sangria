@@ -58,15 +58,15 @@ export function selectUsers<P extends boolean = false>(
     FROM users
     ${q.where(filter)}
     ${q.limit({ skip, limit })};
-  `).all()
+  `).all() as UserRow[]
 }
 
-// export async function countUsers(filter: UsersFilter = {}) {
-//   const r = await db.get<{ total: number }>(`
-//     SELECT count(*) AS total FROM users ${q.where(filter)};
-//   `)
-//   return r?.total ?? 0
-// }
+export function countUsers(filter: UsersFilter = {}) {
+  const r = db.query(q`
+    SELECT count(*) AS total FROM users ${q.where(filter)};
+  `).get() as { total: number }
+  return r.total
+}
 
 // export async function updateUsers(
 //   filter: UsersFilter = {},
@@ -84,13 +84,17 @@ export function selectUsers<P extends boolean = false>(
 //   `))
 // }
 
-// export async function deleteUsers(filter: UsersFilter = {}) {
-//   const where = q.where(filter)
-//   await db.exec('BEGIN TRANSACTION;')
-//   await db.run(q`INSERT INTO deleted_users SELECT * FROM users ${where};`)
-//   await db.run(q`DELETE FROM users ${where};`)
-//   await db.exec('COMMIT;')
-// }
+export function deleteUsers(filter: UsersFilter = {}) {
+  const where = q.where(filter)
+  db.transaction(() => {
+    db.query(q`
+      INSERT INTO deleted_users SELECT * FROM users ${where};
+    `).run()
+    db.query(q`
+      DELETE FROM users ${where};
+    `).run()
+  })()
+}
 
 async function test() {
   const [err, id] = await insertUser({
@@ -101,9 +105,9 @@ async function test() {
     return
   }
   console.log(id)
-  // console.log(await selectUsers({ filter: { id } }))
-  // await deleteUsers({ id })
-  // console.log(await selectUsers({ filter: { id } }))
+  console.log(await selectUsers({ filter: { id } }))
+  deleteUsers({ id })
+  console.log(await selectUsers({ filter: { id } }))
 }
 
 test()
