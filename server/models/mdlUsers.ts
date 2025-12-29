@@ -96,7 +96,8 @@ async function test() {
   const [, id] = await insertUser({
     role: 'admin', email: 'foo@bar.com', password: '12345678',
   })
-  console.log(await selectUsers({ filter: { id } }))
+  console.log(id)
+  // console.log(await selectUsers({ filter: { id } }))
   // await deleteUsers({ id })
   // console.log(await selectUsers({ filter: { id } }))
 }

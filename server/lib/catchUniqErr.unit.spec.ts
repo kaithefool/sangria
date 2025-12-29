@@ -12,7 +12,7 @@ describe('query unique constraint error catcher', () => {
       func, result,
     ) => {
       const fn = jest.fn(func)
-      const [, r] = await catchUniqErr(fn)
+      const [, r] = catchUniqErr(fn)
       expect(fn.mock.calls).toHaveLength(1)
       expect(r).toEqual(result)
     },
@@ -40,7 +40,7 @@ describe('query unique constraint error catcher', () => {
       db.exec(createTblSql)
       const stmt = db.prepare(insertSql)
       stmt.run()
-      const [err] = await catchUniqErr(() => stmt.run())
+      const [err] = catchUniqErr(() => stmt.run())
       expect(err).not.toBeNull()
       expect(err instanceof SqliteUniqError).toBe(true)
       expect(err?.col).toBe(result)

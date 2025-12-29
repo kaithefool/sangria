@@ -5,7 +5,7 @@ export function limit({
 }: {
   skip?: number
   limit?: number
-}): SqlQuery {
+} = {}): SqlQuery {
   if (!skip && !limit) return { sql: '', values: [] }
   let sql = `LIMIT ${skip}`
   if (limit) sql += `, ${limit}`
