@@ -1,7 +1,6 @@
 import { Role } from '../consts'
 import { encryptPwd } from '../lib/crypto'
-import { SqlDupErr } from '../lib/query/catchDupErr'
-import db, { q, uuid } from '../start/db'
+import db, { q, uuid, catchUniqErr } from '../start/db'
 
 export type UserRow = {
   id: string
@@ -19,18 +18,19 @@ export type UserInsert = {
   password?: string | null
 }
 
-export async function insertUser({
+export function insertUser({
   role, email = null, password = null,
-}: UserInsert): Promise<[SqlDupErr] | [null, string]> {
-  const id = uuid()
-  db.query(q`
-    INSERT INTO users ${q.values({
-      id, role, email,
-      password: password ? encryptPwd(password) : password,
-    })};
-  `).run()
-  // if (err) return [err]
-  return [null, id]
+}: UserInsert) {
+  return catchUniqErr(() => {
+    const id = uuid()
+    db.query(q`
+      INSERT INTO users ${q.values({
+        id, role, email,
+        password: password ? encryptPwd(password) : password,
+      })};
+    `).run()
+    return id
+  })
 }
 
 export type UsersFilter = {
@@ -46,19 +46,20 @@ export type SelectUsersOpts = {
   password?: boolean
 }
 
-// export function selectUsers<P extends boolean = false>(
-//   { filter = {}, skip = 0, limit = 20 }: SelectUsersOpts,
-//   password?: P,
-// ): Promise<P extends true ? UserRow[] : Omit<UserRow, 'password'>[]> {
-//   let cols = 'id, role, email, created_at'
-//   if (password) cols += ', password'
+export function selectUsers<P extends boolean = false>(
+  { filter = {}, skip, limit }: SelectUsersOpts,
+  password?: P,
+): P extends true ? UserRow[] : Omit<UserRow, 'password'>[] {
+  let cols = 'id, role, email, created_at'
+  if (password) cols += ', password'
 
-//   return db.all<UserRow[]>(q`
-//     SELECT ${q.raw(cols)}
-//     FROM users ${q.where(filter)}
-//     LIMIT ${skip}, ${limit};
-//   `)
-// }
+  return db.query(q`
+    SELECT ${q.raw(cols)}
+    FROM users
+    ${q.where(filter)}
+    ${q.limit({ skip, limit })};
+  `).all()
+}
 
 // export async function countUsers(filter: UsersFilter = {}) {
 //   const r = await db.get<{ total: number }>(`
@@ -95,7 +96,7 @@ async function test() {
   const [, id] = await insertUser({
     role: 'admin', email: 'foo@bar.com', password: '12345678',
   })
-  // console.log(await selectUsers({ filter: { id } }))
+  console.log(await selectUsers({ filter: { id } }))
   // await deleteUsers({ id })
   // console.log(await selectUsers({ filter: { id } }))
 }

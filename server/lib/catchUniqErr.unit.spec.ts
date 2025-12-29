@@ -1,20 +1,18 @@
 import { describe, expect, it, jest } from '@jest/globals'
-import { catchDupErr, SqlDupErr } from './catchDupErr'
-import { open } from 'sqlite'
-import sqlite3 from 'sqlite3'
-import { afterThis } from '../../test'
+import { catchUniqErr, SqliteUniqError } from './catchUniqErr'
+import Database from 'better-sqlite3'
+import { afterThis } from '../test'
 
-describe('query error catcher', () => {
+describe('query unique constraint error catcher', () => {
   it.each([
     [() => 'foobar', 'foobar'],
-    [async () => 'foo', 'foo'],
   ])(
-    'executes any func, async or sync, & returns whatever the func returns.',
+    'executes any func & returns whatever the func returns.',
     async (
       func, result,
     ) => {
       const fn = jest.fn(func)
-      const [, r] = await catchDupErr(fn)
+      const [, r] = await catchUniqErr(fn)
       expect(fn.mock.calls).toHaveLength(1)
       expect(r).toEqual(result)
     },
@@ -37,16 +35,14 @@ describe('query error catcher', () => {
     ],
   ])('catches unique constraint error',
     async (createTblSql, insertSql, result) => {
-      const db = await open({
-        driver: sqlite3.Database,
-        filename: '',
-      })
+      const db = new Database('')
       afterThis(() => db.close())
-      await db.run(createTblSql)
-      await db.run(insertSql)
-      const [err] = await catchDupErr(() => db.run(insertSql))
+      db.exec(createTblSql)
+      const stmt = db.prepare(insertSql)
+      stmt.run()
+      const [err] = await catchUniqErr(() => stmt.run())
       expect(err).not.toBeNull()
-      expect(err instanceof SqlDupErr).toBe(true)
+      expect(err instanceof SqliteUniqError).toBe(true)
       expect(err?.col).toBe(result)
     })
 })

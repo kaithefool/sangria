@@ -2,6 +2,7 @@ import { v7 } from 'uuid'
 import Database from 'better-sqlite3'
 import { join } from 'node:path'
 import q, { SqlQuery } from '../lib/query'
+import catchUniqErr from '../lib/catchUniqErr'
 import migrate from '../lib/migrate'
 
 const { dirname } = import.meta
@@ -14,6 +15,7 @@ export class Db extends Database {
 }
 
 export { q }
+export { catchUniqErr }
 
 export function uuid() {
   return v7()

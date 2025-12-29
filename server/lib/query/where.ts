@@ -17,7 +17,9 @@ export function cfStmt<O extends keyof SqlCf>(
   value: SqlCf[O],
 ): SqlQuery {
   let sql = ''
-  const values = Array.isArray(value) ? value : [value]
+  let values: SqlDataType[] = []
+  if (Array.isArray(value)) values = value
+  else values = [value]
   const qm = Array(values.length).fill('?').join(', ')
   switch (operator) {
     case 'eq':
