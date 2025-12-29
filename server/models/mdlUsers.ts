@@ -43,7 +43,6 @@ export type SelectUsersOpts = {
   filter?: UsersFilter
   skip?: number
   limit?: number
-  password?: boolean
 }
 
 export function selectUsers<P extends boolean = false>(
@@ -68,21 +67,23 @@ export function countUsers(filter: UsersFilter = {}) {
   return r.total
 }
 
-// export async function updateUsers(
-//   filter: UsersFilter = {},
-//   update: {
-//     role?: Role
-//     email?: string | null
-//     password?: string | null
-//   },
-// ) {
-//   const u = { ...update }
-//   if (u.password) u.password = encryptPwd(u.password)
-//   return q.catchDupErr(() => db.run(q`
-//     UPDATE users ${q.set(update)}
-//     ${q.where(filter)};
-//   `))
-// }
+export async function updateUsers(
+  filter: UsersFilter = {},
+  update: {
+    role?: Role
+    email?: string | null
+    password?: string | null
+  },
+) {
+  return catchUniqErr(() => {
+    const u = { ...update }
+    if (u.password) u.password = encryptPwd(u.password)
+    db.query(q`
+      UPDATE users ${q.set(update)}
+      ${q.where(filter)};
+    `).run()
+  })
+}
 
 export function deleteUsers(filter: UsersFilter = {}) {
   const where = q.where(filter)
@@ -104,10 +105,11 @@ async function test() {
     console.error(err)
     return
   }
-  console.log(id)
-  console.log(await selectUsers({ filter: { id } }))
+  console.log('inserted', selectUsers({ filter: { id } }))
+  updateUsers({ id }, { email: 'foo@baz.com' })
+  console.log('updated', selectUsers({ filter: { id } }))
   deleteUsers({ id })
-  console.log(await selectUsers({ filter: { id } }))
+  console.log('deleted', selectUsers({ filter: { id } }))
 }
 
 test()
