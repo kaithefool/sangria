@@ -41,12 +41,13 @@ export type UsersFilter = {
 
 export type SelectUsersOpts = {
   filter?: UsersFilter
+  sort?: { [p in keyof UserRow]: 1 | -1 }
   skip?: number
   limit?: number
 }
 
 export function selectUsers<P extends boolean = false>(
-  { filter = {}, skip, limit }: SelectUsersOpts,
+  { filter = {}, skip, limit, sort }: SelectUsersOpts,
   password?: P,
 ): P extends true ? UserRow[] : Omit<UserRow, 'password'>[] {
   let cols = 'id, role, email, created_at'
@@ -56,6 +57,7 @@ export function selectUsers<P extends boolean = false>(
     SELECT ${q.raw(cols)}
     FROM users
     ${q.where(filter)}
+    ${q.orderBy(sort)}
     ${q.limit({ skip, limit })};
   `).all() as UserRow[]
 }
@@ -96,20 +98,3 @@ export function deleteUsers(filter: UsersFilter = {}) {
     `).run()
   })()
 }
-
-async function test() {
-  const [err, id] = await insertUser({
-    role: 'admin', email: 'foo@bar.com', password: '12345678',
-  })
-  if (err) {
-    console.error(err)
-    return
-  }
-  console.log('inserted', selectUsers({ filter: { id } }))
-  updateUsers({ id }, { email: 'foo@baz.com' })
-  console.log('updated', selectUsers({ filter: { id } }))
-  deleteUsers({ id })
-  console.log('deleted', selectUsers({ filter: { id } }))
-}
-
-test()

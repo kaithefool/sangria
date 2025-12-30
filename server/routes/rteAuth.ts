@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import validate, { assertValidInput } from '../middlewares/validate'
 import z from 'zod'
-import { userValidSchema } from '../services/servUsers'
+import { userSchema } from '../services/servUsers'
 import { authorize } from '../middlewares/authorize'
 import { login, logout, refreshTokens } from '../services/servAuth'
 import { clearAuthnCookies, getAuthnCookies, getJwtUser, setAuthnCookies } from '../middlewares/authenticate'
@@ -13,7 +13,7 @@ const loginSchema = z.object({
   body: z.object({
     cookies: z.boolean().optional(),
     persist: z.boolean().optional(),
-    ...userValidSchema
+    ...userSchema
       .pick({ email: true, password: true })
       .shape,
   }),

@@ -2,6 +2,7 @@ import { where } from './where'
 import { values } from './values'
 import set from './set'
 import { limit } from './limit'
+import { orderBy } from './orderBy'
 
 export type SqlDataType = string | number | boolean | Date | Buffer | null
 // values array has been required in some sqlite func
@@ -57,5 +58,6 @@ q.values = values
 q.where = where
 q.set = set
 q.limit = limit
+q.orderBy = orderBy
 
 export default q

@@ -1,20 +1,9 @@
-import {
-  AnyKeys, FilterQuery, ProjectionType, SortOrder, UpdateQuery,
-} from 'mongoose'
 import z from 'zod'
-import mdlUsers, { User } from '../models/mdlUsers'
+import * as mdlUsers from '../models/mdlUsers'
 import { catchDupErr } from './utils'
 import { roles } from '../consts'
 
-export type UsersFilter = FilterQuery<User>
-export type UsersQuery = {
-  filter?: UsersFilter
-  sort?: { [x: string]: SortOrder }
-  skip?: number
-  limit?: number
-}
-
-export const userValidSchema = z.object({
+export const userSchema = z.object({
   role: z.literal(roles),
   email: z.email(),
   password: z.string().min(8),

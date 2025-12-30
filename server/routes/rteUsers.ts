@@ -6,7 +6,7 @@ import validate, {
 } from '../middlewares/validate'
 import {
   createUsers, deleteUsers, findUser, listUsers, patchUsers,
-  userValidSchema,
+  userSchema,
 } from '../services/servUsers'
 import createHttpError from 'http-errors'
 
@@ -46,7 +46,7 @@ rteUsers.get(
 )
 
 const createSchema = z.object({
-  body: userValidSchema,
+  body: userSchema,
 })
 rteUsers.post(
   '/',
@@ -65,7 +65,7 @@ const patchSchema = z.object({
   params: z.object({
     _id: validObjectId(),
   }),
-  body: userValidSchema.partial(),
+  body: userSchema.partial(),
 })
 rteUsers.patch(
   '/:_id',
