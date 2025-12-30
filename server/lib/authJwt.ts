@@ -1,6 +1,5 @@
 import jwt, { JwtPayload, VerifyErrors } from 'jsonwebtoken'
 import { nanoid } from 'nanoid'
-import { Types } from 'mongoose'
 import ms, { StringValue as MsString } from 'ms'
 
 import { Role } from '../consts'
@@ -26,12 +25,12 @@ function validateMsString(v: string): MsString {
 }
 
 export type JwtUser = {
-  _id: Types.ObjectId
+  id: string
   role: Role
   email?: string
 }
 export type JwtRefresh = {
-  _id: Types.ObjectId
+  id: string
   persist: boolean
   issueAt?: Date
 }
@@ -40,8 +39,8 @@ export function isJwtUser(v: unknown): v is JwtUser {
   return (
     typeof v === 'object'
     && v !== null
-    && '_id' in v
-    && v._id instanceof Types.ObjectId
+    && 'id' in v
+    && typeof v.id === 'string'
     && 'role' in v
     && typeof v.role === 'string'
   )
@@ -49,7 +48,7 @@ export function isJwtUser(v: unknown): v is JwtUser {
 
 export function toJwtUser<U extends JwtUser>(user: U): JwtUser {
   return {
-    _id: new Types.ObjectId(user._id),
+    id: user.id,
     role: user.role,
     email: user.email,
   }
@@ -65,7 +64,7 @@ export function signTokens<U extends JwtUser>(
   } = {},
 ) {
   const ju = toJwtUser(user)
-  const jr: JwtRefresh = { _id: ju._id, persist }
+  const jr: JwtRefresh = { id: ju.id, persist }
   return {
     access: jwt.sign(
       ju,
@@ -100,9 +99,6 @@ export function verifyToken<P extends object>(
     if (sub && sub !== payload.sub) {
       return null
     }
-    if ('_id' in payload && typeof payload._id === 'string') {
-      payload._id = new Types.ObjectId(payload._id)
-    }
     return payload as JwtPayload & P
   }
   catch (err: unknown) {
@@ -126,7 +122,7 @@ export function verifyRefreshToken(
   const payload = verifyToken<JwtRefresh>(token, 'refresh', secret)
   if (payload) {
     return {
-      _id: payload._id,
+      id: payload.id,
       persist: payload.persist,
       issueAt: payload.iat ? new Date(payload.iat * 1000) : undefined,
     }

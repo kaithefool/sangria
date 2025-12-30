@@ -2,13 +2,12 @@ import { describe, expect, it } from '@jest/globals'
 import {
   signTokens, verifyAccessToken, verifyRefreshToken,
 } from './authJwt'
-import { Types } from 'mongoose'
 import { roles } from '../consts'
 
 describe('sign & verify tokens', () => {
-  const fakeId = new Types.ObjectId()
+  const fakeId = '019b6e29-21f5-7491-872a-92cf3c3e4a76'
   const user = {
-    _id: fakeId,
+    id: fakeId,
     role: roles[0],
     email: 'foo@bar.com',
   } as const
@@ -23,13 +22,13 @@ describe('sign & verify tokens', () => {
     const access = verifyAccessToken(validTokens.access)
     const refresh = verifyRefreshToken(validTokens.refresh)
     expect(access).not.toBeNull()
-    expect(access?._id).toEqual(fakeId)
+    expect(access?.id).toEqual(fakeId)
     expect(refresh).not.toBeNull()
-    expect(refresh?._id).toEqual(fakeId)
+    expect(refresh?.id).toEqual(fakeId)
   })
   it('invalidate expired tokens', (done) => {
     const expiredTokens = signTokens({
-      _id: fakeId,
+      id: fakeId,
       role: 'admin',
       email: 'foo@bar.com',
     }, false, { accessTtl: '10ms', refreshTtl: '10ms' })
@@ -43,7 +42,7 @@ describe('sign & verify tokens', () => {
   it('invalidate tokens signed with wrong secret', () => {
     const secret = 'valid-secret'
     const invalidTokens = signTokens({
-      _id: fakeId,
+      id: fakeId,
       role: 'admin',
       email: 'foo@bar.com',
     }, false, { secret: 'invalid-secret' })
