@@ -15,5 +15,7 @@
 
     // Disallow features that require cross-file awareness
     "isolatedModules": true,
+
+    "noUncheckedIndexedAccess": true,
   },
 }
