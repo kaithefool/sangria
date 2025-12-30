@@ -9,40 +9,27 @@ export const userSchema = z.object({
   password: z.string().min(8),
 })
 
-export function matchUsers(
-  filter?: UsersFilter,
-): FilterQuery<User> {
-  return filter ?? {}
-}
-
-export async function findUser(
-  filter: UsersFilter,
-  projection?: ProjectionType<User>,
+export function findUser(
+  filter: mdlUsers.UsersFilter,
 ) {
-  return mdlUsers.findOne(matchUsers(filter), projection)
+  return mdlUsers.selectUsers({ filter })[0]
 }
 
-export async function findUsers({
-  filter, sort, skip, limit = 60,
-}: UsersQuery = {}) {
-  let q = mdlUsers.find(matchUsers(filter))
-  if (sort) q = q.sort(sort)
-  if (skip) q.skip(skip)
-  if (limit) q.limit(limit)
-  return q
+export async function findUsers(opts: mdlUsers.SelectUsersOpts) {
+  return mdlUsers.selectUsers({ limit: 20, ...opts })
 }
 
 export async function countUsers(
-  filter?: UsersFilter,
+  filter?: mdlUsers.UsersFilter,
 ) {
-  return mdlUsers.countDocuments(matchUsers(filter))
+  return mdlUsers.countUsers(filter)
 }
 
-export async function listUsers(opt: UsersQuery = {}) {
-  const [rows, total] = await Promise.all([
-    findUsers(opt),
-    countUsers(opt.filter),
-  ])
+export async function listUsers(
+  opts: mdlUsers.SelectUsersOpts,
+) {
+  const rows = mdlUsers.selectUsers(opts)
+  const total = mdlUsers.countUsers(opts?.filter)
   return { rows, total }
 }
 

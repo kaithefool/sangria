@@ -2,16 +2,6 @@ import { Role } from '../consts'
 import { encryptPwd } from '../lib/crypto'
 import db, { q, uuid, catchUniqErr } from '../start/db'
 
-export type UserRow = {
-  id: string
-  role: Role
-  email: string | null
-  password: string | null
-  createdAt: Date
-  updatedAt: Date
-  lastLogoutAt: Date | null
-}
-
 export type UserInsert = {
   role: Role
   email?: string | null
@@ -37,6 +27,9 @@ export type UsersFilter = {
   id?: string | { ne: string }
   role?: Role
   email?: string
+  created_at?: { gt: Date, gte: Date, lt: Date, lte: Date }
+  updated_at?: { gt: Date, gte: Date, lt: Date, lte: Date }
+  last_logout_at?: { gt: Date, gte: Date, lt: Date, lte: Date }
 }
 
 export type SelectUsersOpts = {
@@ -46,11 +39,21 @@ export type SelectUsersOpts = {
   limit?: number
 }
 
+export type UserRow = {
+  id: string
+  role: Role
+  email: string | null
+  password: string | null
+  created_at: Date
+  updated_at: Date | null
+  last_logout_at: Date | null
+}
+
 export function selectUsers<P extends boolean = false>(
-  { filter = {}, skip, limit, sort }: SelectUsersOpts,
+  { filter = {}, skip, limit, sort }: SelectUsersOpts = {},
   password?: P,
 ): P extends true ? UserRow[] : Omit<UserRow, 'password'>[] {
-  let cols = 'id, role, email, created_at'
+  let cols = 'id, role, email, created_at, updated_at, last_logout_at'
   if (password) cols += ', password'
 
   return db.query(q`
@@ -69,16 +72,19 @@ export function countUsers(filter: UsersFilter = {}) {
   return r.total
 }
 
+export type UserUpdate = {
+  role?: Role
+  email?: string | null
+  password?: string | null
+  last_logout_at?: Date
+}
+
 export async function updateUsers(
   filter: UsersFilter = {},
-  update: {
-    role?: Role
-    email?: string | null
-    password?: string | null
-  },
+  update: UserUpdate,
 ) {
   return catchUniqErr(() => {
-    const u = { ...update }
+    const u = { ...update, updated_at: new Date() }
     if (u.password) u.password = encryptPwd(u.password)
     db.query(q`
       UPDATE users ${q.set(update)}
