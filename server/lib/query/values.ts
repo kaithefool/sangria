@@ -2,10 +2,10 @@ import { SqlDataType, SqlQuery, isSqlQuery } from './q'
 
 export type SqlVal = { [x: string]: SqlDataType | SqlQuery }
 
-export function values(
-  row: SqlVal | SqlVal[],
+export function values<T0 extends SqlVal, T1 extends T0>(
+  v0: T0, ...rest: T1[]
 ): SqlQuery {
-  const rows = Array.isArray(row) ? row : [row]
+  const rows = [v0, ...rest]
   if (rows[0] === undefined) return { sql: 'DEFAULT VALUES', values: [] }
   const cols = Object.keys(rows[0])
   if (cols[0] === undefined) return { sql: 'DEFAULT VALUES', values: [] }
@@ -23,6 +23,7 @@ export function values(
       }
       else {
         vals.push('?')
+        if (v === undefined) throw new Error('Inconsistent row type')
         values.push(v)
       }
     }

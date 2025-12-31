@@ -49,22 +49,22 @@ describe('VALUES builder', () => {
     expect(query.sql).toEqual(result)
   })
   it.each([
-    [values([]), { sql: 'DEFAULT VALUES', values: [] }],
+    [values(), { sql: 'DEFAULT VALUES', values: [] }],
     [
-      values([
+      values(
         { a: 1, b: 'foo' },
         { a: 2, b: 'bar' },
-      ]),
+      ),
       {
         sql: '("a", "b") VALUES (?, ?), (?, ?)',
         values: [1, 'foo', 2, 'bar'],
       },
     ],
     [
-      values([
+      values(
         { a: q`CURRENT_TIMESTAMP` },
         { a: q`CURRENT_TIMESTAMP` },
-      ]),
+      ),
       {
         sql: '("a") VALUES (CURRENT_TIMESTAMP), (CURRENT_TIMESTAMP)',
         values: [],
