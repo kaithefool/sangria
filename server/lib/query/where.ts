@@ -59,9 +59,9 @@ export function compare(
 ): SqlQuery {
   const sql: string[] = []
   const values: SqlDataType[] = []
-  const ent = Object.entries(cfMap)
-  for (let i = 0; i < ent.length; i += 1) {
-    const [col, v] = ent[i]
+  const colCfs = Object.entries(cfMap)
+  for (const colCf of colCfs) {
+    const [col, v] = colCf
     if (isSqlQuery(v)) {
       sql.push(`"${col}" ${v.sql}`)
       values.push(...v.values ?? [])
@@ -72,9 +72,9 @@ export function compare(
       values.push(...s.values ?? [])
     }
     else {
-      const e = Object.entries(v)
-      for (let k = 0; k < e.length; k += 1) {
-        const [operator, d] = e[k]
+      const cfs = Object.entries(v)
+      for (const cf of cfs) {
+        const [operator, d] = cf
         const s = cfQuery(col, operator as keyof SqlCf, d)
         sql.push(s.sql)
         values.push(...s.values ?? [])
