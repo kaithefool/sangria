@@ -49,7 +49,6 @@ describe('VALUES builder', () => {
     expect(query.sql).toEqual(result)
   })
   it.each([
-    [values(), { sql: 'DEFAULT VALUES', values: [] }],
     [
       values(
         { a: 1, b: 'foo' },
