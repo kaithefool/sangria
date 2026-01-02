@@ -33,10 +33,8 @@ export async function listUsers(
   return { rows, total }
 }
 
-export async function createUsers(
-  ...docs: AnyKeys<User>[]
-) {
-  return catchDupErr(() => mdlUsers.create(...docs))
+export function createUsers(row: mdlUsers.UserInsert) {
+  return mdlUsers.insertUser(row)
 }
 
 export async function patchUsers(

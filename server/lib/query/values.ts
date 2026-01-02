@@ -2,12 +2,20 @@ import { SqlDataType, SqlQuery, isSqlQuery } from './q'
 
 export type SqlVal = { [x: string]: SqlDataType | SqlQuery }
 
-export function values<T0 extends SqlVal, T1 extends T0>(
-  v0: T0, ...rest: T1[]
+function getCols(rows: SqlVal[]) {
+  const colsSet = new Set<string>()
+  for (const row of rows) {
+    for (const col of Object.keys(row)) {
+      colsSet.add(col)
+    }
+  }
+  return Array.from(colsSet)
+}
+
+export function values(
+  ...rows: SqlVal[]
 ): SqlQuery {
-  const rows = [v0, ...rest]
-  if (rows[0] === undefined) return { sql: 'DEFAULT VALUES', values: [] }
-  const cols = Object.keys(rows[0])
+  const cols = getCols(rows)
   if (cols[0] === undefined) return { sql: 'DEFAULT VALUES', values: [] }
   const colSql = cols.map(c => `"${c}"`).join(', ')
   const rowSql: string[] = []
@@ -23,7 +31,6 @@ export function values<T0 extends SqlVal, T1 extends T0>(
       }
       else {
         vals.push('?')
-        if (v === undefined) throw new Error('Inconsistent row type')
         values.push(v)
       }
     }

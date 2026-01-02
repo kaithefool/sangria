@@ -8,16 +8,16 @@ export type UserInsert = {
   password?: string | null
 }
 
-export function insertUser({
-  role, email = null, password = null,
-}: UserInsert) {
+export function insertUser(...rows: UserInsert[]) {
   return catchUniqErr(() => {
     const id = uuid()
+    const rr = rows.map(({ password, ...r }) => ({
+      id: uuid(),
+      password: password ? encryptPwd(password) : null,
+      ...r,
+    }))
     db.query(q`
-      INSERT INTO users ${q.values({
-        id, role, email,
-        password: password ? encryptPwd(password) : password,
-      })};
+      INSERT INTO users ${q.values(...rr)};
     `).run()
     return id
   })

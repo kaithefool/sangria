@@ -4,7 +4,9 @@ import set from './set'
 import { limit } from './limit'
 import { orderBy } from './orderBy'
 
-export type SqlDataType = string | number | boolean | Date | Buffer | null
+export type SqlDataType
+  = | string | number | boolean | Date | Buffer
+    | null | undefined
 // values array has been required in some sqlite func
 export type SqlQuery = {
   sql: string
