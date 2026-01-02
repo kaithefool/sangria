@@ -1,6 +1,5 @@
 import z from 'zod'
 import * as mdlUsers from '../models/mdlUsers'
-import { catchDupErr } from './utils'
 import { roles } from '../consts'
 
 export const userSchema = z.object({
@@ -34,20 +33,18 @@ export async function listUsers(
 }
 
 export function createUsers(row: mdlUsers.UserInsert) {
-  return mdlUsers.insertUser(row)
+  return mdlUsers.insertUsers(row)
 }
 
-export async function patchUsers(
-  filter: UsersFilter,
-  query: UpdateQuery<User>,
+export function patchUsers(
+  filter: mdlUsers.UsersFilter,
+  update: mdlUsers.UserUpdate,
 ) {
-  return catchDupErr(
-    () => mdlUsers.updateMany(matchUsers(filter), query),
-  )
+  return mdlUsers.updateUsers(filter, update)
 }
 
-export async function deleteUsers(
-  filter: UsersFilter,
+export function deleteUsers(
+  filter: mdlUsers.UsersFilter,
 ) {
-  await mdlUsers.softDeleteMany(matchUsers(filter))
+  return mdlUsers.deleteUsers(filter)
 }

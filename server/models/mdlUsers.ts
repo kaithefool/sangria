@@ -8,7 +8,7 @@ export type UserInsert = {
   password?: string | null
 }
 
-export function insertUser(...rows: UserInsert[]) {
+export function insertUsers(...rows: UserInsert[]) {
   return catchUniqErr(() => {
     const id = uuid()
     const rr = rows.map(({ password, ...r }) => ({
