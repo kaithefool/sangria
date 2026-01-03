@@ -1,61 +1,58 @@
 import { Router } from 'express'
 import z from 'zod'
-import validate, {
-  assertValidInput, validListQuery, validObjectId,
-  validSearchQuery,
-} from '../middlewares/validate'
-import {
-  createUsers, deleteUsers, findUser, listUsers, patchUsers,
-  userSchema,
-} from '../services/servUsers'
+import validate, * as v from '../middlewares/validate'
+import * as servUsers from '../services/servUsers'
 import createHttpError from 'http-errors'
 
 const rteUsers = Router()
 
 const listSchema = z.object({
-  query: validListQuery({
-    active: z.boolean().optional(),
-    search: validSearchQuery().optional(),
-  }, ['email']),
+  query: z.object({
+    filter: z.object({
+      active: z.boolean().optional(),
+    }).optional(),
+    sort: v.sort(['role', 'email', 'created_at', 'updated_at']),
+    skip: v.skip(),
+    limit: v.limit(),
+  }),
 })
 rteUsers.get(
   '/',
   validate(listSchema),
-  async (req, res) => {
-    const { query } = assertValidInput(res, listSchema)
-    const out = await listUsers(query)
+  (req, res) => {
+    const { query } = v.assertValidInput(res, listSchema)
+    const out = servUsers.listUsers(query)
     return res.json(out)
   },
 )
 
 const findByIdSchema = z.object({
   params: z.object({
-    _id: validObjectId(),
+    id: z.string(),
   }),
 })
 rteUsers.get(
-  '/:_id',
+  '/:id',
   validate(findByIdSchema),
   async (req, res) => {
-    const { params } = assertValidInput(res, findByIdSchema)
-    const out = await findUser({ _id: params._id })
-    if (out === null) throw createHttpError(404)
-
+    const { params } = v.assertValidInput(res, findByIdSchema)
+    const out = servUsers.findUser({ id: params.id })
+    if (out === undefined) throw createHttpError(404)
     return res.json(out)
   },
 )
 
 const createSchema = z.object({
-  body: userSchema,
+  body: servUsers.userSchema,
 })
 rteUsers.post(
   '/',
   validate(createSchema),
-  async (req, res, next) => {
-    const { body } = assertValidInput(res, createSchema)
-    const [dupErr, out] = await createUsers(body)
-    if (dupErr) return next(createHttpError(400, 'duplicate-key', {
-      reason: dupErr.keyValue,
+  (req, res, next) => {
+    const { body } = v.assertValidInput(res, createSchema)
+    const [err, out] = servUsers.createUsers(body)
+    if (err) return next(createHttpError(400, 'uniq-key-error', {
+      reason: err.col,
     }))
     return res.json(out)
   },
@@ -63,18 +60,18 @@ rteUsers.post(
 
 const patchSchema = z.object({
   params: z.object({
-    _id: validObjectId(),
+    id: z.string(),
   }),
-  body: userSchema.partial(),
+  body: servUsers.userSchema.partial(),
 })
 rteUsers.patch(
   '/:_id',
   validate(patchSchema),
-  async (req, res, next) => {
-    const { params, body } = assertValidInput(res, patchSchema)
-    const [dupErr] = await patchUsers({ _id: params._id }, body)
-    if (dupErr) return next(createHttpError(400, 'duplicate-key', {
-      reason: dupErr.keyValue,
+  (req, res, next) => {
+    const { params: { id }, body } = v.assertValidInput(res, patchSchema)
+    const [err] = servUsers.patchUsers({ id }, body)
+    if (err) return next(createHttpError(400, 'uniq-key-error', {
+      reason: err.col,
     }))
     return res.end()
   },
@@ -82,15 +79,15 @@ rteUsers.patch(
 
 const deleteSchema = z.object({
   params: z.object({
-    _id: validObjectId(),
+    id: z.string(),
   }),
 })
 rteUsers.delete(
   '/:_id',
   validate(deleteSchema),
-  async (req, res) => {
-    const { params } = assertValidInput(res, deleteSchema)
-    await deleteUsers({ _id: params._id })
+  (req, res) => {
+    const { params: { id } } = v.assertValidInput(res, deleteSchema)
+    servUsers.deleteUsers({ id })
     return res.end()
   },
 )

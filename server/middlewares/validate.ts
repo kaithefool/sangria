@@ -1,6 +1,5 @@
 import { RequestHandler, Response } from 'express'
 import createHttpError from 'http-errors'
-import { isValidObjectId, Types } from 'mongoose'
 import * as z from 'zod'
 
 export function getValidInput<S extends z.ZodObject>(
@@ -42,60 +41,17 @@ export default function validate(schema: z.ZodObject): RequestHandler {
   }
 }
 
-export function validCfOpQuery(
-  schema: z.ZodDate | z.ZodNumber,
-) {
-  return z.object({
-    eq: schema.optional(),
-    in: schema.optional(),
-    nin: schema.optional(),
-    gt: schema.optional(),
-    gte: schema.optional(),
-    lt: schema.optional(),
-    lte: schema.optional(),
-  }).transform(a => ({
-    ...a.eq && { $eq: a.eq },
-    ...a.in && { $in: a.in },
-    ...a.nin && { $nin: a.nin },
-    ...a.gt && { $gt: a.gt },
-    ...a.gte && { $gte: a.gt },
-    ...a.lt && { $lt: a.lt },
-    ...a.lte && { $lte: a.lt },
-  }))
+export function sort<const K extends string[]>(keys: K) {
+  return z.record(
+    z.literal(keys),
+    z.literal([1, -1]),
+  ).optional()
 }
 
-export function validSearchQuery() {
-  return z.string().optional().transform((a) => {
-    if (a === undefined) return undefined
-    let query = a
-    query = a.trim()
-    query = a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // escape for regex
-    query = a.replace(/[ -_]/g, '[ -_]') // dashes, underscores and spaces
-    return new RegExp(query, 'i')
-  })
+export function skip() {
+  return z.number().positive().optional()
 }
 
-export function validObjectId() {
-  return z.stringFormat('id', (val) => {
-    return isValidObjectId(val)
-  }).transform(a => new Types.ObjectId(a))
-}
-
-export function validListQuery<
-  const F extends z.ZodRawShape,
-  const S extends string[],
->(
-  filter: F,
-  sortable: S,
-  maxLimit = 60,
-) {
-  return z.object({
-    filter: z.object(filter).optional(),
-    sort: z.record(
-      z.literal(sortable),
-      z.literal([1, -1]),
-    ).optional(),
-    skip: z.number().positive().optional(),
-    limit: z.number().positive().max(maxLimit).optional(),
-  })
+export function limit(max: number = 20) {
+  return z.number().positive().max(max).optional()
 }

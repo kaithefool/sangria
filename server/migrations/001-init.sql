@@ -3,6 +3,7 @@ CREATE TABLE users (
   role TEXT NOT NULL,
   email TEXT UNIQUE,
   password TEXT,
+  active BOOLEAN DEFAULT TRUE,
   created_at DATE DEFAULT CURRENT_TIMESTAMP,
   last_logout_at DATE
 );
@@ -12,6 +13,7 @@ CREATE TABLE deleted_users (
   role TEXT NOT NULL,
   email TEXT,
   password TEXT,
+  active BOOLEAN,
   created_at DATE
   last_logout_at DATE,
   deleted_at DATE DEFAULT CURRENT_TIMESTAMP

@@ -6,6 +6,7 @@ export type UserInsert = {
   role: Role
   email?: string | null
   password?: string | null
+  active?: boolean
 }
 
 export function insertUsers(...rows: UserInsert[]) {
@@ -27,6 +28,7 @@ export type UsersFilter = {
   id?: string | { ne: string }
   role?: Role
   email?: string
+  active?: boolean
   created_at?: { gt: Date, gte: Date, lt: Date, lte: Date }
   updated_at?: { gt: Date, gte: Date, lt: Date, lte: Date }
   last_logout_at?: { gt: Date, gte: Date, lt: Date, lte: Date }
@@ -34,7 +36,7 @@ export type UsersFilter = {
 
 export type SelectUsersOpts = {
   filter?: UsersFilter
-  sort?: { [p in keyof UserRow]: 1 | -1 }
+  sort?: { [p in keyof UserRow]?: 1 | -1 }
   skip?: number
   limit?: number
 }
@@ -44,6 +46,7 @@ export type UserRow = {
   role: Role
   email: string | null
   password: string | null
+  active: boolean
   created_at: Date
   updated_at: Date | null
   last_logout_at: Date | null
@@ -76,10 +79,11 @@ export type UserUpdate = {
   role?: Role
   email?: string | null
   password?: string | null
+  active?: boolean
   last_logout_at?: Date
 }
 
-export async function updateUsers(
+export function updateUsers(
   filter: UsersFilter = {},
   update: UserUpdate,
 ) {

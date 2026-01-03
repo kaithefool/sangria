@@ -57,7 +57,7 @@ rteAuth.post(
   async (req, res) => {
     const jwtUser = getJwtUser(res)
     if (jwtUser) {
-      await logout(jwtUser._id)
+      await logout(jwtUser.id)
     }
     const ac = getAuthnCookies(req)
     if (ac.access || ac.refresh) {
