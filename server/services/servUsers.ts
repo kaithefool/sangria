@@ -8,23 +8,21 @@ export const userSchema = z.object({
   password: z.string().min(8),
 })
 
-export function findUser(
-  filter: mdlUsers.UsersFilter,
-) {
-  return mdlUsers.selectUsers({ filter })[0]
+export function findUser(id: string) {
+  return mdlUsers.selectUsers({ filter: { id } })[0]
 }
 
-export async function findUsers(opts: mdlUsers.SelectUsersOpts) {
+export function findUsers(opts: mdlUsers.SelectUsersOpts) {
   return mdlUsers.selectUsers({ limit: 20, ...opts })
 }
 
-export async function countUsers(
+export function countUsers(
   filter?: mdlUsers.UsersFilter,
 ) {
   return mdlUsers.countUsers(filter)
 }
 
-export async function listUsers(
+export function listUsers(
   opts: mdlUsers.SelectUsersOpts,
 ) {
   const rows = mdlUsers.selectUsers(opts)

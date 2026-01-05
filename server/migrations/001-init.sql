@@ -1,7 +1,7 @@
 CREATE TABLE users (
   id TEXT PRIMARY KEY,
   role TEXT NOT NULL,
-  email TEXT UNIQUE,
+  email TEXT UNIQUE NOT NULL,
   password TEXT,
   active BOOLEAN DEFAULT TRUE,
   created_at DATE DEFAULT CURRENT_TIMESTAMP,

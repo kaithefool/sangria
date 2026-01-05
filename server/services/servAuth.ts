@@ -1,42 +1,42 @@
-import { Types } from 'mongoose'
-import { findUser, patchUsers } from './servUsers'
 import { verifyPwd } from '../lib/crypto'
 import { signTokens, toJwtUser, verifyRefreshToken } from '../lib/authJwt'
+import { selectUsers, updateUsers } from '../models/mdlUsers'
 
 export type AuthCredentials = {
   email: string
   password: string
 }
 
-export async function login(
+export function login(
   cred: AuthCredentials, persist: boolean,
 ) {
-  const user = await findUser({ email: cred.email }, '+password')
-
+  const user = selectUsers(
+    { filter: { email: cred.email } }, true,
+  )[0]
   if (!user) return { err: new Error('invalid-credentials') }
   if (!user.active) return { err: new Error('invalid-credentials') }
   if (
-    user.password === undefined
+    user.password === null
     || !verifyPwd(cred.password, user.password)
   ) return { err: new Error('invalid-credentials') }
 
   return { authTokens: signTokens(user, persist) }
 }
 
-export async function logout(userId: Types.ObjectId) {
-  await patchUsers({ _id: userId }, { lastLogoutAt: new Date() })
+export function logout(userId: string) {
+  updateUsers({ id: userId }, { last_logout_at: new Date() })
 }
 
-export async function refreshTokens(refreshToken: string) {
+export function refreshTokens(refreshToken: string) {
   const refresh = verifyRefreshToken(refreshToken)
   if (refresh === null) return { err: new Error('invalid-token') }
-  const user = await findUser({ _id: refresh._id })
+  const user = selectUsers({ filter: { id: refresh.id } })[0]
   if (
     !user
     || (
-      user.lastLogoutAt
+      user.last_logout_at
       && refresh.issueAt
-      && user.lastLogoutAt > refresh.issueAt
+      && user.last_logout_at > refresh.issueAt
     )
   ) return { err: new Error('invalid-token') }
   return {

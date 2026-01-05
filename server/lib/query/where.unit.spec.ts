@@ -238,7 +238,9 @@ describe('SqlWhereQuery', () => {
     ).toMatchObject({
       sql: 'WHERE "a" = ? AND "b" = ?', values: [3, 'foo'],
     })
-    expect(new SqlWhereQuery(new SqlWhereQuery({ a: 3 }), false)).toMatchObject({
+    expect(
+      new SqlWhereQuery(new SqlWhereQuery({ a: 3 }), false),
+    ).toMatchObject({
       sql: '"a" = ?', values: [3],
     })
   })
@@ -299,7 +301,9 @@ describe('SqlWhereQuery', () => {
     ).toMatchObject({
       sql: 'WHERE ("a" = ? AND "b" = ?) OR "c" = ?', values: [3, 'foo', true],
     })
-    expect(new SqlWhereQuery({ c: true }).or({ a: 3, b: 'foo' })).toMatchObject({
+    expect(
+      new SqlWhereQuery({ c: true }).or({ a: 3, b: 'foo' }),
+    ).toMatchObject({
       sql: 'WHERE "c" = ? OR ("a" = ? AND "b" = ?)', values: [true, 3, 'foo'],
     })
   })

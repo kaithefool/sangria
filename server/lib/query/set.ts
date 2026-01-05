@@ -4,12 +4,12 @@ export function set(
   input: { [x: string]: SqlDataType | SqlQuery },
   setKeyword = true,
 ): SqlQuery {
-  const ent = Object.entries(input)
-  if (!ent.length) throw new Error('Cannot SET empty values.')
+  const entries = Object.entries(input)
+  if (!entries.length) throw new Error('Cannot SET empty values.')
   const values: SqlDataType[] = []
   const sql: string[] = []
-  for (let i = 0; i < ent.length; i += 1) {
-    const [c, v] = ent[i]
+  for (const ent of entries) {
+    const [c, v] = ent
     if (isSqlQuery(v)) {
       sql.push(`"${c}" = ${v.sql}`)
       values.push(...v.values ?? [])

@@ -1,14 +1,14 @@
 import { SqlDataType, SqlQuery, isSqlQuery, isSqlDataType } from './q'
 
-export type SqlCf = {
-  eq: SqlDataType
-  ne: SqlDataType
-  in: SqlDataType[]
-  nin: SqlDataType[]
-  gt: SqlDataType
-  gte: SqlDataType
-  lt: SqlDataType
-  lte: SqlDataType
+export type SqlCf<T extends SqlDataType = SqlDataType> = {
+  eq: T
+  ne: T
+  in: T[]
+  nin: T[]
+  gt: T
+  gte: T
+  lt: T
+  lte: T
 }
 
 export function cfQuery<O extends keyof SqlCf>(

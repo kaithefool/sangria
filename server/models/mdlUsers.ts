@@ -1,12 +1,42 @@
 import { Role } from '../consts'
 import { encryptPwd } from '../lib/crypto'
+import { SqlCf } from '../lib/query'
 import db, { q, uuid, catchUniqErr } from '../start/db'
+
+export type UserRow = {
+  id: string
+  role: Role
+  email: string
+  password: string | null
+  active: boolean
+  created_at: Date
+  updated_at: Date | null
+  last_logout_at: Date | null
+}
 
 export type UserInsert = {
   role: Role
-  email?: string | null
+  email: string
   password?: string | null
   active?: boolean
+}
+
+export type UserUpdate = {
+  role?: Role
+  email?: string
+  password?: string | null
+  active?: boolean
+  last_logout_at?: Date
+}
+
+export type UsersFilter = {
+  id?: string | SqlCf<string>
+  role?: Role | SqlCf<string>
+  email?: string
+  active?: boolean
+  created_at?: { gt: Date, gte: Date, lt: Date, lte: Date }
+  updated_at?: { gt: Date, gte: Date, lt: Date, lte: Date }
+  last_logout_at?: { gt: Date, gte: Date, lt: Date, lte: Date }
 }
 
 export function insertUsers(...rows: UserInsert[]) {
@@ -24,16 +54,6 @@ export function insertUsers(...rows: UserInsert[]) {
   })
 }
 
-export type UsersFilter = {
-  id?: string | { ne: string }
-  role?: Role
-  email?: string
-  active?: boolean
-  created_at?: { gt: Date, gte: Date, lt: Date, lte: Date }
-  updated_at?: { gt: Date, gte: Date, lt: Date, lte: Date }
-  last_logout_at?: { gt: Date, gte: Date, lt: Date, lte: Date }
-}
-
 export type SelectUsersOpts = {
   filter?: UsersFilter
   sort?: { [p in keyof UserRow]?: 1 | -1 }
@@ -41,22 +61,11 @@ export type SelectUsersOpts = {
   limit?: number
 }
 
-export type UserRow = {
-  id: string
-  role: Role
-  email: string | null
-  password: string | null
-  active: boolean
-  created_at: Date
-  updated_at: Date | null
-  last_logout_at: Date | null
-}
-
-export function selectUsers<P extends boolean = false>(
+export function selectUsers<P extends boolean>(
   { filter = {}, skip, limit, sort }: SelectUsersOpts = {},
   password?: P,
 ): P extends true ? UserRow[] : Omit<UserRow, 'password'>[] {
-  let cols = 'id, role, email, created_at, updated_at, last_logout_at'
+  let cols = 'id, role, email, active, created_at, updated_at, last_logout_at'
   if (password) cols += ', password'
 
   return db.query(q`
@@ -73,14 +82,6 @@ export function countUsers(filter: UsersFilter = {}) {
     SELECT count(*) AS total FROM users ${q.where(filter)};
   `).get() as { total: number }
   return r.total
-}
-
-export type UserUpdate = {
-  role?: Role
-  email?: string | null
-  password?: string | null
-  active?: boolean
-  last_logout_at?: Date
 }
 
 export function updateUsers(
