@@ -25,7 +25,7 @@ export function values(
     const vals: string[] = []
     for (const col of cols) {
       const v = row[col]
-      if (isSqlQuery(v)) {
+      if (v instanceof SqlQuery) {
         vals.push(v.sql)
         values.push(...v.values)
       }

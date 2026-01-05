@@ -1,4 +1,4 @@
-import { isSqlQuery, SqlDataType, SqlQuery } from './q'
+import { isSqlQuery, SqlDataType, SqlQuery } from './query'
 
 export function set(
   input: { [x: string]: SqlDataType | SqlQuery },
@@ -10,7 +10,7 @@ export function set(
   const sql: string[] = []
   for (const ent of entries) {
     const [c, v] = ent
-    if (isSqlQuery(v)) {
+    if (v instanceof SqlQuery) {
       sql.push(`"${c}" = ${v.sql}`)
       values.push(...v.values ?? [])
     }

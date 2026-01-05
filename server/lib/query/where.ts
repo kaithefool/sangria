@@ -1,4 +1,4 @@
-import { SqlDataType, SqlQuery, isSqlQuery, isSqlDataType } from './q'
+import { SqlDataType, SqlQuery, isSqlDataType } from './SqlQuery'
 
 export type SqlCf<T extends SqlDataType = SqlDataType> = {
   eq: T
@@ -11,11 +11,11 @@ export type SqlCf<T extends SqlDataType = SqlDataType> = {
   lte: T
 }
 
-export function cfQuery<O extends keyof SqlCf>(
+export function cfQuery<K extends keyof SqlCf>(
   col: string,
-  operator: O,
-  value: SqlCf[O],
-): SqlQuery {
+  operator: K,
+  value: SqlCf[K],
+) {
   let sql = ''
   let values: SqlDataType[] = []
   if (Array.isArray(value)) values = value
@@ -47,7 +47,7 @@ export function cfQuery<O extends keyof SqlCf>(
       sql = `"${col}" <= ?`
       break
   }
-  return { sql, values }
+  return new SqlQuery(sql, values)
 }
 
 export type SqlCfMap = {
@@ -56,13 +56,13 @@ export type SqlCfMap = {
 
 export function compare(
   cfMap: SqlCfMap,
-): SqlQuery {
+) {
   const sql: string[] = []
   const values: SqlDataType[] = []
   const colCfs = Object.entries(cfMap)
   for (const colCf of colCfs) {
     const [col, v] = colCf
-    if (isSqlQuery(v)) {
+    if (v instanceof SqlQuery) {
       sql.push(`"${col}" ${v.sql}`)
       values.push(...v.values ?? [])
     }
@@ -81,7 +81,7 @@ export function compare(
       }
     }
   }
-  return { sql: sql.join(' AND '), values }
+  return new SqlQuery(sql.join(' AND '), values)
 }
 
 export function hasLogical(operator: 'AND' | 'OR', sql: string) {
@@ -119,48 +119,47 @@ export function prependWhere(sql: string) {
   return `WHERE ${s}`
 }
 
-export class SqlWhereQuery implements SqlQuery {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  values: any[] = []
-  sql: string = ''
-  private whereKeyword: boolean
-
+export class SqlWhereQuery extends SqlQuery {
+  public whereKeyword: boolean
   constructor(
     opts?: SqlQuery | SqlCfMap,
     whereKeyword = true,
   ) {
-    this.whereKeyword = whereKeyword
+    let sql = ''
+    let values: SqlDataType[] = []
     if (opts !== undefined) {
-      const query = isSqlQuery(opts) ? opts : compare(opts)
-      this.sql = whereKeyword ? prependWhere(query.sql) : rmWhere(query.sql)
-      this.values = query.values
+      const query = opts instanceof SqlQuery ? opts : compare(opts)
+      sql = whereKeyword ? prependWhere(query.sql) : rmWhere(query.sql)
+      values = query.values
     }
+    super(sql, values)
+    this.whereKeyword = whereKeyword
   }
 
   and(opts: SqlQuery | SqlCfMap) {
-    const query = isSqlQuery(opts) ? opts : compare(opts)
+    const query = opts instanceof SqlQuery ? opts : compare(opts)
     const values = [...this.values, ...query.values]
     const sql = [this.sql, query.sql].filter(s => s).map((s) => {
       let r = rmWhere(s)
       r = hasLogical('OR', r) ? `(${r})` : r
       return r
     })
-    return new SqlWhereQuery({
-      sql: sql.join(' AND '), values,
-    }, this.whereKeyword)
+    return new SqlWhereQuery(new SqlQuery(
+      sql.join(' AND '), values,
+    ), this.whereKeyword)
   }
 
   or(opts: SqlQuery | SqlCfMap) {
-    const query = isSqlQuery(opts) ? opts : compare(opts)
+    const query = opts instanceof SqlQuery ? opts : compare(opts)
     const values = [...this.values, ...query.values]
     const sql = [this.sql, query.sql].filter(s => s).map((s) => {
       let r = rmWhere(s)
       r = hasLogical('AND', r) ? `(${r})` : r
       return r
     })
-    return new SqlWhereQuery({
-      sql: sql.join(' OR '), values,
-    }, this.whereKeyword)
+    return new SqlWhereQuery(new SqlQuery(
+      sql.join(' OR '), values,
+    ), this.whereKeyword)
   }
 }
 

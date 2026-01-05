@@ -1,3 +1,4 @@
+export * from './query'
 export * from './q'
 export * from './values'
 export * from './where'
