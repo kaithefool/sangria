@@ -5,6 +5,7 @@ import {
   prependWhere, hasWhere, rmWhere,
   SqlWhereQuery,
 } from './where'
+import SqlQuery from './SqlQuery'
 
 describe('cfQuery builder', () => {
   it.each([
@@ -22,7 +23,29 @@ describe('cfQuery builder', () => {
     [cfQuery('a', 'gte', 8), { sql: '"a" >= ?', values: [8] }],
     [cfQuery('a', 'lt', 8), { sql: '"a" < ?', values: [8] }],
     [cfQuery('a', 'lte', 8), { sql: '"a" <= ?', values: [8] }],
-  ])('returns correct statement object', (actual, expected) => {
+  ])('returns correct SqlQuery instance', (actual, expected) => {
+    expect(actual instanceof SqlQuery).toBe(true)
+    expect(actual).toEqual(expected)
+  })
+  const v0 = new SqlQuery('abs(?)', [8])
+  const v1 = new SqlQuery('round(?)', [10.2])
+  it.each([
+    [cfQuery('a', 'eq', v0), { sql: '"a" = abs(?)', values: [8] }],
+    [cfQuery('a', 'ne', v0), { sql: '"a" != abs(?)', values: [8] }],
+    [
+      cfQuery('a', 'in', [v0, v1]),
+      { sql: '"a" IN (abs(?), round(?))', values: [8, 10.2] },
+    ],
+    [
+      cfQuery('a', 'nin', [v0, v1]),
+      { sql: '"a" NOT IN (abs(?), round(?))', values: [8, 10.2] },
+    ],
+    [cfQuery('a', 'gt', v0), { sql: '"a" > abs(?)', values: [8] }],
+    [cfQuery('a', 'gte', v0), { sql: '"a" >= abs(?)', values: [8] }],
+    [cfQuery('a', 'lt', v0), { sql: '"a" < abs(?)', values: [8] }],
+    [cfQuery('a', 'lte', v0), { sql: '"a" <= abs(?)', values: [8] }],
+  ])('accepts SqlQuery', (actual, expected) => {
+    expect(actual instanceof SqlQuery).toBe(true)
     expect(actual).toEqual(expected)
   })
 })

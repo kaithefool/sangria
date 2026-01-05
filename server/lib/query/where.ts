@@ -1,14 +1,27 @@
 import { SqlDataType, SqlQuery, isSqlDataType } from './SqlQuery'
 
-export type SqlCf<T extends SqlDataType = SqlDataType> = {
-  eq: T
-  ne: T
-  in: T[]
-  nin: T[]
-  gt: T
-  gte: T
-  lt: T
-  lte: T
+export type SqlCf<
+  T extends SqlDataType | SqlQuery = SqlDataType | SqlQuery,
+> = {
+  eq?: T
+  ne?: T
+  in?: T[]
+  nin?: T[]
+  gt?: T
+  gte?: T
+  lt?: T
+  lte?: T
+}
+
+const opMap = {
+  eq: (v: unknown) => `= ${v}`,
+  ne: (v: unknown) => `!= ${v}`,
+  in: (v: unknown) => `IN (${v})`,
+  nin: (v: unknown) => `NOT IN (${v})`,
+  gt: (v: unknown) => `> ${v}`,
+  gte: (v: unknown) => `>= ${v}`,
+  lt: (v: unknown) => `< ${v}`,
+  lte: (v: unknown) => `<= ${v}`,
 }
 
 export function cfQuery<K extends keyof SqlCf>(
@@ -16,42 +29,25 @@ export function cfQuery<K extends keyof SqlCf>(
   operator: K,
   value: SqlCf[K],
 ) {
-  let sql = ''
-  let values: SqlDataType[] = []
-  if (Array.isArray(value)) values = value
-  else values = [value]
-  const qm = Array(values.length).fill('?').join(', ')
-  switch (operator) {
-    case 'eq':
-      sql = `"${col}" = ?`
-      break
-    case 'ne':
-      sql = `"${col}" != ?`
-      break
-    case 'in':
-      sql = `"${col}" IN (${qm})`
-      break
-    case 'nin':
-      sql = `"${col}" NOT IN (${qm})`
-      break
-    case 'gt':
-      sql = `"${col}" > ?`
-      break
-    case 'gte':
-      sql = `"${col}" >= ?`
-      break
-    case 'lt':
-      sql = `"${col}" < ?`
-      break
-    case 'lte':
-      sql = `"${col}" <= ?`
-      break
+  const valSql: string[] = []
+  const values: SqlDataType[] = []
+  const vv = Array.isArray(value) ? value : [value]
+  for (const v of vv) {
+    if (v instanceof SqlQuery) {
+      valSql.push(v.sql)
+      values.push(...v.values)
+    }
+    else {
+      valSql.push('?')
+      values.push(v)
+    }
   }
+  const sql = `"${col}" ${opMap[operator](valSql.join(', '))}`
   return new SqlQuery(sql, values)
 }
 
 export type SqlCfMap = {
-  [x: string]: SqlDataType | Partial<SqlCf> | SqlQuery
+  [x: string]: SqlDataType | SqlCf | SqlQuery
 }
 
 export function compare(
