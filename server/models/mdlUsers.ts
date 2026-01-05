@@ -47,9 +47,9 @@ export function insertUsers(...rows: UserInsert[]) {
       password: password ? encryptPwd(password) : null,
       ...r,
     }))
-    db.query(q`
+    q`
       INSERT INTO users ${q.values(...rr)};
-    `).run()
+    `.run()
     return id
   })
 }
@@ -78,9 +78,9 @@ export function selectUsers<P extends boolean>(
 }
 
 export function countUsers(filter: UsersFilter = {}) {
-  const r = db.query(q`
+  const r = q`
     SELECT count(*) AS total FROM users ${q.where(filter)};
-  `).get() as { total: number }
+  `.get() as { total: number }
   return r.total
 }
 
@@ -91,32 +91,21 @@ export function updateUsers(
   return catchUniqErr(() => {
     const u = { ...update, updated_at: new Date() }
     if (u.password) u.password = encryptPwd(u.password)
-    db.query(q`
+    q`
       UPDATE users ${q.set(update)}
       ${q.where(filter)};
-    `).run()
+    `.run()
   })
 }
 
 export function deleteUsers(filter: UsersFilter = {}) {
   const where = q.where(filter)
   db.transaction(() => {
-    db.query(q`
+    q`
       INSERT INTO deleted_users SELECT * FROM users ${where};
-    `).run()
-    db.query(q`
+    `.run()
+    q`
       DELETE FROM users ${where};
-    `).run()
+    `.run()
   })()
 }
-
-insertUsers(
-  { email: 'foo@bar.com', role: 'admin' },
-  { email: 'bax@bar.com', role: 'client' },
-  { email: 'foo@baz.com', role: 'client' },
-  { email: 'bar@bar.com', role: 'client' },
-)
-
-console.log(
-  selectUsers({ limit: 2 }),
-)
