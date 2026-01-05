@@ -1,9 +1,9 @@
-import { isSqlQuery, SqlDataType, SqlQuery } from './query'
+import { SqlDataType, SqlQuery } from './SqlQuery'
 
 export function set(
   input: { [x: string]: SqlDataType | SqlQuery },
   setKeyword = true,
-): SqlQuery {
+) {
   const entries = Object.entries(input)
   if (!entries.length) throw new Error('Cannot SET empty values.')
   const values: SqlDataType[] = []
@@ -19,10 +19,10 @@ export function set(
       values.push(v)
     }
   }
-  return {
-    sql: `${setKeyword ? 'SET ' : ''}${sql.join(', ')}`,
+  return new SqlQuery(
+    `${setKeyword ? 'SET ' : ''}${sql.join(', ')}`,
     values,
-  }
+  )
 }
 
 export default set

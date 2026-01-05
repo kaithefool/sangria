@@ -30,11 +30,11 @@ export function buildQ(database?: Database) {
   }
 
   q.raw = raw
-  // q.values = values
+  q.values = values
   q.where = where
-  // q.set = set
-  // q.limit = limit
-  // q.orderBy = orderBy
+  q.set = set
+  q.limit = limit
+  q.orderBy = orderBy
   return q
 }
 
