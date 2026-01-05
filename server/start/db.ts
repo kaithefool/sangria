@@ -2,7 +2,7 @@ import { v7 } from 'uuid'
 import Database from 'better-sqlite3'
 import { join } from 'node:path'
 import fs from 'node:fs'
-import q, { SqlQuery } from '../lib/query'
+import { buildQ, SqlQuery } from '../lib/query'
 import catchUniqErr from '../lib/catchUniqErr'
 import migrate from '../lib/migrate'
 
@@ -18,7 +18,6 @@ export class Db extends Database {
   }
 }
 
-export { q }
 export { catchUniqErr }
 
 export function uuid() {
@@ -44,4 +43,6 @@ function connect() {
   return db
 }
 
-export default connect()
+export const db = connect()
+export const q = buildQ(db)
+export default db

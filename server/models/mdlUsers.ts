@@ -68,13 +68,13 @@ export function selectUsers<P extends boolean>(
   let cols = 'id, role, email, active, created_at, updated_at, last_logout_at'
   if (password) cols += ', password'
 
-  return db.query(q`
+  return q`
     SELECT ${q.raw(cols)}
     FROM users
     ${q.where(filter)}
     ${q.orderBy(sort)}
     ${q.limit({ skip, limit })};
-  `).all() as UserRow[]
+  `.all() as UserRow[]
 }
 
 export function countUsers(filter: UsersFilter = {}) {
@@ -109,3 +109,14 @@ export function deleteUsers(filter: UsersFilter = {}) {
     `).run()
   })()
 }
+
+insertUsers(
+  { email: 'foo@bar.com', role: 'admin' },
+  { email: 'bax@bar.com', role: 'client' },
+  { email: 'foo@baz.com', role: 'client' },
+  { email: 'bar@bar.com', role: 'client' },
+)
+
+console.log(
+  selectUsers({ limit: 2 }),
+)

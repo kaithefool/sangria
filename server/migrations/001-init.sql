@@ -5,6 +5,7 @@ CREATE TABLE users (
   password TEXT,
   active BOOLEAN DEFAULT TRUE,
   created_at DATE DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATE,
   last_logout_at DATE
 );
 
@@ -15,6 +16,7 @@ CREATE TABLE deleted_users (
   password TEXT,
   active BOOLEAN,
   created_at DATE
+  updated_at DATE,
   last_logout_at DATE,
   deleted_at DATE DEFAULT CURRENT_TIMESTAMP
 );

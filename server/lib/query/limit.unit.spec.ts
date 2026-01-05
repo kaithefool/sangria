@@ -13,10 +13,11 @@ describe('limit query', () => {
     expect(query.values).toEqual([])
   })
   it.each([
-    [limit({ skip: 5 }), 'LIMIT 5'],
-    [limit({ skip: 5, limit: 20 }), 'LIMIT 5, 20'],
-    [limit({ limit: 20 }), 'LIMIT 0, 20'],
+    [limit({ skip: 5 }), { sql: 'LIMIT ?', values: [5] }],
+    [limit({ skip: 5, limit: 20 }), { sql: 'LIMIT ?, ?', values: [5, 20] }],
+    [limit({ limit: 20 }), { sql: 'LIMIT ?, ?', values: [0, 20] }],
   ])('returns correct sql query', (query, result) => {
-    expect(query.sql).toBe(result)
+    expect(query.sql).toBe(result.sql)
+    expect(query.values).toEqual(result.values)
   })
 })

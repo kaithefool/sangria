@@ -1,4 +1,4 @@
-export * from './query'
+export * from './SqlQuery'
 export * from './q'
 export * from './values'
 export * from './where'

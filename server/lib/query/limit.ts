@@ -7,7 +7,11 @@ export function limit({
   limit?: number
 } = {}): SqlQuery {
   if (!skip && !limit) return new SqlQuery('')
-  let sql = `LIMIT ${skip}`
-  if (limit) sql += `, ${limit}`
-  return new SqlQuery(sql)
+  const values: number[] = [skip]
+  let sql = `LIMIT ?`
+  if (limit) {
+    sql += `, ?`
+    values.push(limit)
+  }
+  return new SqlQuery(sql, values)
 }
