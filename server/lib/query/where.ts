@@ -1,16 +1,16 @@
 import { SqlDataType, SqlQuery, isSqlDataType } from './SqlQuery'
 
 export type SqlCf<
-  T extends SqlDataType | SqlQuery = SqlDataType | SqlQuery,
+  T extends SqlDataType = SqlDataType,
 > = {
-  eq?: T
-  ne?: T
-  in?: T[]
-  nin?: T[]
-  gt?: T
-  gte?: T
-  lt?: T
-  lte?: T
+  eq?: T | SqlQuery
+  ne?: T | SqlQuery
+  in?: (T | SqlQuery)[]
+  nin?: (T | SqlQuery)[]
+  gt?: T | SqlQuery
+  gte?: T | SqlQuery
+  lt?: T | SqlQuery
+  lte?: T | SqlQuery
 }
 
 const opMap = {
@@ -49,6 +49,10 @@ export function cfQuery<K extends keyof SqlCf>(
 export type SqlCfMap = {
   [x: string]: SqlDataType | SqlCf | SqlQuery
 }
+
+export type SqlCfVal<
+  T extends SqlDataType,
+> = T | SqlCf<T> | SqlQuery
 
 export function compare(
   cfMap: SqlCfMap,

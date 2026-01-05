@@ -1,7 +1,8 @@
 import { Role } from '../consts'
 import { encryptPwd } from '../lib/crypto'
-import { SqlCf } from '../lib/query'
+import { SqlCfVal } from '../lib/query'
 import db, { q, uuid, catchUniqErr } from '../start/db'
+import { RowInsert, RowUpdate } from './utils'
 
 export type UserRow = {
   id: string
@@ -14,29 +15,17 @@ export type UserRow = {
   last_logout_at: Date | null
 }
 
-export type UserInsert = {
-  role: Role
-  email: string
-  password?: string | null
-  active?: boolean
-}
-
-export type UserUpdate = {
-  role?: Role
-  email?: string
-  password?: string | null
-  active?: boolean
-  last_logout_at?: Date
-}
+export type UserInsert = RowInsert<UserRow, 'role' | 'email'>
+export type UserUpdate = RowUpdate<UserRow>
 
 export type UsersFilter = {
-  id?: string | SqlCf<string>
-  role?: Role | SqlCf<string>
-  email?: string
+  id?: SqlCfVal<string>
+  role?: SqlCfVal<Role>
+  email?: SqlCfVal<string>
   active?: boolean
-  created_at?: { gt: Date, gte: Date, lt: Date, lte: Date }
-  updated_at?: { gt: Date, gte: Date, lt: Date, lte: Date }
-  last_logout_at?: { gt: Date, gte: Date, lt: Date, lte: Date }
+  created_at?: SqlCfVal<Date>
+  updated_at?: SqlCfVal<Date>
+  last_logout_at?: SqlCfVal<Date>
 }
 
 export function insertUsers(...rows: UserInsert[]) {
