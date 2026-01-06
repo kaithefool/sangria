@@ -1,8 +1,7 @@
 import { Role } from '../consts'
 import { encryptPwd } from '../lib/crypto'
-import { SqlCfVal } from '../lib/query'
 import db, { q, uuid, catchUniqErr } from '../start/db'
-import { RowFilter, RowInsert, RowUpdate } from './utils'
+import { RowsFilter, RowInsert, RowUpdate, SelectRowsOpts } from './utils'
 
 export type UserRow = {
   id: string
@@ -17,7 +16,8 @@ export type UserRow = {
 
 export type UserInsert = RowInsert<UserRow, 'role' | 'email'>
 export type UserUpdate = RowUpdate<UserRow>
-export type UsersFilter = RowFilter<UserRow>
+export type UsersFilter = RowsFilter<UserRow>
+export type SelectUsersOpts = SelectRowsOpts<UserRow, UsersFilter>
 
 export function insertUsers(...rows: UserInsert[]) {
   return catchUniqErr(() => {
@@ -30,13 +30,6 @@ export function insertUsers(...rows: UserInsert[]) {
     q`INSERT INTO users ${q.values(...rr)};`.run()
     return id
   })
-}
-
-export type SelectUsersOpts = {
-  filter?: UsersFilter
-  sort?: { [p in keyof UserRow]?: 1 | -1 }
-  skip?: number
-  limit?: number
 }
 
 export function selectUsers<P extends boolean>(
