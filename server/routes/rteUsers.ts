@@ -35,8 +35,8 @@ rteUsers.get(
   '/:id',
   validate(findByIdSchema),
   async (req, res) => {
-    const { params } = v.assertValidInput(res, findByIdSchema)
-    const out = servUsers.findUser({ id: params.id })
+    const { params: { id } } = v.assertValidInput(res, findByIdSchema)
+    const out = servUsers.findUser(id)
     if (out === undefined) throw createHttpError(404)
     return res.json(out)
   },

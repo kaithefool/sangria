@@ -1,3 +1,5 @@
+import { SqlCfVal, SqlDataType } from '../lib/query'
+
 export type NonEditable = 'id' | 'created_at' | 'updated_at'
 
 export type NonNullKeys<R> = {
@@ -14,3 +16,9 @@ export type RowInsert<
 >
 
 export type RowUpdate<R> = Partial<Omit<R, NonEditable>>
+
+export type RowFilter<R> = {
+  [P in keyof R]?: Extract<R[P], boolean> extends never
+    ? SqlCfVal<Extract<R[P], SqlDataType>>
+    : R[P]
+}

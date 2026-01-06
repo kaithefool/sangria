@@ -2,7 +2,7 @@ import { Role } from '../consts'
 import { encryptPwd } from '../lib/crypto'
 import { SqlCfVal } from '../lib/query'
 import db, { q, uuid, catchUniqErr } from '../start/db'
-import { RowInsert, RowUpdate } from './utils'
+import { RowFilter, RowInsert, RowUpdate } from './utils'
 
 export type UserRow = {
   id: string
@@ -17,16 +17,7 @@ export type UserRow = {
 
 export type UserInsert = RowInsert<UserRow, 'role' | 'email'>
 export type UserUpdate = RowUpdate<UserRow>
-
-export type UsersFilter = {
-  id?: SqlCfVal<string>
-  role?: SqlCfVal<Role>
-  email?: SqlCfVal<string>
-  active?: boolean
-  created_at?: SqlCfVal<Date>
-  updated_at?: SqlCfVal<Date>
-  last_logout_at?: SqlCfVal<Date>
-}
+export type UsersFilter = RowFilter<UserRow>
 
 export function insertUsers(...rows: UserInsert[]) {
   return catchUniqErr(() => {
@@ -36,9 +27,7 @@ export function insertUsers(...rows: UserInsert[]) {
       password: password ? encryptPwd(password) : null,
       ...r,
     }))
-    q`
-      INSERT INTO users ${q.values(...rr)};
-    `.run()
+    q`INSERT INTO users ${q.values(...rr)};`.run()
     return id
   })
 }
@@ -90,11 +79,7 @@ export function updateUsers(
 export function deleteUsers(filter: UsersFilter = {}) {
   const where = q.where(filter)
   db.transaction(() => {
-    q`
-      INSERT INTO deleted_users SELECT * FROM users ${where};
-    `.run()
-    q`
-      DELETE FROM users ${where};
-    `.run()
+    q`INSERT INTO deleted_users SELECT * FROM users ${where};`.run()
+    q`DELETE FROM users ${where};`.run()
   })()
 }
