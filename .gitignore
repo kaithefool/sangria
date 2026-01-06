@@ -5,8 +5,5 @@
 logs
 *.log
 
-# Shared files
-volumes/
-
 # Packages
 node_modules/

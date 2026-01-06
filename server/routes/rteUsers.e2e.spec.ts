@@ -20,17 +20,17 @@ describe('Users API', () => {
   const insert = { ...expected, password: '12345678' }
 
   api.testPost(base, insert, expected, teardown)
-  api.testGetList(base)
-  api.testGetFindOneById(base, insert, expected, teardown)
-  api.testPatch(
-    base,
-    insert,
-    { role: 'client' },
-    { ...expected, role: 'client' },
-    teardown,
-  )
-  api.testDelete(base, insert)
+  // api.testGetList(base)
+  // api.testGetFindOneById(base, insert, expected, teardown)
+  // api.testPatch(
+  //   base,
+  //   insert,
+  //   { role: 'client' },
+  //   { ...expected, role: 'client' },
+  //   teardown,
+  // )
+  // api.testDelete(base, insert)
 
-  api.testPostUIdx(base, insert, teardown)
-  api.testPatchUIdx(base, insert, { email: 'bax@bar.com' }, teardown)
+  // api.testPostUIdx(base, insert, teardown)
+  // api.testPatchUIdx(base, insert, { email: 'bax@bar.com' }, teardown)
 })

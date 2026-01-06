@@ -1,17 +1,15 @@
 name: sangria
 services:
   server:
-    depends_on:
-      - mongo
     build: ./server
     volumes:
+      - ./server/database:/app/database
       - ./server/uploads:/app/uploads
     ports:
       - 3000:3000
       - 9229:9229
     networks:
       - dev
-    environment:
     develop:
       watch:
         - action: sync+restart
@@ -20,17 +18,17 @@ services:
           ignore:
             - node_modules/
             - uploads/
-  assets:
-    build: ./assets
-    volumes:
-      - ./server/assets:/app/dist
-    develop:
-      watch:
-        - action: sync+restart
-          path: ./assets
-          target: ./app
-          ignore:
-            - node_modules/
+  # assets:
+  #   build: ./assets
+  #   volumes:
+  #     - ./server/assets:/app/dist
+  #   develop:
+  #     watch:
+  #       - action: sync+restart
+  #         path: ./assets
+  #         target: ./app
+  #         ignore:
+  #           - node_modules/
 networks:
   dev:
     driver: bridge

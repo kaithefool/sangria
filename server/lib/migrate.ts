@@ -22,9 +22,9 @@ export function migrate(db: Database, version?: number) {
   sql = sql.slice(ver, version)
   let i = ver
   for (const s of sql) {
+    i += 1
     db.exec(s)
     db.pragma(`user_version = ${i}`)
-    i += 1
   }
 }
 

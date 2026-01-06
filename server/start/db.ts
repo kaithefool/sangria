@@ -8,7 +8,7 @@ import migrate from '../lib/migrate'
 
 const { NODE_ENV } = process.env
 const { dirname } = import.meta
-const dbDir = join(dirname, '../../volumes/db')
+const dbDir = join(dirname, '../database')
 const dbPath = join(dbDir, 'app.db')
 const archiveDir = join(dbDir, 'archive')
 
@@ -34,8 +34,7 @@ export function archiveDb() {
 }
 
 function connect() {
-  if (NODE_ENV !== 'production') archiveDb()
-
+  // if (NODE_ENV !== 'production') archiveDb()
   const db = new Db(dbPath)
   db.pragma('journal_mode = WAL')
   migrate(db)
