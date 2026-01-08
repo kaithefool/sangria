@@ -17,6 +17,7 @@ services:
           target: ./app
           ignore:
             - node_modules/
+            - database/
             - uploads/
   # assets:
   #   build: ./assets

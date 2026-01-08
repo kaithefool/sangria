@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node bin/www",
-    "start:dev": "nodemon bin/www",
+    "start:dev": "tsx watch bin/www.ts",
     "setup": "node bin/setup",
     "test": "npm run test:unit",
     "test:all": "jest",
@@ -48,7 +48,6 @@
     "cookie": "^1.1.1",
     "eslint": "^9.38.0",
     "jest": "^30.2.0",
-    "nodemon": "^2.0.15",
     "superagent": "^10.2.3",
     "ts-jest": "^29.4.5",
     "typescript": "^5.9.3",

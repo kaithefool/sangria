@@ -54,7 +54,7 @@ rteUsers.post(
     if (err) return next(createHttpError(400, 'uniq-key-error', {
       reason: err.col,
     }))
-    return res.json(out)
+    return res.json(out[0])
   },
 )
 
@@ -65,7 +65,7 @@ const patchSchema = z.object({
   body: servUsers.userSchema.partial(),
 })
 rteUsers.patch(
-  '/:_id',
+  '/:id',
   validate(patchSchema),
   (req, res, next) => {
     const { params: { id }, body } = v.assertValidInput(res, patchSchema)
@@ -83,7 +83,7 @@ const deleteSchema = z.object({
   }),
 })
 rteUsers.delete(
-  '/:_id',
+  '/:id',
   validate(deleteSchema),
   (req, res) => {
     const { params: { id } } = v.assertValidInput(res, deleteSchema)

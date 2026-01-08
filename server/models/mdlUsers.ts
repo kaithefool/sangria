@@ -21,14 +21,13 @@ export type SelectUsersOpts = SelectRowsOpts<UserRow, UsersFilter>
 
 export function insertUsers(...rows: UserInsert[]) {
   return catchUniqErr(() => {
-    const id = uuid()
     const rr = rows.map(({ password, ...r }) => ({
       id: uuid(),
       password: password ? encryptPwd(password) : null,
       ...r,
     }))
     q`INSERT INTO users ${q.values(...rr)};`.run()
-    return id
+    return rr.map(r => ({ id: r.id }))
   })
 }
 
@@ -72,7 +71,9 @@ export function updateUsers(
 export function deleteUsers(filter: UsersFilter = {}) {
   const where = q.where(filter)
   db.transaction(() => {
-    q`INSERT INTO deleted_users SELECT * FROM users ${where};`.run()
-    q`DELETE FROM users ${where};`.run()
+    console.log('delete users where: ', where)
+    const r0 = q`INSERT INTO deleted_users SELECT * FROM users ${where};`.run()
+    const r1 = q`DELETE FROM users ${where};`.run()
+    console.log(r0, r1)
   })()
 }
