@@ -71,9 +71,7 @@ export function updateUsers(
 export function deleteUsers(filter: UsersFilter = {}) {
   const where = q.where(filter)
   db.transaction(() => {
-    console.log('delete users where: ', where)
-    const r0 = q`INSERT INTO deleted_users SELECT * FROM users ${where};`.run()
-    const r1 = q`DELETE FROM users ${where};`.run()
-    console.log(r0, r1)
+    q`INSERT INTO deleted_users SELECT * FROM users ${where};`.run()
+    q`DELETE FROM users ${where};`.run()
   })()
 }

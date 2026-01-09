@@ -43,11 +43,10 @@ describe('Users API', () => {
     const res = await request(`${base}/${id}`)
     expect(res.status).toBe(200)
     expect(res.headers['content-type']).toMatch('application/json')
-    const { body } = res
-    expect(body).toMatchObject({ id, ...expected })
+    expect(res.body).toMatchObject({ id, ...expected })
   })
   it('returns 404 if not found', async () => {
-    expect(request(`${base}/00000000-0000-0000-0000-000000000000`))
+    await expect(request(`${base}/00000000-0000-0000-0000-000000000000`))
       .rejects.toMatchObject({ status: 404 })
   })
   it('patches with a PATCH API', async () => {
@@ -94,7 +93,7 @@ describe('Users API', () => {
     expect(typeof id1).toBe('string')
     afterThis(() => request.delete(`${base}/${id1}`))
 
-    expect(request.patch(`${base}/${id0}`).send(patch))
+    await expect(request.patch(`${base}/${id0}`).send(patch))
       .rejects.toMatchObject({ status: 400 })
   })
 })
