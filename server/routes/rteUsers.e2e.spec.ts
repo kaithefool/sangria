@@ -76,14 +76,12 @@ describe('Users API', () => {
     // teardown in case test failed
     const dup: { id?: string } = {}
     afterThis(async () => {
-      console.log('teardown: ', dup)
       return dup?.id && request.delete(`${base}/${dup.id}`)
     })
 
-    expect(async () => {
-      const { body: { id } } = await request.post(base).send({ ...insert, ...patch })
-      console.log('duplicated: ', typeof id, id)
-      if (typeof id === 'string') dup.id = id
+    await expect(async () => {
+      const res = await request.post(base).send(insert)
+      dup.id = res.body?.id
     }).rejects.toMatchObject({ status: 400 })
   })
   it('enforces unique index with a PATCH API', async () => {
