@@ -25,12 +25,18 @@ export function uuid() {
 }
 
 export function archiveDb() {
+  const shm = dbPath + '-shm'
+  const wal = dbPath + '-wal'
   if (!fs.existsSync(dbPath)) return
   if (!fs.existsSync(archiveDir)) {
     fs.mkdirSync(archiveDir)
   }
   const ts = new Date().toISOString()
-  fs.renameSync(dbPath, join(archiveDir, `${ts}.db`))
+  const dir = join(archiveDir, ts)
+  fs.mkdirSync(dir)
+  fs.renameSync(dbPath, join(dir, 'app.db'))
+  if (fs.existsSync(shm)) fs.renameSync(shm, join(dir, 'app.db-shm'))
+  if (fs.existsSync(wal)) fs.renameSync(wal, join(dir, 'app.db-wal'))
 }
 
 function connect() {
