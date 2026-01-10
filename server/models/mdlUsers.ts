@@ -44,7 +44,7 @@ export function selectUsers<P extends boolean>(
     ${q.where(filter)}
     ${q.orderBy(sort)}
     ${q.limit({ skip, limit })};
-  `.all().map(q.castDates<UserRow>([
+  `.all<UserRow>().map(q.castDates([
         'created_at', 'updated_at', 'last_logout_at',
       ]))
 }

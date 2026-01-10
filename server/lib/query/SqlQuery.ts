@@ -32,7 +32,7 @@ export function castToDate<T>(v: T): T | Date {
 }
 
 export function castDates<T>(keys: (keyof T)[]) {
-  return (v: unknown) => {
+  return (v: T) => {
     if (typeof v !== 'object' || v === null) {
       throw new Error('Unable to cast non object.')
     }
@@ -70,12 +70,12 @@ export class SqlQuery {
     return this.assertDb().prepare(this.sql).run(this.values)
   }
 
-  get() {
-    return this.assertDb().prepare(this.sql).get(this.values)
+  get<R>() {
+    return this.assertDb().prepare(this.sql).get(this.values) as R
   }
 
-  all() {
-    return this.assertDb().prepare(this.sql).all(this.values)
+  all<R>() {
+    return this.assertDb().prepare(this.sql).all(this.values) as R[]
   }
 
   iterate() {
