@@ -18,28 +18,30 @@ function parseSetAuthCookie(setCookie: string | string[] | undefined) {
 }
 
 describe('Authentication API', () => {
-  const testCreds = {
+  const cred = {
     email: 'foo@bar.com',
     password: 'right-password',
   }
+  const user = { ...cred, role: 'admin' }
+
   it('validates user credentials and return Auth JWT token', async () => {
-    await api.setupTestUser(testCreds)
-    const res = await request.post(`${base}/login`).send(testCreds)
+    await api.setupTestUser(user)
+    const res = await request.post(`${base}/login`).send(cred)
     expect(typeof res.body?.access).toBe('string')
     expect(typeof res.body?.refresh).toBe('string')
   })
   it('authenticates with valid JWT token', async () => {
-    await api.setupTestUser(testCreds)
-    const loginRes = await request.post(`${base}/login`).send(testCreds)
+    await api.setupTestUser(user)
+    const loginRes = await request.post(`${base}/login`).send(cred)
     const pingRes = await request.get(`${base}/ping`)
       .set('Authorization', `Bearer ${loginRes.body.access}`)
-    const { password, ...userAttrs } = testCreds
+    const { password, ...userAttrs } = cred
     expect(pingRes.body).toMatchObject(userAttrs)
   })
   it('rejects invalid user credentials', async () => {
-    await api.setupTestUser(testCreds)
+    await api.setupTestUser(user)
     await expect(request.post(`${base}/login`).send({
-      email: testCreds.email,
+      email: cred.email,
       password: 'wrong-password',
     })).rejects.toMatchObject({
       status: 400,
@@ -47,16 +49,16 @@ describe('Authentication API', () => {
     })
     await expect(request.post(`${base}/login`).send({
       email: 'wrong@bar.com',
-      password: testCreds.password,
+      password: cred.password,
     })).rejects.toMatchObject({
       status: 400,
       response: { body: { message: 'invalid-credentials' } },
     })
   })
   it('sets authentication http-only cookies', async () => {
-    await api.setupTestUser(testCreds)
+    await api.setupTestUser(user)
     const res = await request.post(`${base}/login`).send({
-      ...testCreds, cookies: true,
+      ...cred, cookies: true,
     })
     const sc = res.headers['set-cookie']
     expect(sc).toBeDefined()
@@ -72,9 +74,9 @@ describe('Authentication API', () => {
     })
   })
   it('persists authentication cookies when requested', async () => {
-    await api.setupTestUser(testCreds)
+    await api.setupTestUser(user)
     const res = await request.post(`${base}/login`).send({
-      ...testCreds, cookies: true, persist: true,
+      ...cred, cookies: true, persist: true,
     })
     const sc = res.headers['set-cookie']
     expect(sc).toBeDefined()
@@ -83,9 +85,9 @@ describe('Authentication API', () => {
     expect(refresh?.expires).toBeInstanceOf(Date)
   })
   it('authenticates with valid auth cookies', async () => {
-    await api.setupTestUser(testCreds)
+    await api.setupTestUser(user)
     const loginRes = await request.post(`${base}/login`).send({
-      ...testCreds, cookies: true,
+      ...cred, cookies: true,
     })
     const sc = loginRes.headers['set-cookie']
     expect(sc).toBeDefined()
@@ -96,12 +98,12 @@ describe('Authentication API', () => {
         'access.id': access?.value,
         'refresh.id': refresh?.value,
       }))
-    const { password, ...userAttrs } = testCreds
+    const { password, ...userAttrs } = cred
     expect(pingRes.body).toMatchObject(userAttrs)
   })
   it('refreshes authentication tokens', async () => {
-    await api.setupTestUser(testCreds)
-    const loginRes = await request.post(`${base}/login`).send(testCreds)
+    await api.setupTestUser(user)
+    const loginRes = await request.post(`${base}/login`).send(cred)
     const refreshRes = await request.post(`${base}/refresh`).send({
       refresh: loginRes.body.refresh,
     })
@@ -109,9 +111,9 @@ describe('Authentication API', () => {
     expect(typeof refreshRes.body?.refresh).toBe('string')
   })
   it('refreshes authentication cookies', async () => {
-    await api.setupTestUser(testCreds)
+    await api.setupTestUser(user)
     const loginRes = await request.post(`${base}/login`).send({
-      ...testCreds, cookies: true,
+      ...cred, cookies: true,
     })
     const sc = loginRes.headers['set-cookie']
     expect(sc).toBeDefined()
@@ -132,9 +134,9 @@ describe('Authentication API', () => {
     })
   })
   it('persists refreshed authentication cookies when requested', async () => {
-    await api.setupTestUser(testCreds)
+    await api.setupTestUser(user)
     const loginRes = await request.post(`${base}/login`).send({
-      ...testCreds, cookies: true, persist: true,
+      ...cred, cookies: true, persist: true,
     })
     const sc = loginRes.headers['set-cookie']
     expect(sc).toBeDefined()
@@ -148,8 +150,8 @@ describe('Authentication API', () => {
     expect(newRefresh?.expires).toBeInstanceOf(Date)
   })
   it('invalidates refresh token on logout', async () => {
-    await api.setupTestUser(testCreds)
-    const loginRes = await request.post(`${base}/login`).send(testCreds)
+    await api.setupTestUser(user)
+    const loginRes = await request.post(`${base}/login`).send(cred)
     expect(typeof loginRes.body?.access).toBe('string')
     expect(typeof loginRes.body?.refresh).toBe('string')
     await request.post(`${base}/logout`)
@@ -162,9 +164,9 @@ describe('Authentication API', () => {
     })
   })
   it('clears authentication cookies on logout', async () => {
-    await api.setupTestUser(testCreds)
+    await api.setupTestUser(user)
     const loginRes = await request.post(`${base}/login`).send({
-      ...testCreds, cookies: true,
+      ...cred, cookies: true,
     })
     const sc = loginRes.headers['set-cookie']
     expect(sc).toBeDefined()

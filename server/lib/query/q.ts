@@ -1,5 +1,5 @@
 import { Database } from 'better-sqlite3'
-import { SqlQuery, SqlDataType } from './SqlQuery'
+import { SqlQuery, SqlDataType, castDates } from './SqlQuery'
 import { where } from './where'
 import { values } from './values'
 import set from './set'
@@ -35,6 +35,7 @@ export function buildQ(database?: Database) {
   q.set = set
   q.limit = limit
   q.orderBy = orderBy
+  q.castDates = castDates
   return q
 }
 

@@ -34,7 +34,7 @@ export function archiveDb() {
 }
 
 function connect() {
-  // if (NODE_ENV !== 'production') archiveDb()
+  if (NODE_ENV !== 'production') archiveDb()
   const db = new Db(dbPath)
   db.pragma('journal_mode = WAL')
   migrate(db)

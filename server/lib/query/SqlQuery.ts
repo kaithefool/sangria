@@ -14,6 +14,36 @@ export function isSqlDataType(v: unknown): v is SqlDataType {
     || v === undefined
 }
 
+export function toDateStr(d: Date) {
+  return d.toISOString().slice(0, 23).replace('T', ' ')
+}
+
+export function castToDate<T>(v: T): T | Date {
+  if (typeof v === 'number' && Number.isInteger(v)) {
+    const d = new Date()
+    d.setTime(v * 1000)
+    return d
+  }
+  if (typeof v === 'string') {
+    const s = Date.parse(v.split(' ').join('T') + 'Z')
+    if (!isNaN(s)) return new Date(s)
+  }
+  return v
+}
+
+export function castDates<T>(keys: (keyof T)[]) {
+  return (v: unknown) => {
+    if (typeof v !== 'object' || v === null) {
+      throw new Error('Unable to cast non object.')
+    }
+    const r = { ...v } as T
+    for (const k of keys) {
+      if (r[k] !== undefined) r[k] = castToDate(r[k]) as T[keyof T]
+    }
+    return r
+  }
+}
+
 export class SqlQuery {
   constructor(
     public sql: string,
@@ -21,7 +51,9 @@ export class SqlQuery {
     public database?: Database,
   ) {
     this.sql = sql
-    this.values = values
+    this.values = values.map(v => (
+      v instanceof Date ? toDateStr(v) : v
+    ))
     this.database = database
   }
 

@@ -1,8 +1,8 @@
 import { describe, it, expect } from '@jest/globals'
 import request from 'superagent'
-import { afterThis, api } from '../test'
+import { afterThis, userApi } from '../test'
 
-const base = `${api.root}/api/users`
+const base = userApi
 
 describe('Users API', () => {
   const expected = {

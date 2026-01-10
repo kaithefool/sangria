@@ -8,7 +8,7 @@ export type UserRow = {
   role: Role
   email: string
   password: string | null
-  active: boolean
+  active: 1 | 0
   created_at: Date
   updated_at: Date | null
   last_logout_at: Date | null
@@ -44,7 +44,9 @@ export function selectUsers<P extends boolean>(
     ${q.where(filter)}
     ${q.orderBy(sort)}
     ${q.limit({ skip, limit })};
-  `.all() as UserRow[]
+  `.all().map(q.castDates<UserRow>([
+        'created_at', 'updated_at', 'last_logout_at',
+      ]))
 }
 
 export function countUsers(filter: UsersFilter = {}) {
@@ -62,7 +64,7 @@ export function updateUsers(
     const u = { ...update, updated_at: new Date() }
     if (u.password) u.password = encryptPwd(u.password)
     q`
-      UPDATE users ${q.set(update)}
+      UPDATE users ${q.set(u)}
       ${q.where(filter)};
     `.run()
   })

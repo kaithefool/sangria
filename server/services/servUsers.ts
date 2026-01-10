@@ -6,6 +6,7 @@ export const userSchema = z.object({
   role: z.literal(roles),
   email: z.email(),
   password: z.string().min(8),
+  active: z.literal([1, 0]).optional(),
 })
 
 export function findUser(id: string) {

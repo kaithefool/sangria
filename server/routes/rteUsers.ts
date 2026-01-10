@@ -3,13 +3,16 @@ import z from 'zod'
 import validate, * as v from '../middlewares/validate'
 import * as servUsers from '../services/servUsers'
 import createHttpError from 'http-errors'
+import { roles } from '../consts'
 
 const rteUsers = Router()
 
 const listSchema = z.object({
   query: z.object({
     filter: z.object({
-      active: z.boolean().optional(),
+      email: z.email().optional(),
+      active: z.literal([1, 0]).optional(),
+      role: z.literal(roles).optional(),
     }).optional(),
     sort: v.sort(['role', 'email', 'created_at', 'updated_at']),
     skip: v.skip(),
@@ -38,6 +41,7 @@ rteUsers.get(
     const { params: { id } } = v.assertValidInput(res, findByIdSchema)
     const out = servUsers.findUser(id)
     if (out === undefined) throw createHttpError(404)
+    console.log(typeof out.created_at, out)
     return res.json(out)
   },
 )

@@ -4,7 +4,9 @@ import z from 'zod'
 import { userSchema } from '../services/servUsers'
 import { authorize } from '../middlewares/authorize'
 import { login, logout, refreshTokens } from '../services/servAuth'
-import { clearAuthnCookies, getAuthnCookies, getJwtUser, setAuthnCookies } from '../middlewares/authenticate'
+import {
+  clearAuthnCookies, getAuthnCookies, getJwtUser, setAuthnCookies,
+} from '../middlewares/authenticate'
 import createHttpError from 'http-errors'
 
 const rteAuth = Router()
