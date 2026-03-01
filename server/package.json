@@ -5,9 +5,8 @@
   "main": "bin/www",
   "type": "module",
   "scripts": {
-    "start": "node bin/www",
-    "start:dev": "tsx watch bin/www.ts",
-    "setup": "node bin/setup",
+    "cmd": "tsx bin/www.ts",
+    "start": "tsx watch bin/www.ts",
     "test": "npm run test:unit",
     "test:all": "jest",
     "test:unit": "jest --testPathPatterns=\\.unit\\.spec\\.ts$",

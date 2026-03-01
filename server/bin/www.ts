@@ -77,3 +77,7 @@ server.on('listening', () => {
 
   console.info(`Listening on ${bind}`)
 })
+
+// permit docker to signal a graceful exit
+process.on('SIGTERM', process.exit)
+process.on('SIGINT', process.exit)
