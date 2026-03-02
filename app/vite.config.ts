@@ -5,6 +5,20 @@ import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
 	plugins: [sveltekit(), devtoolsJson()],
+	css: {
+    preprocessorOptions: {
+      scss: {
+        silenceDeprecations: [
+					'import',
+					'abs-percent',
+					'global-builtin',
+					'color-functions',
+					'function-units',
+					'if-function',
+				]
+      },
+    },
+  },
 	test: {
 		expect: { requireAssertions: true },
 		projects: [
