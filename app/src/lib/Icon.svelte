@@ -2,15 +2,16 @@
   import {
     icon as faIcon,
     type IconDefinition,
+    type IconParams,
   } from '@fortawesome/fontawesome-svg-core'
 
-  let { icon, class: classes }: {
+  let { icon, class: classes, ...args }: {
     icon: IconDefinition
-    class?: string | string[]
-  } = $props()
+    class?: IconParams['classes']
+  } & Omit<IconParams, 'classes'> = $props()
   let i = $derived.by(() => faIcon(icon, {
     classes,
-    // transform: {}
+    ...args
   })?.html)
 </script>
 

@@ -1,5 +1,7 @@
 <script>
+  import { faArrowRightToBracket } from '@fortawesome/free-solid-svg-icons/faArrowRightToBracket'
 	import Centered from "$lib/Centered.svelte";
+	import Icon from '$lib/Icon.svelte';
 </script>
 
 <Centered>
@@ -15,6 +17,7 @@
       type="submit"
       class="btn btn-primary"
     >
+      <Icon icon={faArrowRightToBracket} />
       Login
     </button>
   </form>
