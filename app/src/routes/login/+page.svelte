@@ -1,24 +1,22 @@
 <script>
   import { faArrowRightToBracket } from '@fortawesome/free-solid-svg-icons/faArrowRightToBracket'
-	import Centered from "$lib/Centered.svelte";
-	import Icon from '$lib/Icon.svelte';
+	import Centered from "$lib/Centered.svelte"
+	import Icon from '$lib/Icon.svelte'
+	import Field from '$lib/Field.svelte';
 </script>
 
-<Centered>
-  <form>
-    <div class="m-3">
-      <input
-        name="username"
-        type="email"
-        class="form-control"
-      />
-    </div>
-    <button
-      type="submit"
-      class="btn btn-primary"
-    >
-      <Icon icon={faArrowRightToBracket} />
-      Login
-    </button>
-  </form>
-</Centered>
+<div class="vh-100">
+  <Centered class="p-5">
+    <form>
+      <Field name="email" />
+      <Field name="password" />
+      <button
+        type="submit"
+        class="btn btn-primary"
+      >
+        <Icon icon={faArrowRightToBracket} />
+        Login
+      </button>
+    </form>
+  </Centered>
+</div>
