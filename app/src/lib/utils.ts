@@ -8,9 +8,9 @@ export function noCase(str: string) {
 }
 
 export function titleCase(str: string) {
-  return noCase(str).map(
-    s => prepositions.includes(s) ? s : s.charAt(0).toUpperCase() + s.slice(1)
-  ).join(' ')
+  return noCase(str)
+    .map((s) => (prepositions.includes(s) ? s : s.charAt(0).toUpperCase() + s.slice(1)))
+    .join(' ')
 }
 
 export const prepositions = [
@@ -119,4 +119,4 @@ export const prepositions = [
   'within',
   'without',
   'worth',
-];
+]
