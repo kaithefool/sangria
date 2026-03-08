@@ -1,7 +1,7 @@
 {
   "eslint.workingDirectories": [
     "./server",
-    "./assets"
+    "./app"
   ],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
