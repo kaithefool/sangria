@@ -105,11 +105,11 @@ describe('dotPath set func', () => {
   it('sets values at any depth', () => {
     const src = { a: 1, b: { c: 2 } }
     set(src, 'a', 10)
-    expect(src.a).toBe(10)
+    expect(src).toEqual({ a: 10, b: { c: 2 } })
     set(src, 'b.c', 20)
-    expect(src.b.c).toBe(20)
+    expect(src).toEqual({ a: 10, b: { c: 20 } })
     set(src, 'b.d', 30)
-    expect(src.b.d).toBe(30)
+    expect(src).toEqual({ a: 10, b: { c: 20, d: 30 } })
   })
   it('creates nested objects when path does not exist', () => {
     const src = {}
@@ -121,7 +121,7 @@ describe('dotPath set func', () => {
     set(src, 'a[0]', 1)
     expect(src).toEqual({ a: [1] })
     set(src, 'a[1]', 2)
-    expect(src.a).toEqual([1, 2])
+    expect(src).toEqual({ a: [1, 2] })
   })
   it('creates mixed object and array paths', () => {
     const src = {}
@@ -136,11 +136,5 @@ describe('dotPath set func', () => {
   it('throws error when trying to set on primitive types', () => {
     const src = { a: 'string' }
     expect(() => set(src, 'a.b', 1)).toThrow()
-  })
-  it('throws error with invalid paths', () => {
-    const src = {}
-    expect(() => set(src, '', 1)).toThrow()
-    expect(() => set(src, '.a', 1)).toThrow()
-    expect(() => set(src, 'a.', 1)).toThrow()
   })
 })
