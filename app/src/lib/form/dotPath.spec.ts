@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest"
+import { describe, it, expect } from 'vitest'
 import { get, set } from './dotPath.ts'
 
 describe('dotPath get func', () => {
@@ -16,7 +16,7 @@ describe('dotPath get func', () => {
     expect(get(src, 'b.b')).toBe(undefined)
     expect(get(src, 'b.c.b')).toBe(undefined)
   })
-  it('returns undefined if the src doesn\'t have any properties', () => {
+  it("returns undefined if the src doesn't have any properties", () => {
     expect(get(undefined, 'a')).toBe(undefined)
     expect(get(null, 'a')).toBe(undefined)
     expect(get('a', 'a')).toBe(undefined)
@@ -24,10 +24,10 @@ describe('dotPath get func', () => {
     expect(get(true, 'a')).toBe(undefined)
     expect(get(Symbol('a'), 'a')).toBe(undefined)
     expect(get({ a: undefined }, 'a.b')).toBe(undefined)
-    expect(get({ a: null}, 'a.b')).toBe(undefined)
-    expect(get({ a: 'a'}, 'a.b')).toBe(undefined)
-    expect(get({ a: 3}, 'a.b')).toBe(undefined)
-    expect(get({ a: true}, 'a.b')).toBe(undefined)
+    expect(get({ a: null }, 'a.b')).toBe(undefined)
+    expect(get({ a: 'a' }, 'a.b')).toBe(undefined)
+    expect(get({ a: 3 }, 'a.b')).toBe(undefined)
+    expect(get({ a: true }, 'a.b')).toBe(undefined)
     expect(get({ a: Symbol('a') }, 'a.b')).toBe(undefined)
   })
   it('supports array path', () => {
@@ -43,17 +43,19 @@ describe('dotPath get func', () => {
     const src = { a: { 0: {}, b: { c: 3 } } }
     expect(() => get(src, '')).toThrow()
     expect(() => get(src, '.a')).toThrow()
+    expect(() => get(src, '[a')).toThrow()
+    expect(() => get(src, ']a')).toThrow()
     expect(() => get(src, 'a.')).toThrow()
+    expect(() => get(src, 'a[')).toThrow()
+    expect(() => get(src, 'a]')).toThrow()
     expect(() => get(src, 'a.[0]')).toThrow()
     expect(() => get(src, 'a[0].')).toThrow()
     expect(() => get(src, 'a[0')).toThrow()
     expect(() => get(src, 'a0]')).toThrow()
     expect(() => get(src, 'a[a.0]')).toThrow()
-    expect(() => get(src, 'a[[0]]')).toThrow()
+    expect(() => get(src, 'a[[0]]k')).toThrow()
     expect(() => get(src, 'a[0]b')).toThrow()
   })
 })
 
-describe('dotPath set func', () => {
-
-})
+describe('dotPath set func', () => {})
