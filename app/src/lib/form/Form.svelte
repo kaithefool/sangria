@@ -9,23 +9,23 @@
   let {
     children,
     schema,
+    initValue = {},
     ...restProps
   }: {
     children: Snippet
     schema?: ZodObject
+    initValue?: { [x: string]: unknown }
   } & SvelteHTMLElements['form'] = $props()
 
-  let data = $state({})
+  let data = $state(initValue)
   let dirty = new SvelteSet<string>()
   let validation = $derived(schema?.safeParse(data))
 
   setFormContext({
     data,
     dirty,
-    get validation() {
-      return validation
-    },
-    get(key) {
+    validation,
+    get(key: string) {
       return get(data, key)
     },
     set(key: string, value: unknown) {

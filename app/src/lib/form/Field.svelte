@@ -10,7 +10,9 @@
     name: string
   } = $props()
   let id = $state(uuid())
-  let issues = $derived(ctx.validation?.error?.issues?.filter((i) => i.path.includes(name)) ?? [])
+  let issues = $derived(
+    ctx.validation?.error?.issues?.filter((i) => i.path.includes(name)) ?? [],
+  )
   let dirty = $derived(ctx.dirty.has(name))
   let showErr = $derived(issues.length && dirty)
 </script>
