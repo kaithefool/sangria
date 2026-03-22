@@ -1,36 +1,36 @@
 #!/usr/bin/env node
-import * as esbuild from "esbuild";
-import { sassPlugin } from "esbuild-sass-plugin";
+import * as esbuild from 'esbuild'
+import { sassPlugin } from 'esbuild-sass-plugin'
 
-const { argv } = process;
-const watch = argv.includes("--watch");
+const { argv } = process
+const watch = argv.includes('--watch')
 const outdir =
-  argv.find((a) => /^--outdir=/.test(a))?.replace(/^--outdir=/, "") ||
-  "../server/assets";
+  argv.find((a) => /^--outdir=/.test(a))?.replace(/^--outdir=/, '') ||
+  '../server/assets'
 
 const rebuildLog = {
-  name: "rebuild-log",
+  name: 'rebuild-log',
   setup({ onStart, onEnd }) {
-    let t;
+    let t
     onStart(() => {
-      t = Date.now();
-    });
+      t = Date.now()
+    })
     onEnd(() => {
-      console.log("Assets build finished in", Date.now() - t, "ms");
-    });
+      console.log('Assets build finished in', Date.now() - t, 'ms')
+    })
   },
-};
+}
 
 const ctx = await esbuild.context({
   plugins: [
     sassPlugin({
       quietDeps: true,
       silenceDeprecations: [
-        "import",
-        "abs-percent",
-        "global-builtin",
-        "color-functions",
-        "function-units",
+        'import',
+        'abs-percent',
+        'global-builtin',
+        'color-functions',
+        'function-units',
       ],
     }),
     rebuildLog,
@@ -39,22 +39,22 @@ const ctx = await esbuild.context({
   minify: true,
   sourcemap: true,
   loader: {
-    ".mp4": "file",
-    ".jpg": "file",
-    ".jpeg": "file",
-    ".png": "file",
-    ".svg": "file",
+    '.mp4': 'file',
+    '.jpg': 'file',
+    '.jpeg': 'file',
+    '.png': 'file',
+    '.svg': 'file',
   },
   outdir,
   entryPoints: [
-    { in: "./src/js/home/index.jsx", out: "home" },
-    { in: "./src/js/admin/index.jsx", out: "admin" },
+    { in: './src/js/home/index.jsx', out: 'home' },
+    { in: './src/js/admin/index.jsx', out: 'admin' },
   ],
-});
+})
 
 if (watch) {
-  await ctx.watch();
+  await ctx.watch()
 } else {
-  await ctx.rebuild();
-  process.exit();
+  await ctx.rebuild()
+  process.exit()
 }

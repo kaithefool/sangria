@@ -7,3 +7,6 @@ logs
 
 # Packages
 node_modules/
+
+legacy/
+react-tmpl/

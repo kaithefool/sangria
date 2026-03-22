@@ -2,17 +2,16 @@
   "name": "sangria",
   "version": "1.0.0",
   "description": "",
-  "main": "server/bin/www",
+  "main": "server/bin/www.ts",
   "scripts": {
-    "start": "node server/bin/www",
+    "start": "tsx server/bin/www.ts",
     "up": "docker compose up --watch",
     "down": "docker compose down",
     "dev": "run-p dev-server dev-assets",
     "dev:server": "cd server && npm run start:dev",
     "dev:assets": "cd assets && npm run dev",
     "postinstall": "cd server && npm i && cd ../assets && npm i",
-    "postversion": "git push && git push --tags",
-    "sync-fwk": "git fetch sangria master:fwk"
+    "postversion": "git push && git push --tags"
   },
   "repository": {
     "type": "git",
@@ -20,8 +19,7 @@
   },
   "author": "Kai Lam <kai.chun.lam@gmail.com>",
   "license": "ISC",
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "dependencies": {
     "npm-run-all": "^4.1.5"
   }
