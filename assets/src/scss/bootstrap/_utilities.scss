@@ -1,0 +1,55 @@
+$utilities: map-merge(
+  $utilities,
+  (
+    "cursor": (
+      property: cursor,
+      class: cursor,
+      responsive: true,
+      values: auto pointer grab,
+    ),
+    "max-viewport-width": (
+      property: max-width,
+      class: max-vw,
+      responsive: true,
+      values: (
+        25: 25vw,
+        50: 50vw,
+        75: 75vw,
+        100: 100vw,
+      )
+    ),
+    "min-viewport-width": (
+      property: min-width,
+      class: min-vw,
+      responsive: true,
+      values: (
+        25: 25vw,
+        50: 50vw,
+        75: 75vw,
+        100: 100vw,
+      )
+    ),
+    "max-viewport-height": (
+      property: max-height,
+      class: max-vh,
+      responsive: true,
+      values: (
+        25: 25vh,
+        50: 50vh,
+        75: 75vh,
+        100: 100vh,
+      )
+    ),
+    "min-viewport-height": (
+      property: min-height,
+      class: min-vh,
+      responsive: true,
+      values: (
+        25: 25vh,
+        50: 50vh,
+        75: 75vh,
+        100: 100vh,
+      )
+    ),
+  )
+);

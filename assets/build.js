@@ -36,6 +36,7 @@ const ctx = await esbuild.context({
     rebuildLog,
   ],
   bundle: true,
+  splitting: true,
   minify: true,
   sourcemap: true,
   loader: {
