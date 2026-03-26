@@ -1,42 +1,43 @@
 import axios, {
   AxiosError,
+  AxiosResponse,
   isAxiosError,
   isCancel,
   type AxiosRequestConfig,
 } from 'axios'
-import qs from 'qs'
+import * as qs from 'qs'
 
 export type RequestConfig = {
   file?: File
   progress?: 'upload' | 'download' | boolean
 } & AxiosRequestConfig
 
-export type PendingResponse = {
+export type PendingState = {
   status: 'pending'
   progress: number
 }
 
-export type ErrorResponse = {
+export type ErrorState = {
   status: 'error'
   error: HttpError
   code?: number
   payload?: unknown
 }
 
-export type SuccessResponse = {
+export type SuccessState = {
   status: 'success'
   code: number
   payload: unknown
   progress: 1
 }
 
-export type Response = PendingResponse | ErrorResponse | SuccessResponse
+export type HttpState = PendingState | ErrorState | SuccessState
 
 export class HttpError {
   message: string
+  error: AxiosError
   code?: number
   payload?: unknown
-  error: AxiosError
 
   constructor(reason: unknown) {
     if (isAxiosError(reason)) {
@@ -60,18 +61,15 @@ export class HttpError {
   }
 }
 
-export function http(
+export async function httpWithStates<T>(
   request: RequestConfig,
-  cb: (r: Response) => void = () => {},
-) {
+  cb: (r: HttpState) => void = () => {},
+): Promise<AxiosResponse<T>> {
   const { progress = false, ...reqConfig } = request
-  const abortCtrl = new AbortController()
-  const abort = () => abortCtrl.abort()
   const config = {
     paramsSerializer: (params: any) =>
       qs.stringify(params, { strictNullHandling: true }),
     timeout: 30 * 1000,
-    signal: abortCtrl.signal,
     ...reqConfig,
   }
 
@@ -92,26 +90,48 @@ export function http(
     }
   }
 
-  const promise = (async () => {
-    cb({ status: 'pending', progress: 0 })
-    try {
-      const res = await axios(config)
-      cb({
-        status: 'success',
-        payload: res.data,
-        code: res.status,
-        progress: 1,
-      })
-    } catch (reason) {
-      const error = new HttpError(reason)
-      cb({
-        status: 'error',
-        error,
-        code: error.code,
-        payload: error.payload,
-      })
-    }
-  })()
+  cb({ status: 'pending', progress: 0 })
+  try {
+    const res = await axios<T>(config)
+    cb({
+      status: 'success',
+      payload: res.data,
+      code: res.status,
+      progress: 1,
+    })
+    return res
+  } catch (reason) {
+    const error = new HttpError(reason)
+    cb({
+      status: 'error',
+      error,
+      code: error.code,
+      payload: error.payload,
+    })
+    throw reason
+  }
+}
 
-  return { ...promise, abort }
+export class HttpPromise<T> extends Promise<AxiosResponse<T>> {
+  constructor(request: RequestConfig, cb: (r: HttpState) => void = () => {}) {
+    if (typeof request === 'function') super(request)
+    else {
+      const abortCtrl = new AbortController()
+      super((resolve) =>
+        resolve(
+          httpWithStates<T>({ ...request, signal: abortCtrl.signal }, cb),
+        ),
+      )
+      this.abort = () => abortCtrl.abort()
+    }
+  }
+
+  abort() {}
+}
+
+export function http<T = unknown>(
+  request: RequestConfig,
+  cb: (r: HttpState) => void = () => {},
+) {
+  return new HttpPromise<T>(request, cb)
 }
