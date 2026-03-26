@@ -8,7 +8,7 @@ import {
   afterEach,
 } from 'vitest'
 import { setupServer } from 'msw/node'
-import { http as mswHttp, HttpResponse } from 'msw'
+import { http as mswHttp, HttpResponse, delay } from 'msw'
 import { http, HttpState } from './http'
 
 const server = setupServer(
@@ -16,6 +16,13 @@ const server = setupServer(
     return HttpResponse.json({
       foo: 'bar',
     })
+  }),
+  mswHttp.get('http://mock.com/timeout', async () => {
+    await delay(1000)
+    return HttpResponse.text('')
+  }),
+  mswHttp.get('http://mock.com/not-found', () => {
+    return HttpResponse.text('', { status: 404 })
   }),
 )
 
@@ -29,13 +36,9 @@ describe('http', () => {
     states = []
   })
 
-  it('returns promise resolved', async () => {
-    const p = http({ url: 'http://mock.com' })
-    expect(typeof p.then).toBe('function')
+  it('calls callback with success state & returns resolved promise', async () => {
+    const p = http({ url: 'http://mock.com' }, (s) => states.push(s))
     expect(await p).toMatchObject({ status: 200, data: { foo: 'bar' } })
-  })
-  it('calls callback with success state', async () => {
-    await http({ url: 'http://mock.com' }, (s) => states.push(s))
     expect(states.length).toBe(2)
     expect(states[0]).toMatchObject({ status: 'pending' })
     expect(states[1]).toMatchObject({
@@ -58,6 +61,35 @@ describe('http', () => {
       expect(states[1]).toMatchObject({
         status: 'error',
         error: { message: 'aborted' },
+      })
+    }
+  })
+  it('handles timeout error', async () => {
+    try {
+      await http({ url: 'http://mock.com/timeout', timeout: 1 }, (s) =>
+        states.push(s),
+      )
+    } catch (err) {
+      expect(states.length).toBe(2)
+      expect(states[0]).toMatchObject({ status: 'pending' })
+      expect(states[1]).toMatchObject({
+        status: 'error',
+        error: { message: 'timeout' },
+      })
+    }
+  })
+  it('handles error response', async () => {
+    expect.assertions(3)
+
+    try {
+      await http({ url: 'http://mock.com/not-found' }, (s) => states.push(s))
+    } catch (err) {
+      expect(states.length).toBe(2)
+      expect(states[0]).toMatchObject({ status: 'pending' })
+      expect(states[1]).toMatchObject({
+        status: 'error',
+        code: 404,
+        error: { message: 'Not Found' },
       })
     }
   })
