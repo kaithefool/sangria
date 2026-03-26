@@ -12,6 +12,10 @@ export type RequestConfig = {
   progress?: 'upload' | 'download' | boolean
 } & AxiosRequestConfig
 
+export type ReadyState = {
+  status: 'ready'
+}
+
 export type PendingState = {
   status: 'pending'
   progress: number
@@ -24,14 +28,18 @@ export type ErrorState = {
   payload?: unknown
 }
 
-export type SuccessState = {
+export type SuccessState<T = unknown> = {
   status: 'success'
   code: number
-  payload: unknown
+  payload: T
   progress: 1
 }
 
-export type HttpState = PendingState | ErrorState | SuccessState
+export type HttpState<T = unknown> =
+  | ReadyState
+  | PendingState
+  | ErrorState
+  | SuccessState<T>
 
 export class HttpError {
   message: string
@@ -63,7 +71,7 @@ export class HttpError {
 
 export async function httpWithStates<T>(
   request: RequestConfig,
-  cb: (r: HttpState) => void = () => {},
+  cb: (r: HttpState<T>) => void = () => {},
 ): Promise<AxiosResponse<T>> {
   const { progress = false, ...reqConfig } = request
   const config = {
@@ -113,7 +121,10 @@ export async function httpWithStates<T>(
 }
 
 export class HttpPromise<T> extends Promise<AxiosResponse<T>> {
-  constructor(request: RequestConfig, cb: (r: HttpState) => void = () => {}) {
+  constructor(
+    request: RequestConfig,
+    cb: (r: HttpState<T>) => void = () => {},
+  ) {
     if (typeof request === 'function') super(request)
     else {
       const abortCtrl = new AbortController()
@@ -131,7 +142,7 @@ export class HttpPromise<T> extends Promise<AxiosResponse<T>> {
 
 export function http<T = unknown>(
   request: RequestConfig,
-  cb: (r: HttpState) => void = () => {},
+  cb: (r: HttpState<T>) => void = () => {},
 ) {
   return new HttpPromise<T>(request, cb)
 }
