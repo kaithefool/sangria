@@ -17,13 +17,6 @@ const server = setupServer(
       foo: 'bar',
     })
   }),
-  mswHttp.get('http://mock.com/timeout', async () => {
-    await delay(1000)
-    return HttpResponse.text('')
-  }),
-  mswHttp.get('http://mock.com/not-found', () => {
-    return HttpResponse.text('', { status: 404 })
-  }),
 )
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
@@ -65,6 +58,13 @@ describe('http', () => {
     }
   })
   it('handles timeout error', async () => {
+    expect.assertions(3)
+    server.use(
+      mswHttp.get('http://mock.com/timeout', async () => {
+        await delay(1000)
+        return HttpResponse.text('')
+      }),
+    )
     try {
       await http({ url: 'http://mock.com/timeout', timeout: 1 }, (s) =>
         states.push(s),
@@ -80,7 +80,11 @@ describe('http', () => {
   })
   it('handles error response', async () => {
     expect.assertions(3)
-
+    server.use(
+      mswHttp.get('http://mock.com/not-found', () => {
+        return HttpResponse.text('', { status: 404 })
+      }),
+    )
     try {
       await http({ url: 'http://mock.com/not-found' }, (s) => states.push(s))
     } catch (err) {
