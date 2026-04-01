@@ -24,6 +24,7 @@ const worker = setupWorker(
   handler.get('http://mock.com/not-found', () => {
     return HttpResponse.text('', { status: 404 })
   }),
+  handler.get('http://mock.com/unresponsed', () => {}),
 )
 
 beforeAll(() => worker.start({ onUnhandledRequest: 'error' }))
@@ -76,6 +77,19 @@ describe('http', () => {
       expect(states[1]).toMatchObject({
         status: 'error',
         error: { message: 'timeout' },
+      })
+    }
+  })
+  it('handles network error', async () => {
+    expect.assertions(3)
+    try {
+      await http({ url: 'http://mock.com/unresponsed' }, (s) => states.push(s))
+    } catch (err) {
+      expect(states.length).toBe(2)
+      expect(states[0]).toMatchObject({ status: 'pending' })
+      expect(states[1]).toMatchObject({
+        status: 'error',
+        error: { message: 'network' },
       })
     }
   })
