@@ -12,19 +12,19 @@ import { http as handler, HttpResponse, delay } from 'msw'
 import { http, HttpState } from './http'
 
 const worker = setupWorker(
-  handler.get('http://mock.com', () => {
+  handler.get('http://mo.ck', () => {
     return HttpResponse.json({
       foo: 'bar',
     })
   }),
-  handler.get('http://mock.com/delay', async () => {
+  handler.get('http://mo.ck/delay', async () => {
     await delay(1000)
     return HttpResponse.text('')
   }),
-  handler.get('http://mock.com/not-found', () => {
+  handler.get('http://mo.ck/not-found', () => {
     return HttpResponse.text('', { status: 404 })
   }),
-  handler.get('http://mock.com/unresponsed', () => {}),
+  handler.get('http://mo.ck/unresponsed', () => {}),
 )
 
 beforeAll(() => worker.start({ onUnhandledRequest: 'error' }))
@@ -38,7 +38,7 @@ describe('http', () => {
   })
 
   it('calls callback with success state & returns resolved promise', async () => {
-    const p = http({ url: 'http://mock.com' }, (s) => states.push(s))
+    const p = http({ url: 'http://mo.ck' }, (s) => states.push(s))
     expect(await p).toMatchObject({ status: 200, data: { foo: 'bar' } })
     expect(states.length).toBe(2)
     expect(states[0]).toMatchObject({ status: 'pending' })
@@ -51,7 +51,7 @@ describe('http', () => {
   })
   it('aborts http request', async () => {
     expect.assertions(3)
-    const p = http({ url: 'http://mock.com' }, (s) => states.push(s))
+    const p = http({ url: 'http://mo.ck' }, (s) => states.push(s))
     p.abort()
 
     try {
@@ -68,7 +68,7 @@ describe('http', () => {
   it('handles timeout error', async () => {
     expect.assertions(3)
     try {
-      await http({ url: 'http://mock.com/delay', timeout: 1 }, (s) =>
+      await http({ url: 'http://mo.ck/delay', timeout: 1 }, (s) =>
         states.push(s),
       )
     } catch (err) {
@@ -83,7 +83,7 @@ describe('http', () => {
   it('handles network error', async () => {
     expect.assertions(3)
     try {
-      await http({ url: 'http://mock.com/unresponsed' }, (s) => states.push(s))
+      await http({ url: 'http://mo.ck/unresponsed' }, (s) => states.push(s))
     } catch (err) {
       expect(states.length).toBe(2)
       expect(states[0]).toMatchObject({ status: 'pending' })
@@ -96,7 +96,7 @@ describe('http', () => {
   it('handles error response', async () => {
     expect.assertions(3)
     try {
-      await http({ url: 'http://mock.com/not-found' }, (s) => states.push(s))
+      await http({ url: 'http://mo.ck/not-found' }, (s) => states.push(s))
     } catch (err) {
       expect(states.length).toBe(2)
       expect(states[0]).toMatchObject({ status: 'pending' })

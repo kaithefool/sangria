@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { http, HttpPromise, HttpState, RequestConfig } from './http'
+import { useEqual } from './useEqual'
 
 export default function useHttp<T>(propConfig?: RequestConfig) {
   const [promise, setPromise] = useState<HttpPromise<T>>()
@@ -25,7 +26,7 @@ export default function useHttp<T>(propConfig?: RequestConfig) {
     return () => {
       p?.abort()
     }
-  }, [config])
+  }, [useEqual(config)])
 
   return {
     promise,
