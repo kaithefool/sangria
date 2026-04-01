@@ -8,14 +8,21 @@ import {
   afterEach,
 } from 'vitest'
 import { setupWorker } from 'msw/browser'
-import { http as mswHttp, HttpResponse, delay } from 'msw'
+import { http as handler, HttpResponse, delay } from 'msw'
 import { http, HttpState } from './http'
 
 const worker = setupWorker(
-  mswHttp.get('http://mock.com', () => {
+  handler.get('http://mock.com', () => {
     return HttpResponse.json({
       foo: 'bar',
     })
+  }),
+  handler.get('http://mock.com/delay', async () => {
+    await delay(1000)
+    return HttpResponse.text('')
+  }),
+  handler.get('http://mock.com/not-found', () => {
+    return HttpResponse.text('', { status: 404 })
   }),
 )
 
@@ -59,14 +66,8 @@ describe('http', () => {
   })
   it('handles timeout error', async () => {
     expect.assertions(3)
-    worker.use(
-      mswHttp.get('http://mock.com/timeout', async () => {
-        await delay(1000)
-        return HttpResponse.text('')
-      }),
-    )
     try {
-      await http({ url: 'http://mock.com/timeout', timeout: 1 }, (s) =>
+      await http({ url: 'http://mock.com/delay', timeout: 1 }, (s) =>
         states.push(s),
       )
     } catch (err) {
@@ -80,11 +81,6 @@ describe('http', () => {
   })
   it('handles error response', async () => {
     expect.assertions(3)
-    worker.use(
-      mswHttp.get('http://mock.com/not-found', () => {
-        return HttpResponse.text('', { status: 404 })
-      }),
-    )
     try {
       await http({ url: 'http://mock.com/not-found' }, (s) => states.push(s))
     } catch (err) {
