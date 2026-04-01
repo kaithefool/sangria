@@ -7,11 +7,11 @@ import {
   afterAll,
   afterEach,
 } from 'vitest'
-import { setupServer } from 'msw/node'
+import { setupWorker } from 'msw/browser'
 import { http as mswHttp, HttpResponse, delay } from 'msw'
 import { http, HttpState } from './http'
 
-const server = setupServer(
+const worker = setupWorker(
   mswHttp.get('http://mock.com', () => {
     return HttpResponse.json({
       foo: 'bar',
@@ -19,9 +19,9 @@ const server = setupServer(
   }),
 )
 
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
-afterAll(() => server.close())
-afterEach(() => server.resetHandlers())
+beforeAll(() => worker.start({ onUnhandledRequest: 'error' }))
+afterAll(() => worker.stop())
+afterEach(() => worker.resetHandlers())
 
 describe('http', () => {
   let states: HttpState[] = []
@@ -59,7 +59,7 @@ describe('http', () => {
   })
   it('handles timeout error', async () => {
     expect.assertions(3)
-    server.use(
+    worker.use(
       mswHttp.get('http://mock.com/timeout', async () => {
         await delay(1000)
         return HttpResponse.text('')
@@ -80,7 +80,7 @@ describe('http', () => {
   })
   it('handles error response', async () => {
     expect.assertions(3)
-    server.use(
+    worker.use(
       mswHttp.get('http://mock.com/not-found', () => {
         return HttpResponse.text('', { status: 404 })
       }),
