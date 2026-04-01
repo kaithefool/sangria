@@ -27,7 +27,7 @@ const worker = setupWorker(
   handler.get('http://mo.ck/unresponsed', () => {}),
 )
 
-beforeAll(() => worker.start({ onUnhandledRequest: 'error' }))
+beforeAll(() => worker.start({ onUnhandledRequest: 'error', quiet: true }))
 afterAll(() => worker.stop())
 afterEach(() => worker.resetHandlers())
 
