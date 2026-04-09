@@ -1,9 +1,9 @@
 import axios, {
-  AxiosError,
-  AxiosResponse,
   isAxiosError,
   isCancel,
+  AxiosError,
   type AxiosRequestConfig,
+  type AxiosResponse,
 } from 'axios'
 import * as qs from 'qs'
 

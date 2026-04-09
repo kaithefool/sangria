@@ -9,7 +9,7 @@ import {
 } from 'vitest'
 import { setupWorker } from 'msw/browser'
 import { http as handler, HttpResponse, delay } from 'msw'
-import { http, HttpState } from './http'
+import { http, type HttpState } from './http'
 
 const worker = setupWorker(
   handler.get('http://mo.ck', () => {
@@ -18,7 +18,7 @@ const worker = setupWorker(
     })
   }),
   handler.get('http://mo.ck/delay', async () => {
-    await delay(1000)
+    await delay(100)
     return HttpResponse.text('')
   }),
   handler.get('http://mo.ck/not-found', () => {

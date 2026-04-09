@@ -1,8 +1,16 @@
 import { useEffect, useState } from 'react'
-import { http, HttpPromise, HttpState, RequestConfig } from './http'
+import { http, HttpPromise, type HttpState, type RequestConfig } from './http'
 import { useEqual } from './useEqual'
+import { isCancel } from 'axios'
 
-export default function useHttp<T>(propConfig?: RequestConfig) {
+export type UseHttpOpts = {
+  logError?: boolean
+}
+
+export default function useHttp<T>(
+  propConfig?: RequestConfig,
+  opts?: UseHttpOpts,
+) {
   const [promise, setPromise] = useState<HttpPromise<T>>()
   const [state, setState] = useState<HttpState<T>>({ status: 'ready' })
   const [fetched, setFetched] = useState<T>()
@@ -10,11 +18,11 @@ export default function useHttp<T>(propConfig?: RequestConfig) {
   const [localConfig, setLocalConfig] = useState<RequestConfig>()
   const config = localConfig ?? propConfig
 
+  const refresh = () => setReqCount((k) => k + 1)
   const request = (r: RequestConfig) => {
     setLocalConfig(r)
-    setReqCount((k) => k + 1)
+    refresh()
   }
-  const refresh = () => setReqCount((k) => k + 1)
   const abort = () => promise?.abort()
 
   useEffect(() => {
@@ -23,6 +31,11 @@ export default function useHttp<T>(propConfig?: RequestConfig) {
       p = http<T>(config, (s) => {
         setState(s)
         if (s.status === 'success') setFetched(s.payload)
+      })
+      p.catch((e) => {
+        if (!isCancel(e) && opts?.logError !== false) {
+          console.error(e)
+        }
       })
       setPromise(p)
     }
@@ -33,8 +46,8 @@ export default function useHttp<T>(propConfig?: RequestConfig) {
   }, [useEqual(config), reqCount])
 
   return {
-    promise,
     ...state,
+    promise,
     fetched,
     config,
     request,

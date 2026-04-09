@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { setupWorker } from 'msw/browser'
-import { delay, http as handler, HttpResponse } from 'msw'
+import { http as handler, HttpResponse } from 'msw'
 import useHttp from './useHttp'
 import { isCancel } from 'axios'
 
@@ -13,10 +13,6 @@ const worker = setupWorker(
     return HttpResponse.json({ bax: 'qux' })
   }),
   handler.get('http://mo.ck/not-found', () => {
-    return HttpResponse.text('', { status: 404 })
-  }),
-  handler.get('http://mo.ck/delay', async () => {
-    await delay(1000)
     return HttpResponse.text('', { status: 404 })
   }),
 )
@@ -76,7 +72,7 @@ describe('useHttp', () => {
   it('handles api errors', async () => {
     expect.assertions(2)
     const { result, rerender } = await renderHook(() =>
-      useHttp({ url: 'http://mo.ck/not-found' }),
+      useHttp({ url: 'http://mo.ck/not-found' }, { logError: false }),
     )
     expect(result.current.status).toBe('pending')
     try {
@@ -92,7 +88,7 @@ describe('useHttp', () => {
     }
   })
   it('provides a abort method', async () => {
-    expect.assertions(2)
+    expect.assertions(3)
     const { result, rerender } = await renderHook(() =>
       useHttp({ url: 'http://mo.ck/foo' }),
     )
@@ -101,6 +97,7 @@ describe('useHttp', () => {
       result.current.abort()
       await result.current.promise
     } catch (error) {
+      expect(isCancel(error)).toBe(true)
       await rerender()
       expect(result.current).toMatchObject({
         status: 'error',
@@ -121,18 +118,16 @@ describe('useHttp', () => {
       expect(isCancel(error)).toBe(true)
     }
   })
-  it.todo('aborts previous request when config changed', async () => {
+  it('aborts previous request when config changed', async () => {
     expect.assertions(2)
     const { result, rerender } = await renderHook((c) => useHttp(c), {
-      initialProps: { url: 'http://mo.ck/delay' },
+      initialProps: { url: 'http://mo.ck/foo' },
     })
-    const { promise } = result.current
     expect(result.current.status).toBe('pending')
     try {
       rerender({ url: 'http://mo.ck/foo' })
-      await promise
+      await result.current.promise
     } catch (error) {
-      console.log(error)
       expect(isCancel(error)).toBe(true)
     }
   })
