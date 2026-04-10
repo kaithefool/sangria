@@ -125,11 +125,27 @@ describe('useHttp', () => {
     })
     expect(result.current.status).toBe('pending')
     try {
-      rerender({ url: 'http://mo.ck/foo' })
+      rerender({ url: 'http://mo.ck/bax' })
       await result.current.promise
     } catch (error) {
       expect(isCancel(error)).toBe(true)
     }
+  })
+  it('provides a request method', async () => {
+    const { result, rerender } = await renderHook(() => useHttp())
+    expect(typeof result.current.request).toBe('function')
+    result.current.request({ url: 'http://mo.ck/foo' })
+    await rerender()
+    expect(result.current.status).toBe('pending')
+    await result.current.promise
+    await rerender()
+    expect(result.current).toMatchObject({
+      status: 'success',
+      code: 200,
+      payload: { foo: 'bar' },
+      fetched: { foo: 'bar' },
+      progress: 1,
+    })
   })
   it('provides a refresh method', async () => {
     const successState = {
@@ -142,6 +158,7 @@ describe('useHttp', () => {
     const { result, rerender } = await renderHook(() =>
       useHttp({ url: 'http://mo.ck/foo' }),
     )
+    expect(typeof result.current.refresh).toBe('function')
     expect(result.current.status).toBe('pending')
     await result.current.promise
     await rerender()
