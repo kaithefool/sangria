@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { setupWorker } from 'msw/browser'
 import { http as handler, HttpResponse } from 'msw'
-import useHttp from './useHttp'
+import { useHttp } from './useHttp'
 import { isCancel } from 'axios'
 
 const worker = setupWorker(

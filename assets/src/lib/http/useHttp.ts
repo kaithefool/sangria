@@ -1,16 +1,15 @@
 import { useEffect, useState } from 'react'
 import { http, HttpPromise, type HttpState, type RequestConfig } from './http'
-import { useEqual } from './useEqual'
+import { useEqual } from '../useEqual'
 import { isCancel } from 'axios'
 
 export type UseHttpOpts = {
   logError?: boolean
 }
 
-export default function useHttp<T>(
-  propConfig?: RequestConfig,
-  opts?: UseHttpOpts,
-) {
+export type UseHttpReturn<T = unknown> = ReturnType<typeof useHttp<T>>
+
+export function useHttp<T>(propConfig?: RequestConfig, opts?: UseHttpOpts) {
   const [promise, setPromise] = useState<HttpPromise<T>>()
   const [state, setState] = useState<HttpState<T>>({ status: 'ready' })
   const [fetched, setFetched] = useState<T>()
@@ -33,6 +32,7 @@ export default function useHttp<T>(
         if (s.status === 'success') setFetched(s.payload)
       })
       p.catch((e) => {
+        // suppress uncaught error
         if (!isCancel(e) && opts?.logError !== false) {
           console.error(e)
         }
@@ -49,7 +49,6 @@ export default function useHttp<T>(
     ...state,
     promise,
     fetched,
-    config,
     request,
     refresh,
     abort,
