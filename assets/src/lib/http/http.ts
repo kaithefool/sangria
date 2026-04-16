@@ -32,7 +32,7 @@ export type SuccessState<T = unknown> = {
   status: 'success'
   code: number
   payload: T
-  progress: 1
+  progress: number
 }
 
 export type HttpState<T = unknown> =

@@ -4,10 +4,8 @@ export type ReadyStates = {
   status: 'ready'
 }
 
-export type PendingStates<T extends unknown[] = unknown[]> = {
+export type PendingStates = {
   status: 'pending'
-  codes: (number | undefined)[]
-  payloads: { [I in keyof T]?: T[I] }
   progress: number
 }
 
@@ -22,19 +20,19 @@ export type SuccessStates<T extends unknown[] = unknown[]> = {
   status: 'success'
   codes: number[]
   payloads: T
-  progress: 1
+  progress: number
 }
 
 export type HttpStates<T extends unknown[] = unknown[]> =
   | ReadyStates
-  | PendingStates<T>
+  | PendingStates
   | ErrorStates
   | SuccessStates<T>
 
 export function parallelStates<T extends unknown[] = unknown[]>(
   states: HttpState[],
 ) {
-  let r = { status: 'ready' } as HttpStates<T>
+  let r = { status: 'ready' } as HttpStates
 
   for (const s of states) {
     if (s.status === 'error') {
@@ -50,23 +48,35 @@ export function parallelStates<T extends unknown[] = unknown[]>(
       r.codes.push(s.code)
       r.payloads.push(s.payload)
     }
-    // skip non-error states
+    // skip non-error states if already in error status
     if (r.status === 'error') {
       continue
     }
-    if (s.status === 'pending' && r.status !== 'pending') {
-      r = {
-        status: 'pending',
-        codes: [],
-        payloads: [],
-        progress: 0,
+    if (s.status === 'pending') {
+      if (r.status !== 'pending') {
+        r = {
+          status: 'pending',
+          progress: 0,
+        }
       }
+      r.progress += s.progress / states.length
     }
-
-    if (r.status === 'pending') {
-      r.status += s.progress / states.length
+    if (s.status === 'success') {
+      if (r.status !== 'pending' && r.status !== 'success') {
+        r = {
+          status: 'success',
+          codes: [],
+          payloads: [],
+          progress: 0,
+        }
+      }
+      r.progress += s.progress / states.length
+      if (r.status === 'success') r.payloads.push(s.payload)
     }
   }
 
-  return r
+  // rounding problem
+  if (r.status === 'success') r.progress = 1
+
+  return r as HttpStates<T>
 }
