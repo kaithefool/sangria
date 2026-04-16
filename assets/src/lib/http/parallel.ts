@@ -35,6 +35,9 @@ export function parallelStates<T extends unknown[] = unknown[]>(
   let r = { status: 'ready' } as HttpStates
 
   for (const s of states) {
+    if (s.status === 'ready') {
+      continue
+    }
     if (s.status === 'error') {
       if (r.status !== 'error') {
         r = {
@@ -47,6 +50,7 @@ export function parallelStates<T extends unknown[] = unknown[]>(
       r.errors.push(s.error)
       r.codes.push(s.code)
       r.payloads.push(s.payload)
+      continue
     }
     // skip non-error states if already in error status
     if (r.status === 'error') {
@@ -56,13 +60,13 @@ export function parallelStates<T extends unknown[] = unknown[]>(
       if (r.status !== 'pending') {
         r = {
           status: 'pending',
-          progress: 0,
+          progress: r.status === 'success' ? r.progress : 0,
         }
       }
       r.progress += s.progress / states.length
     }
     if (s.status === 'success') {
-      if (r.status !== 'pending' && r.status !== 'success') {
+      if (r.status === 'ready') {
         r = {
           status: 'success',
           codes: [],
@@ -75,7 +79,7 @@ export function parallelStates<T extends unknown[] = unknown[]>(
     }
   }
 
-  // rounding problem
+  // float precision problem
   if (r.status === 'success') r.progress = 1
 
   return r as HttpStates<T>

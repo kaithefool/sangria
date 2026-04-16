@@ -66,4 +66,57 @@ describe('parallel http states', () => {
       payloads: [undefined, undefined, { foo: 'bar' }],
     })
   })
+  it.each<[HttpState[], number]>([
+    [[{ status: 'ready' }, { status: 'pending', progress: 0.5 }], 0.25],
+    [[{ status: 'pending', progress: 0.5 }, { status: 'ready' }], 0.25],
+    [
+      [
+        { status: 'success', code: 200, payload: null, progress: 1 },
+        { status: 'pending', progress: 0.5 },
+      ],
+      0.75,
+    ],
+    [
+      [
+        { status: 'pending', progress: 0.5 },
+        { status: 'success', code: 200, payload: null, progress: 1 },
+      ],
+      0.75,
+    ],
+    [
+      [
+        { status: 'success', code: 200, payload: null, progress: 1 },
+        { status: 'pending', progress: 0.5 },
+        { status: 'success', code: 200, payload: null, progress: 1 },
+        { status: 'pending', progress: 0.25 },
+      ],
+      0.6875,
+    ],
+    [
+      [
+        { status: 'pending', progress: 0.25 },
+        { status: 'success', code: 200, payload: null, progress: 1 },
+        { status: 'pending', progress: 0.5 },
+        { status: 'success', code: 200, payload: null, progress: 1 },
+      ],
+      0.6875,
+    ],
+  ])(
+    'returns pending status with total progress if one of the state is pending',
+    (states, progress) => {
+      expect(parallelStates(states)).toMatchObject({
+        status: 'pending',
+        progress,
+      })
+    },
+  )
+  it('prevent float precision problem', () => {
+    expect(
+      parallelStates([
+        { status: 'success', code: 200, payload: null, progress: 1 },
+        { status: 'success', code: 200, payload: null, progress: 1 },
+        { status: 'success', code: 200, payload: null, progress: 1 },
+      ]),
+    ).toMatchObject({ progress: 1 })
+  })
 })
