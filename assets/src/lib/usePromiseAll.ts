@@ -1,6 +1,9 @@
 import { useRef } from 'react'
 
-export function areSamePromises(a: Promise<unknown>[], b: Promise<unknown>[]) {
+export function areSamePromises(
+  a: (Promise<unknown> | undefined)[],
+  b: (Promise<unknown> | undefined)[],
+) {
   if (a.length !== b.length) return false
   for (let i = 0; i < a.length; i += 1) {
     if (a[i] !== b[i]) return false
@@ -8,7 +11,9 @@ export function areSamePromises(a: Promise<unknown>[], b: Promise<unknown>[]) {
   return true
 }
 
-export function usePromiseAll<T extends Promise<unknown>[]>(...promises: T) {
+export function usePromiseAll<T extends (Promise<unknown> | undefined)[]>(
+  ...promises: T
+) {
   const p = useRef(promises)
   const all = useRef<Promise<{
     -readonly [I in keyof T]: Awaited<T[I]>

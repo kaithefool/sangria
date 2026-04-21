@@ -46,6 +46,15 @@ describe('usePromiseAll', () => {
     const { result } = await renderHook(() => usePromiseAll())
     expect(await result.current).toEqual([])
   })
+
+  it('handle undefined promises', async () => {
+    const p1 = Promise.resolve(1)
+    const p2 = undefined
+    const p3 = Promise.resolve(3)
+    const { result } = await renderHook(() => usePromiseAll(p1, p2, p3))
+    expect(result.current).toBeInstanceOf(Promise)
+    expect(await result.current).toEqual([1, undefined, 3])
+  })
 })
 
 describe('areSamePromises', () => {
@@ -65,6 +74,14 @@ describe('areSamePromises', () => {
     const p1 = Promise.resolve(1)
     const p2 = Promise.resolve(2)
     const p3 = Promise.resolve(3)
+    expect(areSamePromises([p1, p2], [p1, p3])).toBe(false)
+  })
+
+  it('handle undefined promises', async () => {
+    const p1 = Promise.resolve(1)
+    const p2 = undefined
+    const p3 = Promise.resolve(3)
+    expect(areSamePromises([p1, p2], [p1, p2])).toBe(true)
     expect(areSamePromises([p1, p2], [p1, p3])).toBe(false)
   })
 })
