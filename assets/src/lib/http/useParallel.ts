@@ -1,6 +1,4 @@
-import { useMemo } from 'react'
 import { useHttp, type UseHttpReturn } from './useHttp'
-import type { HttpState } from './http'
 import { parallelStates } from './parallel'
 
 type InferPayloads<T> = {
@@ -8,7 +6,7 @@ type InferPayloads<T> = {
 }
 
 export default function useParallel<T extends UseHttpReturn[]>(...rets: T) {
-  const states = parallelStates(rets)
+  const states = parallelStates<InferPayloads<T>>(rets)
 
   return {
     ...states,
@@ -16,3 +14,5 @@ export default function useParallel<T extends UseHttpReturn[]>(...rets: T) {
     abort: () => rets.forEach((r) => r.abort()),
   }
 }
+
+const p = useParallel(useHttp<{ foo: string }>(), useHttp<{ bar: string }>())
