@@ -58,7 +58,10 @@ describe('useHttp', () => {
       progress: 1,
     })
     await rerender(nextProps)
-    expect(result.current.status).toBe('pending')
+    expect(result.current).toMatchObject({
+      status: 'pending',
+      fetched: { foo: 'bar' },
+    })
     await result.current.promise
     await rerender(nextProps)
     expect(result.current).toMatchObject({

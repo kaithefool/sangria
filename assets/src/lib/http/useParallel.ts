@@ -14,14 +14,15 @@ type InferPromises<T> = {
 
 export default function useParallel<T extends UseHttpReturn[]>(...rets: T) {
   const states = parallelStates<InferPayloads<T>>(rets)
+  const fetched = rets.map((r) => r.fetched) as Partial<InferPayloads<T>>
   const promise = usePromiseAll(
     ...(rets.map((r) => r.promise) as InferPromises<T>),
   )
 
   return {
     ...states,
+    fetched,
     promise,
-    promises: rets.map((r) => r.promise) as InferPromises<T>,
     refresh: () => rets.forEach((r) => r.refresh()),
     abort: () => rets.forEach((r) => r.abort()),
   }

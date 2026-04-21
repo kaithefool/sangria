@@ -75,7 +75,10 @@ export function parallelStates<T extends unknown[] = unknown[]>(
         }
       }
       r.progress += s.progress / states.length
-      if (r.status === 'success') r.payloads.push(s.payload)
+      if (r.status === 'success') {
+        r.codes.push(s.code)
+        r.payloads.push(s.payload)
+      }
     }
   }
 

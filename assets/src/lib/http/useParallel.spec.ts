@@ -43,5 +43,30 @@ describe('useParallel', () => {
       })
     }
   })
-  it('provides a refresh method', () => {})
+  it('provides a refresh method', async () => {
+    const successState = {
+      status: 'success',
+      codes: [200, 200],
+      payloads: [{ foo: 'bar' }, { bax: 'qux' }],
+      fetched: [{ foo: 'bar' }, { bax: 'qux' }],
+      progress: 1,
+    }
+    const { result, rerender } = await renderHook(() =>
+      useParallel(
+        useHttp({ url: 'http://mo.ck/foo' }),
+        useHttp({ url: 'http://mo.ck/bax' }),
+      ),
+    )
+    expect(typeof result.current.refresh).toBe('function')
+    expect(result.current.status).toBe('pending')
+    await result.current.promise
+    await rerender()
+    expect(result.current).toMatchObject(successState)
+    result.current.refresh()
+    await rerender()
+    expect(result.current.status).toBe('pending')
+    await result.current.promise
+    await rerender()
+    expect(result.current).toMatchObject(successState)
+  })
 })

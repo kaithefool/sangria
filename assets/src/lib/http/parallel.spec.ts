@@ -39,6 +39,7 @@ describe('parallel http states', () => {
     expect(parallelStates(states)).toMatchObject({
       status: 'error',
       errors: [e0],
+      codes: [undefined],
     })
   })
   it.each<HttpState[]>([
@@ -118,5 +119,19 @@ describe('parallel http states', () => {
         { status: 'success', code: 200, payload: null, progress: 1 },
       ]),
     ).toMatchObject({ progress: 1 })
+  })
+  it('aggregate success payloads & codes', () => {
+    expect(
+      parallelStates([
+        { status: 'success', code: 200, payload: { foo: 1 }, progress: 1 },
+        { status: 'success', code: 201, payload: ['bar'], progress: 1 },
+        { status: 'success', code: 202, payload: null, progress: 1 },
+      ]),
+    ).toMatchObject({
+      status: 'success',
+      progress: 1,
+      payloads: [{ foo: 1 }, ['bar'], null],
+      codes: [200, 201, 202],
+    })
   })
 })
