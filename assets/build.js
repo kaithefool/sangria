@@ -1,12 +1,25 @@
 #!/usr/bin/env node
 import * as esbuild from 'esbuild'
 import { sassPlugin } from 'esbuild-sass-plugin'
+import { resolve } from 'node:path'
+import fs, { rmSync } from 'node:fs'
 
 const { argv } = process
+const { dirname } = import.meta
 const watch = argv.includes('--watch')
-const outdir =
+const outdir = resolve(
+  dirname,
   argv.find((a) => /^--outdir=/.test(a))?.replace(/^--outdir=/, '') ||
-  '../server/assets'
+    '../server/assets',
+)
+const entryRoot = resolve(dirname, 'src/entry')
+const entryPoints = fs
+  .readdirSync(entryRoot)
+  .map((dir) => {
+    const p = resolve(entryRoot, dir, 'main.tsx')
+    return fs.existsSync(p) && { in: p, out: dir }
+  })
+  .filter((p) => p)
 
 const rebuildLog = {
   name: 'rebuild-log',
@@ -16,27 +29,38 @@ const rebuildLog = {
       t = Date.now()
     })
     onEnd(() => {
-      console.log('Assets build finished in', Date.now() - t, 'ms')
+      console.log('Assets built in', Date.now() - t, 'ms')
     })
   },
 }
 
-const ctx = await esbuild.context({
-  plugins: [
-    sassPlugin({
-      quietDeps: true,
-      silenceDeprecations: [
-        'import',
-        'abs-percent',
-        'global-builtin',
-        'color-functions',
-        'function-units',
-      ],
-    }),
-    rebuildLog,
+const cleanDir = {
+  name: 'clean-dir',
+  setup({ onStart }) {
+    onStart(() => {
+      fs.readdirSync(outdir).forEach((p) => {
+        rmSync(resolve(outdir, p), {
+          recursive: true,
+        })
+      })
+    })
+  },
+}
+
+const sass = sassPlugin({
+  quietDeps: true,
+  silenceDeprecations: [
+    'import',
+    'abs-percent',
+    'global-builtin',
+    'color-functions',
+    'function-units',
   ],
+})
+
+const ctx = await esbuild.context({
+  plugins: [rebuildLog, sass, cleanDir],
   bundle: true,
-  splitting: true,
   minify: true,
   sourcemap: true,
   loader: {
@@ -46,11 +70,9 @@ const ctx = await esbuild.context({
     '.png': 'file',
     '.svg': 'file',
   },
+  entryPoints,
   outdir,
-  entryPoints: [
-    { in: './src/js/home/index.jsx', out: 'home' },
-    { in: './src/js/admin/index.jsx', out: 'admin' },
-  ],
+  entryNames: '[name]-[hash]',
 })
 
 if (watch) {

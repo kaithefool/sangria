@@ -11,8 +11,8 @@ export default defineConfig({
       // https://vitest.dev/config/browser/playwright
       instances: [
         { browser: 'chromium' },
-        // { browser: 'firefox' },
         { browser: 'webkit' },
+        // { browser: 'firefox' },
       ],
     },
   },
