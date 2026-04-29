@@ -7,12 +7,12 @@ export type UseHttpOpts = {
   logError?: boolean
 }
 
-export type UseHttpReturn<T = unknown> = ReturnType<typeof useHttp<T>>
+export type Http<T = unknown> = ReturnType<typeof useHttp<T>>
 
 export function useHttp<T>(propConfig?: RequestConfig, opts?: UseHttpOpts) {
   const [promise, setPromise] = useState<HttpPromise<T>>()
   const [state, setState] = useState<HttpState<T>>({ status: 'ready' })
-  const [fetched, setFetched] = useState<T>()
+  const [fetched, setFetched] = useState<T | null>(null)
   const [reqCount, setReqCount] = useState(0)
   const [localConfig, setLocalConfig] = useState<RequestConfig>()
   const config = localConfig ?? propConfig
