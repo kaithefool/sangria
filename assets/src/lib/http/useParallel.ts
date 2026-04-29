@@ -3,15 +3,15 @@ import { parallelStates } from './parallel'
 import { usePromiseAll } from '../usePromiseAll'
 
 export default function useParallel<T extends unknown[]>(
-  ...rets: { [I in keyof T]: Http<T[I]> }
+  ...args: { [I in keyof T]: Http<T[I]> }
 ) {
-  const states = parallelStates<T>(rets)
+  const states = parallelStates<T>(args)
   const promise = usePromiseAll(
-    ...(rets.map((r) => r.promise) as {
+    ...(args.map((r) => r.promise) as {
       [I in keyof T]: Http<T[I]>['promise']
     }),
   )
-  const fetched = rets.reduce<unknown[] | null>((a, c) => {
+  const fetched = args.reduce<unknown[] | null>((a, c) => {
     if (a === null || c.fetched === null) return null
     return [...a, c.fetched]
   }, []) as T | null
@@ -20,7 +20,7 @@ export default function useParallel<T extends unknown[]>(
     ...states,
     fetched,
     promise,
-    refresh: () => rets.forEach((r) => r.refresh()),
-    abort: () => rets.forEach((r) => r.abort()),
+    refresh: () => args.forEach((r) => r.refresh()),
+    abort: () => args.forEach((r) => r.abort()),
   }
 }
