@@ -2,15 +2,15 @@ import type { ReactNode } from 'react'
 import type { Http } from './useHttp'
 import useParallel from './useParallel'
 
-export default function Fetch<T extends unknown>(props: {
+export default function FetchPayload<T extends unknown>(props: {
   http: Http<T>
   children: (fetched: T) => ReactNode
 }): ReactNode
-export default function Fetch<T extends unknown[]>(props: {
+export default function FetchPayload<T extends unknown[]>(props: {
   http: { [I in keyof T]: Http<T[I]> }
   children: (...fetched: T) => ReactNode
 }): ReactNode
-export default function Fetch<T extends unknown[]>({
+export default function FetchPayload<T extends unknown[]>({
   http,
   children,
 }: {

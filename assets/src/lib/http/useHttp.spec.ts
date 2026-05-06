@@ -41,37 +41,6 @@ describe('useHttp', () => {
       progress: 1,
     })
   })
-  it('refetch after config changed', async () => {
-    const initialProps = { url: 'http://mo.ck/foo' }
-    const nextProps = { url: 'http://mo.ck/bax' }
-    const { result, rerender } = await renderHook((c) => useHttp(c), {
-      initialProps,
-    })
-    expect(result.current.status).toBe('pending')
-    await result.current.promise
-    await rerender(initialProps)
-    expect(result.current).toMatchObject({
-      status: 'success',
-      code: 200,
-      payload: { foo: 'bar' },
-      fetched: { foo: 'bar' },
-      progress: 1,
-    })
-    await rerender(nextProps)
-    expect(result.current).toMatchObject({
-      status: 'pending',
-      fetched: { foo: 'bar' },
-    })
-    await result.current.promise
-    await rerender(nextProps)
-    expect(result.current).toMatchObject({
-      status: 'success',
-      code: 200,
-      payload: { bax: 'qux' },
-      fetched: { bax: 'qux' },
-      progress: 1,
-    })
-  })
   it('handles api errors', async () => {
     expect.assertions(2)
     const { result, rerender } = await renderHook(() =>
@@ -121,19 +90,6 @@ describe('useHttp', () => {
       expect(isCancel(error)).toBe(true)
     }
   })
-  it('aborts previous request when config changed', async () => {
-    expect.assertions(2)
-    const { result, rerender } = await renderHook((c) => useHttp(c), {
-      initialProps: { url: 'http://mo.ck/foo' },
-    })
-    expect(result.current.status).toBe('pending')
-    try {
-      rerender({ url: 'http://mo.ck/bax' })
-      await result.current.promise
-    } catch (error) {
-      expect(isCancel(error)).toBe(true)
-    }
-  })
   it('provides a request method', async () => {
     const { result, rerender } = await renderHook(() => useHttp())
     expect(typeof result.current.request).toBe('function')
@@ -147,6 +103,49 @@ describe('useHttp', () => {
       code: 200,
       payload: { foo: 'bar' },
       fetched: { foo: 'bar' },
+      progress: 1,
+    })
+  })
+  it('aborts previous request after a new request is made', async () => {
+    expect.assertions(2)
+    const { result } = await renderHook(() =>
+      useHttp({ url: 'http://mo.ck/foo' }),
+    )
+    expect(result.current.status).toBe('pending')
+    try {
+      result.current.request({ url: 'http://mo.ck/bax' })
+      await result.current.promise
+    } catch (error) {
+      expect(isCancel(error)).toBe(true)
+    }
+  })
+  it('keeps payload from previous response until next success response', async () => {
+    const { result, rerender } = await renderHook(() =>
+      useHttp({ url: 'http://mo.ck/foo' }),
+    )
+    expect(result.current.status).toBe('pending')
+    await result.current.promise
+    await rerender()
+    expect(result.current).toMatchObject({
+      status: 'success',
+      code: 200,
+      payload: { foo: 'bar' },
+      fetched: { foo: 'bar' },
+      progress: 1,
+    })
+    result.current.request({ url: 'http://mo.ck/bax' })
+    await rerender()
+    expect(result.current).toMatchObject({
+      status: 'pending',
+      fetched: { foo: 'bar' },
+    })
+    await result.current.promise
+    await rerender()
+    expect(result.current).toMatchObject({
+      status: 'success',
+      code: 200,
+      payload: { bax: 'qux' },
+      fetched: { bax: 'qux' },
       progress: 1,
     })
   })
@@ -173,7 +172,7 @@ describe('useHttp', () => {
     await rerender()
     expect(result.current).toMatchObject(successState)
   })
-  it('can request with the same config', async () => {
+  it('can make requests with the same config', async () => {
     const successState = {
       status: 'success',
       code: 200,

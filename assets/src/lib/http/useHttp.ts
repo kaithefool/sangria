@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { http, HttpPromise, type HttpState, type RequestConfig } from './http'
-import { useEqual } from '../useEqual'
 import { isCancel } from 'axios'
 
 export type UseHttpOpts = {
@@ -9,45 +8,47 @@ export type UseHttpOpts = {
 
 export type Http<T = unknown> = ReturnType<typeof useHttp<T>>
 
-export function useHttp<T>(propConfig?: RequestConfig, opts?: UseHttpOpts) {
-  const [promise, setPromise] = useState<HttpPromise<T>>()
+export function useHttp<T>(
+  initConfig: RequestConfig | null = null,
+  opts?: UseHttpOpts,
+) {
+  const promise = useRef<HttpPromise<T> | undefined>(undefined)
+  const config = useRef(initConfig)
   const [state, setState] = useState<HttpState<T>>({ status: 'ready' })
   const [fetched, setFetched] = useState<T | null>(null)
-  const [reqCount, setReqCount] = useState(0)
-  const [localConfig, setLocalConfig] = useState<RequestConfig>()
-  const config = localConfig ?? propConfig
 
-  const refresh = () => setReqCount((k) => k + 1)
-  const request = (r: RequestConfig) => {
-    setLocalConfig(r)
-    refresh()
+  const abort = () => promise.current?.abort()
+  const request = (c: RequestConfig) => {
+    abort()
+    config.current = c
+    const p = http<T>(c, (s) => {
+      setState(s)
+      if (s.status === 'success') setFetched(s.payload)
+    })
+    p.catch((e) => {
+      // suppress uncaught error
+      if (!isCancel(e) && opts?.logError !== false) {
+        console.error(e)
+      }
+    })
+    promise.current = p
   }
-  const abort = () => promise?.abort()
+  const refresh = () => {
+    if (config.current) request(config.current)
+  }
 
   useEffect(() => {
-    let p: HttpPromise<T>
-    if (config) {
-      p = http<T>(config, (s) => {
-        setState(s)
-        if (s.status === 'success') setFetched(s.payload)
-      })
-      p.catch((e) => {
-        // suppress uncaught error
-        if (!isCancel(e) && opts?.logError !== false) {
-          console.error(e)
-        }
-      })
-      setPromise(p)
+    if (config.current) {
+      request(config.current)
     }
-
     return () => {
-      p?.abort()
+      abort()
     }
-  }, [useEqual(config), reqCount])
+  }, [])
 
   return {
     ...state,
-    promise,
+    promise: promise.current,
     fetched,
     request,
     refresh,
