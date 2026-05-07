@@ -22,7 +22,7 @@ afterAll(() => worker.stop())
 afterEach(() => worker.resetHandlers())
 
 describe('useHttp', () => {
-  it('starts with ready status', async () => {
+  it('starts with ready status if no config is provided', async () => {
     const { result } = await renderHook(() => useHttp())
     expect(result.current.status).toBe('ready')
   })
