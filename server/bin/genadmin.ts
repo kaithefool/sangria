@@ -1,7 +1,7 @@
 import * as readline from 'node:readline/promises'
 import { stdin, stdout } from 'node:process'
-import '../start/db'
-import { createUsers } from '../services/servUsers'
+import '../start/db.ts'
+import { createUsers } from '../services/servUsers.ts'
 
 const rl = readline.createInterface({ input: stdin, output: stdout })
 const defaults = {
@@ -10,12 +10,11 @@ const defaults = {
 }
 
 async function run() {
-  const email = await rl
-    .question(`Email? [default: ${defaults.email}]`)
-    || defaults.email
-  const password = await rl
-    .question(`Password? [default: ${defaults.password}]`)
-    || defaults.password
+  const email =
+    (await rl.question(`Email? [default: ${defaults.email}]`)) || defaults.email
+  const password =
+    (await rl.question(`Password? [default: ${defaults.password}]`)) ||
+    defaults.password
 
   await createUsers({ role: 'admin', email, password })
   console.info(

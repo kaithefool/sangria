@@ -6,17 +6,25 @@ import FetchLoading from './FetchLoading'
 function Fetch<T extends unknown>(props: {
   http: Http<T>
   children: (fetched: T) => ReactNode
+  loading?: ReactNode
+  placeholder?: ReactNode
 }): ReactNode
 function Fetch<T extends unknown[]>(props: {
   http: { [I in keyof T]: Http<T[I]> }
   children: (...fetched: T) => ReactNode
+  loading?: ReactNode
+  placeholder?: ReactNode
 }): ReactNode
 function Fetch<T extends unknown[]>({
   http,
   children,
+  loading = <FetchLoading />,
+  placeholder,
 }: {
   http: { [I in keyof T]: Http<T[I]> } | Http<T>
   children: (...fetched: T) => ReactNode
+  loading?: ReactNode
+  placeholder?: ReactNode
 }) {
   const h = Array.isArray(http)
     ? http
@@ -25,9 +33,9 @@ function Fetch<T extends unknown[]>({
   return (
     <FetchProvider http={h}>
       {(ctx) => (
-        <div>
+        <div className="position-relative">
           {ctx.fetched !== null && children(...ctx.fetched)}
-          <FetchLoading />
+          {loading}
         </div>
       )}
     </FetchProvider>

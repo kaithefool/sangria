@@ -7,8 +7,9 @@ export default function FetchLoading() {
 
   if (status !== 'pending' || fetched === null) return ''
   return (
-    <div className="position-absolute">
-      <div>
+    <div className="position-absolute w-100 h-100">
+      <div className="position-absolute w-100 h-100 body-bg opacity-25"></div>
+      <div className="text-center">
         <FA icon={faSpinner} />
       </div>
     </div>

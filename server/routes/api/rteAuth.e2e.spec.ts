@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals'
 import request from 'superagent'
 import { parseSetCookie, stringifyCookie } from 'cookie'
-import { api } from '../test'
+import { api } from '../../test'
 
 const base = `${api.root}/api/auth`
 
@@ -10,9 +10,9 @@ function parseSetAuthCookie(setCookie: string | string[] | undefined) {
     return { access: undefined, refresh: undefined }
   }
   const sc = Array.isArray(setCookie) ? setCookie : [setCookie]
-  const parsed = sc.map(s => parseSetCookie(s))
-  const access = parsed.find(c => c.name === 'access.id')
-  const refresh = parsed.find(c => c.name === 'refresh.id')
+  const parsed = sc.map((s) => parseSetCookie(s))
+  const access = parsed.find((c) => c.name === 'access.id')
+  const refresh = parsed.find((c) => c.name === 'refresh.id')
 
   return { access, refresh }
 }
@@ -33,24 +33,29 @@ describe('Authentication API', () => {
   it('authenticates with valid JWT token', async () => {
     await api.setupTestUser(user)
     const loginRes = await request.post(`${base}/login`).send(cred)
-    const pingRes = await request.get(`${base}/ping`)
+    const pingRes = await request
+      .get(`${base}/ping`)
       .set('Authorization', `Bearer ${loginRes.body.access}`)
     const { password, ...userAttrs } = cred
     expect(pingRes.body).toMatchObject(userAttrs)
   })
   it('rejects invalid user credentials', async () => {
     await api.setupTestUser(user)
-    await expect(request.post(`${base}/login`).send({
-      email: cred.email,
-      password: 'wrong-password',
-    })).rejects.toMatchObject({
+    await expect(
+      request.post(`${base}/login`).send({
+        email: cred.email,
+        password: 'wrong-password',
+      }),
+    ).rejects.toMatchObject({
       status: 400,
       response: { body: { message: 'invalid-credentials' } },
     })
-    await expect(request.post(`${base}/login`).send({
-      email: 'wrong@bar.com',
-      password: cred.password,
-    })).rejects.toMatchObject({
+    await expect(
+      request.post(`${base}/login`).send({
+        email: 'wrong@bar.com',
+        password: cred.password,
+      }),
+    ).rejects.toMatchObject({
       status: 400,
       response: { body: { message: 'invalid-credentials' } },
     })
@@ -58,7 +63,8 @@ describe('Authentication API', () => {
   it('sets authentication http-only cookies', async () => {
     await api.setupTestUser(user)
     const res = await request.post(`${base}/login`).send({
-      ...cred, cookies: true,
+      ...cred,
+      cookies: true,
     })
     const sc = res.headers['set-cookie']
     expect(sc).toBeDefined()
@@ -76,7 +82,9 @@ describe('Authentication API', () => {
   it('persists authentication cookies when requested', async () => {
     await api.setupTestUser(user)
     const res = await request.post(`${base}/login`).send({
-      ...cred, cookies: true, persist: true,
+      ...cred,
+      cookies: true,
+      persist: true,
     })
     const sc = res.headers['set-cookie']
     expect(sc).toBeDefined()
@@ -87,17 +95,20 @@ describe('Authentication API', () => {
   it('authenticates with valid auth cookies', async () => {
     await api.setupTestUser(user)
     const loginRes = await request.post(`${base}/login`).send({
-      ...cred, cookies: true,
+      ...cred,
+      cookies: true,
     })
     const sc = loginRes.headers['set-cookie']
     expect(sc).toBeDefined()
     const { access, refresh } = parseSetAuthCookie(sc)
     expect(access).toBeDefined()
-    const pingRes = await request.get(`${base}/ping`)
-      .set('Cookie', stringifyCookie({
+    const pingRes = await request.get(`${base}/ping`).set(
+      'Cookie',
+      stringifyCookie({
         'access.id': access?.value,
         'refresh.id': refresh?.value,
-      }))
+      }),
+    )
     const { password, ...userAttrs } = cred
     expect(pingRes.body).toMatchObject(userAttrs)
   })
@@ -113,13 +124,15 @@ describe('Authentication API', () => {
   it('refreshes authentication cookies', async () => {
     await api.setupTestUser(user)
     const loginRes = await request.post(`${base}/login`).send({
-      ...cred, cookies: true,
+      ...cred,
+      cookies: true,
     })
     const sc = loginRes.headers['set-cookie']
     expect(sc).toBeDefined()
     const { refresh } = parseSetAuthCookie(sc)
     expect(refresh).toBeDefined()
-    const pingRes = await request.get(`${base}/ping`)
+    const pingRes = await request
+      .get(`${base}/ping`)
       .set('Cookie', stringifyCookie({ 'refresh.id': refresh?.value }))
     const newSc = pingRes.headers['set-cookie']
     expect(parseSetAuthCookie(newSc)).toMatchObject({
@@ -136,13 +149,16 @@ describe('Authentication API', () => {
   it('persists refreshed authentication cookies when requested', async () => {
     await api.setupTestUser(user)
     const loginRes = await request.post(`${base}/login`).send({
-      ...cred, cookies: true, persist: true,
+      ...cred,
+      cookies: true,
+      persist: true,
     })
     const sc = loginRes.headers['set-cookie']
     expect(sc).toBeDefined()
     const { refresh } = parseSetAuthCookie(sc)
     expect(refresh).toBeDefined()
-    const pingRes = await request.get(`${base}/ping`)
+    const pingRes = await request
+      .get(`${base}/ping`)
       .set('Cookie', stringifyCookie({ 'refresh.id': refresh?.value }))
     const newSc = pingRes.headers['set-cookie']
     const { access: newAccess, refresh: newRefresh } = parseSetAuthCookie(newSc)
@@ -154,11 +170,14 @@ describe('Authentication API', () => {
     const loginRes = await request.post(`${base}/login`).send(cred)
     expect(typeof loginRes.body?.access).toBe('string')
     expect(typeof loginRes.body?.refresh).toBe('string')
-    await request.post(`${base}/logout`)
+    await request
+      .post(`${base}/logout`)
       .set('Authorization', `Bearer ${loginRes.body.access}`)
-    await expect(request.post(`${base}/refresh`).send({
-      refresh: loginRes.body.refresh,
-    })).rejects.toMatchObject({
+    await expect(
+      request.post(`${base}/refresh`).send({
+        refresh: loginRes.body.refresh,
+      }),
+    ).rejects.toMatchObject({
       status: 400,
       response: { body: { message: 'invalid-token' } },
     })
@@ -166,17 +185,20 @@ describe('Authentication API', () => {
   it('clears authentication cookies on logout', async () => {
     await api.setupTestUser(user)
     const loginRes = await request.post(`${base}/login`).send({
-      ...cred, cookies: true,
+      ...cred,
+      cookies: true,
     })
     const sc = loginRes.headers['set-cookie']
     expect(sc).toBeDefined()
     const { access, refresh } = parseSetAuthCookie(sc)
     expect(access).toBeDefined()
-    const logoutRes = await request.post(`${base}/logout`)
-      .set('Cookie', stringifyCookie({
+    const logoutRes = await request.post(`${base}/logout`).set(
+      'Cookie',
+      stringifyCookie({
         'access.id': access?.value,
         'refresh.id': refresh?.value,
-      }))
+      }),
+    )
     const logoutSc = logoutRes.headers['set-cookie']
     expect(parseSetAuthCookie(logoutSc)).toMatchObject({
       access: { expires: expect.any(Date) },

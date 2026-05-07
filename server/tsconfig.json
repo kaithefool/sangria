@@ -1,21 +1,22 @@
 {
   "compilerOptions": {
-    "strict": true,
-    // Treat files as modules even if it doesn't use import/export
-    "moduleDetection": "force",
-
-    // Ignore module structure
-    "module": "Preserve",
-
-    // Allow JSON modules to be imported
+    "target": "ES2023",
+    "useDefineForClassFields": true,
+    "lib": ["ES2023"],
+    "module": "nodenext",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "moduleResolution": "nodenext",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "resolveJsonModule": true,
 
-    // Use correct ESM import behavior
-    "esModuleInterop": true,
-
-    // Disallow features that require cross-file awareness
-    "isolatedModules": true,
-
-    "noUncheckedIndexedAccess": true,
-  },
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  }
 }
