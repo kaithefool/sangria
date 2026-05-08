@@ -1,17 +1,24 @@
 import { Database } from 'better-sqlite3'
 
-export type SqlDataType
-  = | string | number | boolean | Date | Buffer
-    | null | undefined
+export type SqlDataType =
+  | string
+  | number
+  | boolean
+  | Date
+  | Buffer
+  | null
+  | undefined
 
 export function isSqlDataType(v: unknown): v is SqlDataType {
-  return typeof v === 'string'
-    || typeof v === 'number'
-    || typeof v === 'boolean'
-    || v instanceof Date
-    || v instanceof Buffer
-    || v === null
-    || v === undefined
+  return (
+    typeof v === 'string' ||
+    typeof v === 'number' ||
+    typeof v === 'boolean' ||
+    v instanceof Date ||
+    v instanceof Buffer ||
+    v === null ||
+    v === undefined
+  )
 }
 
 export function toDateStr(d: Date) {
@@ -45,15 +52,13 @@ export function castDates<T>(keys: (keyof T)[]) {
 }
 
 export class SqlQuery {
-  constructor(
-    public sql: string,
-    public values: SqlDataType[] = [],
-    public database?: Database,
-  ) {
+  sql: string
+  values: SqlDataType[]
+  database?: Database
+
+  constructor(sql: string, values: SqlDataType[] = [], database?: Database) {
     this.sql = sql
-    this.values = values.map(v => (
-      v instanceof Date ? toDateStr(v) : v
-    ))
+    this.values = values.map((v) => (v instanceof Date ? toDateStr(v) : v))
     this.database = database
   }
 
