@@ -1,17 +1,14 @@
 import { Database } from 'better-sqlite3'
-import { SqlQuery, SqlDataType, castDates } from './SqlQuery'
-import { where } from './where'
-import { values } from './values'
-import set from './set'
-import { limit } from './limit'
-import { orderBy } from './orderBy'
-import { raw } from './raw'
+import { SqlQuery, SqlDataType, castDates } from './SqlQuery.ts'
+import { where } from './where.ts'
+import { values } from './values.ts'
+import set from './set.ts'
+import { limit } from './limit.ts'
+import { orderBy } from './orderBy.ts'
+import { raw } from './raw.ts'
 
 export function buildQ(database?: Database) {
-  function q(
-    tpl: TemplateStringsArray,
-    ...vals: (SqlDataType | SqlQuery)[]
-  ) {
+  function q(tpl: TemplateStringsArray, ...vals: (SqlDataType | SqlQuery)[]) {
     let sql = ''
     const values: SqlDataType[] = []
     for (let i = 0; i < tpl.length; i += 1) {
@@ -19,9 +16,8 @@ export function buildQ(database?: Database) {
       const v = vals[i]
       if (v instanceof SqlQuery) {
         sql += v.sql
-        values.push(...v.values ?? [])
-      }
-      else if (v !== undefined) {
+        values.push(...(v.values ?? []))
+      } else if (v !== undefined) {
         sql += '?'
         values.push(v)
       }

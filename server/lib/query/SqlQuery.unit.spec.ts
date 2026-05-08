@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals'
+import { afterEach, beforeEach, describe, expect, it } from '@jest/globals'
+import sqlite, { type Database } from 'better-sqlite3'
 import { SqlQuery } from './SqlQuery.ts'
-import sqlite from 'better-sqlite3'
 
 describe('SqlQuery', () => {
-  let db: sqlite.Database
+  let db: Database
   beforeEach(async () => {
     db = new sqlite()
   })

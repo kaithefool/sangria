@@ -10,15 +10,34 @@ export type SqlDataType =
   | undefined
 
 export function isSqlDataType(v: unknown): v is SqlDataType {
-  return (
-    typeof v === 'string' ||
-    typeof v === 'number' ||
-    typeof v === 'boolean' ||
-    v instanceof Date ||
-    v instanceof Buffer ||
-    v === null ||
-    v === undefined
-  )
+  const a = v as SqlDataType
+  switch (true) {
+    case typeof a === 'string': {
+      return true
+    }
+    case typeof a === 'number': {
+      return true
+    }
+    case typeof a === 'boolean': {
+      return true
+    }
+    case a instanceof Date: {
+      return true
+    }
+    case Buffer.isBuffer(a): {
+      return true
+    }
+    case a === null: {
+      return true
+    }
+    case a === undefined: {
+      return true
+    }
+    default: {
+      a satisfies never
+      return false
+    }
+  }
 }
 
 export function toDateStr(d: Date) {
