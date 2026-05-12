@@ -56,14 +56,32 @@ export function toJsDate(v: string | number): Date {
   return new Date(s)
 }
 
-export function castDates<T>(keys: (keyof T)[]) {
+export type CastMap<T extends object> = {
+  [K in keyof T as T[K] extends Date | boolean | null
+    ? K
+    : never]: T[K] extends Date | null
+    ? DateConstructor
+    : T[K] extends boolean | null
+      ? BooleanConstructor
+      : never
+}
+
+export function castToTypes<T extends object>(types: CastMap<T>) {
   return (v: T) => {
     if (typeof v !== 'object' || v === null) {
       throw new Error('Unable to cast non object.')
     }
-    const r = { ...v } as T
-    for (const k of keys) {
-      if (r[k] !== undefined) r[k] = toJsDate(r[k] as number) as T[keyof T]
+    const r = { ...v }
+    for (const k in types) {
+      if (
+        types[k] === Date &&
+        (typeof r[k] === 'string' || typeof r[k] === 'number')
+      ) {
+        r[k] = toJsDate(r[k]) as T[typeof k]
+      }
+      if (types[k] === Boolean && typeof r[k] === 'number') {
+        r[k] = Boolean(r[k]) as T[typeof k]
+      }
     }
     return r
   }
@@ -82,34 +100,50 @@ export class SqlQuery {
     this.database = database
   }
 
-  private assertDb() {
+  private db() {
     if (this.database === undefined) throw new Error('No database bound')
     return this.database
   }
 
   prepare() {
-    return this.assertDb().prepare(this.sql).bind(this.values)
+    return this.db().prepare(this.sql).bind(this.values)
   }
 
   run() {
-    return this.assertDb().prepare(this.sql).run(this.values)
+    return this.db().prepare(this.sql).run(this.values)
   }
 
   get<R>() {
-    return this.assertDb().prepare(this.sql).get(this.values) as R
+    return this.db().prepare(this.sql).get(this.values) as R
   }
 
-  all<R>() {
-    return this.assertDb().prepare(this.sql).all(this.values) as R[]
+  all<R extends object>(/* types?: CastMap<R> */) {
+    return this.db().prepare(this.sql).all(this.values) as R[]
+    // return rows.map(castToTypes(types))
   }
 
   iterate() {
-    return this.assertDb().prepare(this.sql).iterate(this.values)
+    return this.db().prepare(this.sql).iterate(this.values)
   }
 
   raw() {
-    return this.assertDb().prepare(this.sql).bind(this.values).raw()
+    return this.db().prepare(this.sql).bind(this.values).raw()
   }
 }
 
 export default SqlQuery
+
+export type UserRow = {
+  id: string
+  email: string
+  password: string | null
+  active: boolean
+  created_at: Date
+  updated_at: Date | null
+}
+
+// new SqlQuery('', []).all<UserRow>({
+//   active: Boolean,
+//   created_at: Date,
+//   updated_at: Date,
+// })

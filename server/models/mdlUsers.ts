@@ -27,7 +27,7 @@ export function insertUsers(...rows: UserInsert[]) {
       ...r,
     }))
     q`INSERT INTO users ${q.values(...rr)};`.run()
-    return rr.map(r => ({ id: r.id }))
+    return rr.map((r) => ({ id: r.id }))
   })
 }
 
@@ -44,9 +44,9 @@ export function selectUsers<P extends boolean>(
     ${q.where(filter)}
     ${q.orderBy(sort)}
     ${q.limit({ skip, limit })};
-  `.all<UserRow>().map(q.castDates([
-        'created_at', 'updated_at', 'last_logout_at',
-      ]))
+  `
+    .all<UserRow>()
+    .map(q.castDates(['created_at', 'updated_at', 'last_logout_at']))
 }
 
 export function countUsers(filter: UsersFilter = {}) {
@@ -56,10 +56,7 @@ export function countUsers(filter: UsersFilter = {}) {
   return r.total
 }
 
-export function updateUsers(
-  filter: UsersFilter = {},
-  update: UserUpdate,
-) {
+export function updateUsers(filter: UsersFilter = {}, update: UserUpdate) {
   return catchUniqErr(() => {
     const u = { ...update, updated_at: new Date() }
     if (u.password) u.password = encryptPwd(u.password)

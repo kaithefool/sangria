@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals'
 import sqlite, { type Database } from 'better-sqlite3'
-import { toJsDate, SqlQuery, toSqlDateStr } from './SqlQuery.ts'
+import { toJsDate, SqlQuery, toSqlDateStr, castToTypes } from './SqlQuery.ts'
 
 describe('toSqlDateStr', () => {
   it('transforms Date object to Sql date string', () => {
@@ -32,6 +32,29 @@ describe('toJsDate', () => {
     expect(() => toJsDate('')).toThrow()
     expect(() => toJsDate('1970-01-01T')).toThrow()
     expect(() => toJsDate('1970-01-01 000:00:00')).toThrow()
+  })
+})
+
+describe('castToTypes', () => {
+  it('returns a casting function', () => {
+    const fn = castToTypes({})
+    expect(typeof fn).toBe('function')
+    expect(fn({ foo: 'bar' })).toMatchObject({ foo: 'bar' })
+  })
+  it('casts object properties according to the type map', () => {
+    const fn = castToTypes({ foo: Date, bar: Date, bax: Boolean })
+    expect(fn({ foo: 0, bar: 60, bax: 0 })).toMatchObject({
+      foo: new Date('1970-01-01T00:00:00.000Z'),
+      bar: new Date('1970-01-01T00:01:00.000Z'),
+      bax: false,
+    })
+    expect(
+      fn({ foo: '1970-01-01 00:00:00', bar: '1970-01-01 00:01:00', bax: 1 }),
+    ).toMatchObject({
+      foo: new Date('1970-01-01T00:00:00.000Z'),
+      bar: new Date('1970-01-01T00:01:00.000Z'),
+      bax: true,
+    })
   })
 })
 
