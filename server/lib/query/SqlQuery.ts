@@ -96,7 +96,11 @@ export class SqlQuery {
 
   constructor(sql: string, values: SqlDataType[] = [], database?: Database) {
     this.sql = sql
-    this.values = values.map((v) => (v instanceof Date ? toSqlDateStr(v) : v))
+    this.values = values.map((v) => {
+      if (v instanceof Date) return toSqlDateStr(v)
+      if (typeof v === 'boolean') return Number(v)
+      return v
+    })
     this.database = database
   }
 
@@ -113,13 +117,14 @@ export class SqlQuery {
     return this.db().prepare(this.sql).run(this.values)
   }
 
-  get<R>() {
-    return this.db().prepare(this.sql).get(this.values) as R
+  get<R extends object>(types?: CastMap<R>) {
+    const r = this.db().prepare(this.sql).get(this.values) as R
+    return types ? castToTypes(types)(r) : r
   }
 
-  all<R extends object>(/* types?: CastMap<R> */) {
-    return this.db().prepare(this.sql).all(this.values) as R[]
-    // return rows.map(castToTypes(types))
+  all<R extends object>(types?: CastMap<R>) {
+    const rr = this.db().prepare(this.sql).all(this.values) as R[]
+    return types ? rr.map(castToTypes(types)) : rr
   }
 
   iterate() {
@@ -132,18 +137,3 @@ export class SqlQuery {
 }
 
 export default SqlQuery
-
-export type UserRow = {
-  id: string
-  email: string
-  password: string | null
-  active: boolean
-  created_at: Date
-  updated_at: Date | null
-}
-
-// new SqlQuery('', []).all<UserRow>({
-//   active: Boolean,
-//   created_at: Date,
-//   updated_at: Date,
-// })

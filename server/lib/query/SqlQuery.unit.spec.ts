@@ -97,4 +97,41 @@ describe('SqlQuery', () => {
       },
     ])
   })
+  it('casts date and boolean values', () => {
+    new SqlQuery('CREATE TABLE a (b DATE, c BOOLEAN);', [], db).run()
+    new SqlQuery(
+      'INSERT INTO a (b, c) VALUES (?, ?)',
+      [new Date('1970-01-01T00:01:00.000Z'), false],
+      db,
+    ).run()
+    new SqlQuery(
+      'INSERT INTO a (b, c) VALUES (?, ?)',
+      [new Date('1970-01-01T00:02:00.000Z'), true],
+      db,
+    ).run()
+    expect(
+      new SqlQuery('SELECT * FROM a', [], db).get({
+        b: Date,
+        c: Boolean,
+      }),
+    ).toMatchObject({
+      b: new Date('1970-01-01T00:01:00.000Z'),
+      c: false,
+    })
+    expect(
+      new SqlQuery('SELECT * FROM a', [], db).all({
+        b: Date,
+        c: Boolean,
+      }),
+    ).toMatchObject([
+      {
+        b: new Date('1970-01-01T00:01:00.000Z'),
+        c: false,
+      },
+      {
+        b: new Date('1970-01-01T00:02:00.000Z'),
+        c: true,
+      },
+    ])
+  })
 })
