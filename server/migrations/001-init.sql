@@ -16,7 +16,7 @@ CREATE TABLE deleted_users (
   password TEXT,
   active BOOLEAN,
   last_logout_at DATETIME,
-  created_at DATETIME
+  created_at DATETIME,
   updated_at DATETIME,
   deleted_at DATETIME DEFAULT current_timestamp
 );

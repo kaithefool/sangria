@@ -40,21 +40,20 @@ export function isSqlDataType(v: unknown): v is SqlDataType {
   }
 }
 
-export function toDateStr(d: Date) {
+export function toSqlDateStr(d: Date) {
   return d.toISOString().slice(0, 23).replace('T', ' ')
 }
 
-export function castToDate<T>(v: T): T | Date {
-  if (typeof v === 'number' && Number.isInteger(v)) {
+export function toJsDate(v: string | number): Date {
+  if (typeof v === 'number') {
     const d = new Date()
     d.setTime(v * 1000)
     return d
   }
-  if (typeof v === 'string') {
-    const s = Date.parse(v.split(' ').join('T') + 'Z')
-    if (!isNaN(s)) return new Date(s)
-  }
-  return v
+
+  const s = Date.parse(v.split(' ').join('T') + 'Z')
+  if (isNaN(s)) throw new Error('Unable to cast invalid date format')
+  return new Date(s)
 }
 
 export function castDates<T>(keys: (keyof T)[]) {
@@ -64,7 +63,7 @@ export function castDates<T>(keys: (keyof T)[]) {
     }
     const r = { ...v } as T
     for (const k of keys) {
-      if (r[k] !== undefined) r[k] = castToDate(r[k]) as T[keyof T]
+      if (r[k] !== undefined) r[k] = toJsDate(r[k] as number) as T[keyof T]
     }
     return r
   }
@@ -75,9 +74,11 @@ export class SqlQuery {
   values: SqlDataType[]
   database?: Database
 
+  static isSqlDateType = isSqlDataType
+
   constructor(sql: string, values: SqlDataType[] = [], database?: Database) {
     this.sql = sql
-    this.values = values.map((v) => (v instanceof Date ? toDateStr(v) : v))
+    this.values = values.map((v) => (v instanceof Date ? toSqlDateStr(v) : v))
     this.database = database
   }
 

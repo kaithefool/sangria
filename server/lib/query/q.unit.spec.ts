@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals'
-import q from './q'
+import q from './q.ts'
 
 describe('query', () => {
   it.each([
@@ -17,10 +17,7 @@ describe('query', () => {
   it.each([
     [q``, []],
     [q`SELECT * FROM users;`, []],
-    [
-      q`SELECT ${'id'}, ${'role'} FROM users;`,
-      ['id', 'role'],
-    ],
+    [q`SELECT ${'id'}, ${'role'} FROM users;`, ['id', 'role']],
     [
       q`SELECT ${'id'} FROM users ${q`WHERE role = ${'admin'}`};`,
       ['id', 'admin'],
@@ -35,10 +32,7 @@ describe('query', () => {
   it.each([
     [q``, ''],
     [q`SELECT * FROM users;`, 'SELECT * FROM users;'],
-    [
-      q`SELECT ${'id'}, ${'role'} FROM users;`,
-      'SELECT ?, ? FROM users;',
-    ],
+    [q`SELECT ${'id'}, ${'role'} FROM users;`, 'SELECT ?, ? FROM users;'],
     [
       q`SELECT ${'id'} FROM users ${q`WHERE role = ${'admin'}`};`,
       'SELECT ? FROM users WHERE role = ?;',

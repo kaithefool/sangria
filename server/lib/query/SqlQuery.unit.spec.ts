@@ -1,6 +1,39 @@
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals'
 import sqlite, { type Database } from 'better-sqlite3'
-import { SqlQuery } from './SqlQuery.ts'
+import { toJsDate, SqlQuery, toSqlDateStr } from './SqlQuery.ts'
+
+describe('toSqlDateStr', () => {
+  it('transforms Date object to Sql date string', () => {
+    expect(toSqlDateStr(new Date('1970-01-01T00:00:00.000Z'))).toBe(
+      '1970-01-01 00:00:00.000',
+    )
+    expect(toSqlDateStr(new Date('1970-01-01T00:00:00.000+08:00'))).toBe(
+      '1969-12-31 16:00:00.000',
+    )
+  })
+})
+
+describe('toJsDate', () => {
+  it('casts number into Date Object', () => {
+    const d0 = new Date('1970-01-01T00:00:00.000Z')
+    const d1 = new Date('1970-01-01T00:00:00.000+08:00')
+    expect(toJsDate(+d0 / 1000)).toEqual(d0)
+    expect(toJsDate(+d1 / 1000)).toEqual(d1)
+  })
+  it('casts string into Date Object', () => {
+    const d0 = new Date('1970-01-01T00:00:00.000Z')
+    const d1 = new Date('1970-01-01T00:00:00.000+08:00')
+    expect(toJsDate(toSqlDateStr(d0))).toEqual(d0)
+    expect(toJsDate(toSqlDateStr(d0).replace(/\.000$/, ''))).toEqual(d0)
+    expect(toJsDate(toSqlDateStr(d1))).toEqual(d1)
+    expect(toJsDate(toSqlDateStr(d1).replace(/\.000$/, ''))).toEqual(d1)
+  })
+  it('throws for invalid formatted date string', () => {
+    expect(() => toJsDate('')).toThrow()
+    expect(() => toJsDate('1970-01-01T')).toThrow()
+    expect(() => toJsDate('1970-01-01 000:00:00')).toThrow()
+  })
+})
 
 describe('SqlQuery', () => {
   let db: Database
