@@ -1,6 +1,6 @@
 import { describe, it, expect } from '@jest/globals'
 import set from './set.ts'
-import q from './q.ts'
+import q from './buildQ.ts'
 
 describe('SET query builder', () => {
   it.each([

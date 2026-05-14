@@ -1,6 +1,6 @@
 import { describe, it, expect } from '@jest/globals'
 import { values } from './values.ts'
-import q from './q.ts'
+import q from './buildQ.ts'
 
 describe('VALUES builder', () => {
   it.each([

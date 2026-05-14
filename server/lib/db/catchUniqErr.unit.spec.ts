@@ -1,16 +1,12 @@
 import { describe, expect, it, jest } from '@jest/globals'
-import { catchUniqErr, SqliteUniqError } from './catchUniqErr'
+import { catchUniqErr, SqliteUniqError } from './catchUniqErr.ts'
 import Database from 'better-sqlite3'
 import { afterThis } from '../test'
 
 describe('query unique constraint error catcher', () => {
-  it.each([
-    [() => 'foobar', 'foobar'],
-  ])(
+  it.each([[() => 'foobar', 'foobar']])(
     'executes any func & returns whatever the func returns.',
-    async (
-      func, result,
-    ) => {
+    async (func, result) => {
       const fn = jest.fn(func)
       const [, r] = catchUniqErr(fn)
       expect(fn.mock.calls).toHaveLength(1)
@@ -33,7 +29,8 @@ describe('query unique constraint error catcher', () => {
       `INSERT INTO test_tbl (row_0, row_1) VALUES ('foobar', 'meh')`,
       'test_tbl.row_1',
     ],
-  ])('catches unique constraint error',
+  ])(
+    'catches unique constraint error',
     async (createTblSql, insertSql, result) => {
       const db = new Database('')
       afterThis(() => db.close())
@@ -44,5 +41,6 @@ describe('query unique constraint error catcher', () => {
       expect(err).not.toBeNull()
       expect(err instanceof SqliteUniqError).toBe(true)
       expect(err?.col).toBe(result)
-    })
+    },
+  )
 })

@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals'
-import q from './q.ts'
+import q from './buildQ.ts'
 
 describe('query', () => {
   it.each([

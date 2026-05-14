@@ -1,10 +1,9 @@
-import { v7 } from 'uuid'
-import Database from 'better-sqlite3'
+import Db from 'better-sqlite3'
 import { join } from 'node:path'
-import fs from 'node:fs'
-import { buildQ, SqlQuery } from '../lib/query/q.ts'
-import catchUniqErr from '../lib/catchUniqErr'
-import migrate from '../lib/migrate'
+import { v7 } from 'uuid'
+import catchUniqErr from '../lib/db/catchUniqErr.ts'
+import { archive, migrate } from '../lib/db/migrate.ts'
+import { buildQ } from '../lib/db/query/buildQ.ts'
 
 const { NODE_ENV } = process.env
 const { dirname } = import.meta
@@ -12,35 +11,14 @@ const dbDir = join(dirname, '../database')
 const dbPath = join(dbDir, 'app.db')
 const archiveDir = join(dbDir, 'archive')
 
-export class Db extends Database {
-  query(query: SqlQuery) {
-    return this.prepare(query.sql).bind(query.values)
-  }
-}
-
 export { catchUniqErr }
 
 export function uuid() {
   return v7()
 }
 
-export function archiveDb() {
-  const shm = dbPath + '-shm'
-  const wal = dbPath + '-wal'
-  if (!fs.existsSync(dbPath)) return
-  if (!fs.existsSync(archiveDir)) {
-    fs.mkdirSync(archiveDir)
-  }
-  const ts = new Date().toISOString()
-  const dir = join(archiveDir, ts)
-  fs.mkdirSync(dir)
-  fs.renameSync(dbPath, join(dir, 'app.db'))
-  if (fs.existsSync(shm)) fs.renameSync(shm, join(dir, 'app.db-shm'))
-  if (fs.existsSync(wal)) fs.renameSync(wal, join(dir, 'app.db-wal'))
-}
-
 function connect() {
-  if (NODE_ENV !== 'production') archiveDb()
+  if (NODE_ENV !== 'production') archive(dbPath, archiveDir)
   const db = new Db(dbPath)
   db.pragma('journal_mode = WAL')
   migrate(db)

@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals'
-import q from './q.ts'
+import q from './buildQ.ts'
 import {
   cfQuery,
   compare,
