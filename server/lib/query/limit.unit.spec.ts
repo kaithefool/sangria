@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals'
-import { limit } from './limit'
+import { limit } from './limit.ts'
 
 describe('limit query', () => {
   it.each([

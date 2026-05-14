@@ -1,11 +1,15 @@
 import { describe, it, expect } from '@jest/globals'
-import q from './q'
+import q from './q.ts'
 import {
-  cfQuery, compare, hasLogical,
-  prependWhere, hasWhere, rmWhere,
+  cfQuery,
+  compare,
+  hasLogical,
+  prependWhere,
+  hasWhere,
+  rmWhere,
   SqlWhereQuery,
-} from './where'
-import SqlQuery from './SqlQuery'
+} from './where.ts'
+import SqlQuery from './SqlQuery.ts'
 
 describe('cfQuery builder', () => {
   it.each([
@@ -64,11 +68,12 @@ describe('comparison builder', () => {
         values: [Buffer.from('test', 'binary'), true],
       },
     ],
-  ])('accepts sql data types and return equal comparison query', (
-    actual, expected,
-  ) => {
-    expect(actual).toEqual(expected)
-  })
+  ])(
+    'accepts sql data types and return equal comparison query',
+    (actual, expected) => {
+      expect(actual).toEqual(expected)
+    },
+  )
   it.each([
     [compare({ a: { eq: 3 } }), { sql: '"a" = ?', values: [3] }],
     [compare({ a: { ne: 3 } }), { sql: '"a" != ?', values: [3] }],
@@ -104,53 +109,59 @@ describe('comparison builder', () => {
 
 describe('hasLogical', () => {
   it('detects AND keyword in the case-insensitive way', () => {
-    expect(hasLogical('AND', 'WHERE a = 3 AND b = \'meh\'')).toBe(true)
-    expect(hasLogical('AND', 'WHERE a = 3 and b = \'meh\'')).toBe(true)
-    expect(hasLogical('AND', 'AND b = \'meh\'')).toBe(true)
-    expect(hasLogical('AND', 'b = \'meh\' AND')).toBe(true)
+    expect(hasLogical('AND', "WHERE a = 3 AND b = 'meh'")).toBe(true)
+    expect(hasLogical('AND', "WHERE a = 3 and b = 'meh'")).toBe(true)
+    expect(hasLogical('AND', "AND b = 'meh'")).toBe(true)
+    expect(hasLogical('AND', "b = 'meh' AND")).toBe(true)
     expect(hasLogical('AND', 'WHERE ANDMEH = 3')).toBe(false)
     expect(hasLogical('AND', 'WHERE andmeh = 3')).toBe(false)
     expect(hasLogical('AND', 'WHERE foo_AND = 3')).toBe(false)
     expect(hasLogical('AND', 'WHERE foo_and = 3')).toBe(false)
   })
   it('ignores AND in quotes and double quotes', () => {
-    expect(hasLogical('AND', 'WHERE a = \'WHERE a = 3 AND b = 4\'')).toBe(false)
-    expect(hasLogical('AND', 'WHERE a = \'WHERE a = 3 and b = 4\'')).toBe(false)
-    expect(hasLogical('AND', 'WHERE "AND" = "WHERE a = 3 AND b = 4"'))
-      .toBe(false)
-    expect(hasLogical('AND', 'WHERE "and" = "WHERE a = 3 and b = 4"'))
-      .toBe(false)
+    expect(hasLogical('AND', "WHERE a = 'WHERE a = 3 AND b = 4'")).toBe(false)
+    expect(hasLogical('AND', "WHERE a = 'WHERE a = 3 and b = 4'")).toBe(false)
+    expect(hasLogical('AND', 'WHERE "AND" = "WHERE a = 3 AND b = 4"')).toBe(
+      false,
+    )
+    expect(hasLogical('AND', 'WHERE "and" = "WHERE a = 3 and b = 4"')).toBe(
+      false,
+    )
     expect(hasLogical('AND', 'WHERE a = "AND" OR b = 3')).toBe(false)
     expect(hasLogical('AND', 'WHERE a = "and" OR b = 3')).toBe(false)
     expect(hasLogical('AND', '"a" = ? AND "b" = ?')).toBe(true)
   })
   it('ignores AND in parenthesis', () => {
-    expect(hasLogical('AND', 'WHERE a = (SELECT * FROM t WHERE b AND c)'))
-      .toBe(false)
+    expect(hasLogical('AND', 'WHERE a = (SELECT * FROM t WHERE b AND c)')).toBe(
+      false,
+    )
     expect(hasLogical('AND', 'WHERE a IN (1, 2, 3) AND b = 4')).toBe(true)
     expect(hasLogical('AND', 'WHERE (a = 1 AND b = 2) OR c = 3')).toBe(false)
     expect(hasLogical('AND', 'WHERE a = (1 AND 2)')).toBe(false)
     expect(hasLogical('AND', 'WHERE func(a AND b) = 1')).toBe(false)
-    expect(hasLogical('AND', '(a = 1 OR b = 2) AND (c = 3 OR d = 4)'))
-      .toBe(true)
-    expect(hasLogical('AND', '(a = 1 OR (b = 2)) AND ((c = 3) OR d = 4)'))
-      .toBe(true)
-    expect(hasLogical('AND', '(a = 1) OR ((c = 3 AND e = 5) OR d = 4)'))
-      .toBe(false)
+    expect(hasLogical('AND', '(a = 1 OR b = 2) AND (c = 3 OR d = 4)')).toBe(
+      true,
+    )
+    expect(hasLogical('AND', '(a = 1 OR (b = 2)) AND ((c = 3) OR d = 4)')).toBe(
+      true,
+    )
+    expect(hasLogical('AND', '(a = 1) OR ((c = 3 AND e = 5) OR d = 4)')).toBe(
+      false,
+    )
   })
   it('detects OR keyword in the case-insensitive way', () => {
-    expect(hasLogical('OR', 'WHERE a = 3 OR b = \'meh\'')).toBe(true)
-    expect(hasLogical('OR', 'WHERE a = 3 OR b = \'meh\'')).toBe(true)
-    expect(hasLogical('OR', 'OR b = \'meh\'')).toBe(true)
-    expect(hasLogical('OR', 'b = \'meh\' OR')).toBe(true)
+    expect(hasLogical('OR', "WHERE a = 3 OR b = 'meh'")).toBe(true)
+    expect(hasLogical('OR', "WHERE a = 3 OR b = 'meh'")).toBe(true)
+    expect(hasLogical('OR', "OR b = 'meh'")).toBe(true)
+    expect(hasLogical('OR', "b = 'meh' OR")).toBe(true)
     expect(hasLogical('OR', 'WHERE ORMEH = 3')).toBe(false)
     expect(hasLogical('OR', 'WHERE ormeh = 3')).toBe(false)
     expect(hasLogical('OR', 'WHERE foo_OR = 3')).toBe(false)
     expect(hasLogical('OR', 'WHERE foo_or = 3')).toBe(false)
   })
   it('ignores OR in string data', () => {
-    expect(hasLogical('OR', 'WHERE a = \'WHERE a = 3 OR b = 4\'')).toBe(false)
-    expect(hasLogical('OR', 'WHERE a = \'WHERE a = 3 OR b = 4\'')).toBe(false)
+    expect(hasLogical('OR', "WHERE a = 'WHERE a = 3 OR b = 4'")).toBe(false)
+    expect(hasLogical('OR', "WHERE a = 'WHERE a = 3 OR b = 4'")).toBe(false)
     expect(hasLogical('OR', 'WHERE "OR" = "WHERE a = 3 OR b = 4"')).toBe(false)
     expect(hasLogical('OR', 'WHERE "or" = "WHERE a = 3 and b = 4"')).toBe(false)
     expect(hasLogical('OR', 'WHERE a = "OR" AND b = 3')).toBe(false)
@@ -158,14 +169,16 @@ describe('hasLogical', () => {
     expect(hasLogical('OR', '"a" = ? OR "b" = ?')).toBe(true)
   })
   it('ignores OR in parenthesis', () => {
-    expect(hasLogical('OR', 'WHERE a = (SELECT * FROM t WHERE b OR c)'))
-      .toBe(false)
+    expect(hasLogical('OR', 'WHERE a = (SELECT * FROM t WHERE b OR c)')).toBe(
+      false,
+    )
     expect(hasLogical('OR', 'WHERE a IN (1, 2, 3) OR b = 4')).toBe(true)
     expect(hasLogical('OR', 'WHERE (a = 1 OR b = 2) AND c = 3')).toBe(false)
     expect(hasLogical('OR', 'WHERE a = (1 OR 2)')).toBe(false)
     expect(hasLogical('OR', 'WHERE func(a OR b) = 1')).toBe(false)
-    expect(hasLogical('OR', '(a = 1 AND b = 2) OR (c = 3 AND d = 4)'))
-      .toBe(true)
+    expect(hasLogical('OR', '(a = 1 AND b = 2) OR (c = 3 AND d = 4)')).toBe(
+      true,
+    )
   })
 })
 
@@ -235,7 +248,8 @@ describe('SqlWhereQuery', () => {
       sql: '',
     })
     expect(new SqlWhereQuery(q`a = ${3}`)).toMatchObject({
-      sql: 'WHERE a = ?', values: [3],
+      sql: 'WHERE a = ?',
+      values: [3],
     })
     expect(new SqlWhereQuery(q`a = 3`, false)).toMatchObject({
       sql: 'a = 3',
@@ -246,10 +260,12 @@ describe('SqlWhereQuery', () => {
       sql: '',
     })
     expect(new SqlWhereQuery({ a: 3, b: 'foo' })).toMatchObject({
-      sql: 'WHERE "a" = ? AND "b" = ?', values: [3, 'foo'],
+      sql: 'WHERE "a" = ? AND "b" = ?',
+      values: [3, 'foo'],
     })
     expect(new SqlWhereQuery({ a: 3 }, false)).toMatchObject({
-      sql: '"a" = ?', values: [3],
+      sql: '"a" = ?',
+      values: [3],
     })
   })
   it('accepts SqlWhereQuery and prepend "WHERE" correctly', () => {
@@ -259,49 +275,54 @@ describe('SqlWhereQuery', () => {
     expect(
       new SqlWhereQuery(new SqlWhereQuery({ a: 3, b: 'foo' })),
     ).toMatchObject({
-      sql: 'WHERE "a" = ? AND "b" = ?', values: [3, 'foo'],
+      sql: 'WHERE "a" = ? AND "b" = ?',
+      values: [3, 'foo'],
     })
-    expect(
-      new SqlWhereQuery(new SqlWhereQuery({ a: 3 }), false),
-    ).toMatchObject({
-      sql: '"a" = ?', values: [3],
-    })
+    expect(new SqlWhereQuery(new SqlWhereQuery({ a: 3 }), false)).toMatchObject(
+      {
+        sql: '"a" = ?',
+        values: [3],
+      },
+    )
   })
   it('appends statement with "AND"', () => {
     expect(new SqlWhereQuery({}).and(q`a = 3`)).toMatchObject({
       sql: 'WHERE a = 3',
     })
     expect(new SqlWhereQuery({ b: 'foo' }).and(q`a = 3`)).toMatchObject({
-      sql: 'WHERE "b" = ? AND a = 3', values: ['foo'],
+      sql: 'WHERE "b" = ? AND a = 3',
+      values: ['foo'],
     })
     expect(new SqlWhereQuery(q`b = ${'foo'}`).and({ a: 3 })).toMatchObject({
-      sql: 'WHERE b = ? AND "a" = ?', values: ['foo', 3],
+      sql: 'WHERE b = ? AND "a" = ?',
+      values: ['foo', 3],
     })
   })
   it('wraps OR statements with parenthesis when appending AND', () => {
     expect(
       new SqlWhereQuery({ a: 3 }).or({ b: 'foo' }).and({ c: true }),
     ).toMatchObject({
-      sql: 'WHERE ("a" = ? OR "b" = ?) AND "c" = ?', values: [3, 'foo', true],
+      sql: 'WHERE ("a" = ? OR "b" = ?) AND "c" = ?',
+      values: [3, 'foo', true],
     })
     expect(
       new SqlWhereQuery({ c: true }).and(
         new SqlWhereQuery({ a: 3 }).or({ b: 'foo' }),
       ),
     ).toMatchObject({
-      sql: 'WHERE "c" = ? AND ("a" = ? OR "b" = ?)', values: [true, 3, 'foo'],
+      sql: 'WHERE "c" = ? AND ("a" = ? OR "b" = ?)',
+      values: [true, 3, 'foo'],
     })
   })
   it('does not wraps statement with unnecessary parenthesis', () => {
     expect(
       new SqlWhereQuery(q`a = 3 AND b = 'foo'`).and({ c: true }),
     ).toMatchObject({
-      sql: 'WHERE a = 3 AND b = \'foo\' AND "c" = ?', values: [true],
+      sql: 'WHERE a = 3 AND b = \'foo\' AND "c" = ?',
+      values: [true],
     })
     expect(
-      new SqlWhereQuery(
-        q`a = 3 AND (b = ${'foo'} OR c = 0)`,
-      ).and({ d: 'bar' }),
+      new SqlWhereQuery(q`a = 3 AND (b = ${'foo'} OR c = 0)`).and({ d: 'bar' }),
     ).toMatchObject({
       sql: 'WHERE a = 3 AND (b = ? OR c = 0) AND "d" = ?',
       values: ['foo', 'bar'],
@@ -312,29 +333,34 @@ describe('SqlWhereQuery', () => {
       sql: 'WHERE a = 3',
     })
     expect(new SqlWhereQuery({ b: 'foo' }).or(q`a = 3`)).toMatchObject({
-      sql: 'WHERE "b" = ? OR a = 3', values: ['foo'],
+      sql: 'WHERE "b" = ? OR a = 3',
+      values: ['foo'],
     })
     expect(new SqlWhereQuery(q`b = ${'foo'}`).or({ a: 3 })).toMatchObject({
-      sql: 'WHERE b = ? OR "a" = ?', values: ['foo', 3],
+      sql: 'WHERE b = ? OR "a" = ?',
+      values: ['foo', 3],
     })
   })
   it('wraps AND statements with parenthesis when appending OR', () => {
-    expect(
-      new SqlWhereQuery({ a: 3, b: 'foo' }).or({ c: true }),
-    ).toMatchObject({
-      sql: 'WHERE ("a" = ? AND "b" = ?) OR "c" = ?', values: [3, 'foo', true],
-    })
-    expect(
-      new SqlWhereQuery({ c: true }).or({ a: 3, b: 'foo' }),
-    ).toMatchObject({
-      sql: 'WHERE "c" = ? OR ("a" = ? AND "b" = ?)', values: [true, 3, 'foo'],
-    })
+    expect(new SqlWhereQuery({ a: 3, b: 'foo' }).or({ c: true })).toMatchObject(
+      {
+        sql: 'WHERE ("a" = ? AND "b" = ?) OR "c" = ?',
+        values: [3, 'foo', true],
+      },
+    )
+    expect(new SqlWhereQuery({ c: true }).or({ a: 3, b: 'foo' })).toMatchObject(
+      {
+        sql: 'WHERE "c" = ? OR ("a" = ? AND "b" = ?)',
+        values: [true, 3, 'foo'],
+      },
+    )
   })
   it('does not wraps statement with unnecessary parenthesis', () => {
     expect(
       new SqlWhereQuery(q`a = 3 OR b = 'foo'`).or({ c: true }),
     ).toMatchObject({
-      sql: 'WHERE a = 3 OR b = \'foo\' OR "c" = ?', values: [true],
+      sql: 'WHERE a = 3 OR b = \'foo\' OR "c" = ?',
+      values: [true],
     })
     expect(
       new SqlWhereQuery(q`a = 3 OR (b = ${'foo'} AND c = 0)`).or({ d: 'bar' }),
@@ -345,11 +371,7 @@ describe('SqlWhereQuery', () => {
   })
   it('removes duplicated WHERE keyword', () => {
     expect(
-      new SqlWhereQuery(
-        new SqlWhereQuery(
-          new SqlWhereQuery({ a: 3 }),
-        ),
-      ),
+      new SqlWhereQuery(new SqlWhereQuery(new SqlWhereQuery({ a: 3 }))),
     ).toMatchObject({ sql: 'WHERE "a" = ?', values: [3] })
   })
 })

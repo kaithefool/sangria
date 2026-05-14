@@ -1,4 +1,4 @@
-import { SqlDataType, SqlQuery } from './SqlQuery'
+import { SqlDataType, SqlQuery } from './SqlQuery.ts'
 
 export type SqlVal = { [x: string]: SqlDataType | SqlQuery }
 
@@ -12,12 +12,10 @@ function getCols(rows: SqlVal[]) {
   return Array.from(colsSet)
 }
 
-export function values(
-  ...rows: SqlVal[]
-) {
+export function values(...rows: SqlVal[]) {
   const cols = getCols(rows)
   if (cols[0] === undefined) return new SqlQuery('DEFAULT VALUES')
-  const colSql = cols.map(c => `"${c}"`).join(', ')
+  const colSql = cols.map((c) => `"${c}"`).join(', ')
   const rowSql: string[] = []
   const values: SqlDataType[] = []
 
@@ -28,18 +26,14 @@ export function values(
       if (v instanceof SqlQuery) {
         vals.push(v.sql)
         values.push(...v.values)
-      }
-      else {
+      } else {
         vals.push('?')
         values.push(v)
       }
     }
     rowSql.push(`(${vals.join(', ')})`)
   }
-  return new SqlQuery(
-    `(${colSql}) VALUES ${rowSql.join(', ')}`,
-    values,
-  )
+  return new SqlQuery(`(${colSql}) VALUES ${rowSql.join(', ')}`, values)
 }
 
 export default values

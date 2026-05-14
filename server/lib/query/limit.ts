@@ -1,7 +1,8 @@
-import { SqlQuery } from './SqlQuery'
+import { SqlQuery } from './SqlQuery.ts'
 
 export function limit({
-  skip = 0, limit,
+  skip = 0,
+  limit,
 }: {
   skip?: number
   limit?: number

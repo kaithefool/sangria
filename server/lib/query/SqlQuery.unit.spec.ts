@@ -97,7 +97,7 @@ describe('SqlQuery', () => {
       },
     ])
   })
-  it('casts date and boolean values', () => {
+  it('parses date and boolean values', () => {
     new SqlQuery('CREATE TABLE a (b DATE, c BOOLEAN);', [], db).run()
     new SqlQuery(
       'INSERT INTO a (b, c) VALUES (?, ?)',

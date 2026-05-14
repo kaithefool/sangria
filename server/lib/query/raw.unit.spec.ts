@@ -1,6 +1,6 @@
 import { describe, it, expect } from '@jest/globals'
-import { raw } from './raw'
-import SqlQuery from './SqlQuery'
+import { raw } from './raw.ts'
+import SqlQuery from './SqlQuery.ts'
 
 describe('raw Query builder', () => {
   it('returns SqlQuery instance with sql string provided', () => {

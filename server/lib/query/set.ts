@@ -1,4 +1,4 @@
-import { SqlDataType, SqlQuery } from './SqlQuery'
+import { SqlDataType, SqlQuery } from './SqlQuery.ts'
 
 export function set(
   input: { [x: string]: SqlDataType | SqlQuery },
@@ -12,17 +12,13 @@ export function set(
     const [c, v] = ent
     if (v instanceof SqlQuery) {
       sql.push(`"${c}" = ${v.sql}`)
-      values.push(...v.values ?? [])
-    }
-    else {
+      values.push(...(v.values ?? []))
+    } else {
       sql.push(`"${c}" = ?`)
       values.push(v)
     }
   }
-  return new SqlQuery(
-    `${setKeyword ? 'SET ' : ''}${sql.join(', ')}`,
-    values,
-  )
+  return new SqlQuery(`${setKeyword ? 'SET ' : ''}${sql.join(', ')}`, values)
 }
 
 export default set

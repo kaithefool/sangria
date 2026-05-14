@@ -1,14 +1,9 @@
-import { SqlQuery } from './SqlQuery'
+import { SqlQuery } from './SqlQuery.ts'
 
-export function orderBy(
-  orders: { [x: string]: 1 | -1 } = {},
-) {
+export function orderBy(orders: { [x: string]: 1 | -1 } = {}) {
   const sql: string[] = []
   for (const p in orders) {
     sql.push(`"${p}" ${orders[p] === 1 ? 'ASC' : 'DESC'}`)
   }
-  return new SqlQuery(
-    sql.length ? `ORDER BY ${sql.join(', ')}` : '',
-    [],
-  )
+  return new SqlQuery(sql.length ? `ORDER BY ${sql.join(', ')}` : '', [])
 }

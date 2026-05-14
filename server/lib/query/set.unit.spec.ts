@@ -1,6 +1,6 @@
 import { describe, it, expect } from '@jest/globals'
-import set from './set'
-import q from './q'
+import set from './set.ts'
+import q from './q.ts'
 
 describe('SET query builder', () => {
   it.each([
@@ -18,22 +18,13 @@ describe('SET query builder', () => {
       set({ id: Buffer.from('random_id', 'binary') }),
       [Buffer.from('random_id', 'binary')],
     ],
-    [
-      set({ role: 'admin', last_login_at: q`CURRENT_TIMESTAMP` }),
-      ['admin'],
-    ],
-    [
-      set({ expires_at: q`datetime('now', ${'+5 days'})` }),
-      ['+5 days'],
-    ],
+    [set({ role: 'admin', last_login_at: q`CURRENT_TIMESTAMP` }), ['admin']],
+    [set({ expires_at: q`datetime('now', ${'+5 days'})` }), ['+5 days']],
   ])('returns values in the correct sequence', (query, values) => {
     expect(query.values).toEqual(values)
   })
   it.each([
-    [
-      set({ id: Buffer.from('random_id', 'binary') }),
-      'SET "id" = ?',
-    ],
+    [set({ id: Buffer.from('random_id', 'binary') }), 'SET "id" = ?'],
     [
       set({ role: 'admin', last_logout_at: q`CURRENT_TIMESTAMP` }),
       'SET "role" = ?, "last_logout_at" = CURRENT_TIMESTAMP',

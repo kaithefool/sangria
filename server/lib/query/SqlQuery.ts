@@ -96,43 +96,47 @@ export class SqlQuery {
 
   constructor(sql: string, values: SqlDataType[] = [], database?: Database) {
     this.sql = sql
-    this.values = values.map((v) => {
-      if (v instanceof Date) return toSqlDateStr(v)
-      if (typeof v === 'boolean') return Number(v)
-      return v
-    })
+    this.values = values
     this.database = database
   }
 
-  private db() {
+  private assertDb() {
     if (this.database === undefined) throw new Error('No database bound')
     return this.database
   }
 
+  get parsedVals() {
+    return this.values.map((v) => {
+      if (v instanceof Date) return toSqlDateStr(v)
+      if (typeof v === 'boolean') return Number(v)
+      return v
+    })
+  }
+
   prepare() {
-    return this.db().prepare(this.sql).bind(this.values)
+    return this.assertDb().prepare(this.sql)
   }
 
   run() {
-    return this.db().prepare(this.sql).run(this.values)
+    return this.prepare().run(this.parsedVals)
   }
 
   get<R extends object>(types?: CastMap<R>) {
-    const r = this.db().prepare(this.sql).get(this.values) as R
+    const r = this.prepare().get(this.parsedVals) as R
     return types ? castToTypes(types)(r) : r
   }
 
   all<R extends object>(types?: CastMap<R>) {
-    const rr = this.db().prepare(this.sql).all(this.values) as R[]
+    const rr = this.prepare().all(this.parsedVals) as R[]
     return types ? rr.map(castToTypes(types)) : rr
   }
 
   iterate() {
-    return this.db().prepare(this.sql).iterate(this.values)
+    return this.prepare().iterate(this.parsedVals)
   }
 
   raw() {
-    return this.db().prepare(this.sql).bind(this.values).raw()
+    return this.prepare().bind(this.parsedVals).raw()
   }
 }
 

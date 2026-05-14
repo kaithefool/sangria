@@ -1,6 +1,6 @@
 import { describe, it, expect } from '@jest/globals'
-import { values } from './values'
-import q from './q'
+import { values } from './values.ts'
+import q from './q.ts'
 
 describe('VALUES builder', () => {
   it.each([
@@ -20,23 +20,14 @@ describe('VALUES builder', () => {
       values({ id: Buffer.from('random_id', 'binary') }),
       [Buffer.from('random_id', 'binary')],
     ],
-    [
-      values({ role: 'admin', last_login_at: q`CURRENT_TIMESTAMP` }),
-      ['admin'],
-    ],
-    [
-      values({ expires_at: q`datetime('now', ${'+5 days'})` }),
-      ['+5 days'],
-    ],
+    [values({ role: 'admin', last_login_at: q`CURRENT_TIMESTAMP` }), ['admin']],
+    [values({ expires_at: q`datetime('now', ${'+5 days'})` }), ['+5 days']],
   ])('returns values in the correct sequence', (query, result) => {
     expect(query.values).toEqual(result)
   })
   it.each([
     [values({}), 'DEFAULT VALUES'],
-    [
-      values({ id: Buffer.from('random_id', 'binary') }),
-      '("id") VALUES (?)',
-    ],
+    [values({ id: Buffer.from('random_id', 'binary') }), '("id") VALUES (?)'],
     [
       values({ role: 'admin', last_logout_at: q`CURRENT_TIMESTAMP` }),
       '("role", "last_logout_at") VALUES (?, CURRENT_TIMESTAMP)',
@@ -50,20 +41,14 @@ describe('VALUES builder', () => {
   })
   it.each([
     [
-      values(
-        { a: 1, b: 'foo' },
-        { a: 2, b: 'bar' },
-      ),
+      values({ a: 1, b: 'foo' }, { a: 2, b: 'bar' }),
       {
         sql: '("a", "b") VALUES (?, ?), (?, ?)',
         values: [1, 'foo', 2, 'bar'],
       },
     ],
     [
-      values(
-        { a: q`CURRENT_TIMESTAMP` },
-        { a: q`CURRENT_TIMESTAMP` },
-      ),
+      values({ a: q`CURRENT_TIMESTAMP` }, { a: q`CURRENT_TIMESTAMP` }),
       {
         sql: '("a") VALUES (CURRENT_TIMESTAMP), (CURRENT_TIMESTAMP)',
         values: [],
