@@ -6,6 +6,7 @@ import set from './set.ts'
 import { limit } from './limit.ts'
 import { orderBy } from './orderBy.ts'
 import { raw } from './raw.ts'
+import catchUniqErr from '../catchUniqErr.ts'
 
 export function buildQ(database?: Database) {
   function q(tpl: TemplateStringsArray, ...vals: (SqlDataType | SqlQuery)[]) {
@@ -31,6 +32,7 @@ export function buildQ(database?: Database) {
   q.set = set
   q.limit = limit
   q.orderBy = orderBy
+  q.catchUniqErr = catchUniqErr
   return q
 }
 

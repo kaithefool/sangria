@@ -1,7 +1,6 @@
 import Db from 'better-sqlite3'
 import { join } from 'node:path'
 import { v7 } from 'uuid'
-import catchUniqErr from '../lib/db/catchUniqErr.ts'
 import { archive, migrate } from '../lib/db/migrate.ts'
 import { buildQ } from '../lib/db/query/buildQ.ts'
 
@@ -10,8 +9,6 @@ const { dirname } = import.meta
 const dbDir = join(dirname, '../database')
 const dbPath = join(dbDir, 'app.db')
 const archiveDir = join(dbDir, 'archive')
-
-export { catchUniqErr }
 
 export function uuid() {
   return v7()
