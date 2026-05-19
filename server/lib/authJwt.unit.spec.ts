@@ -1,8 +1,6 @@
 import { describe, expect, it } from '@jest/globals'
-import {
-  signTokens, verifyAccessToken, verifyRefreshToken,
-} from './authJwt'
-import { roles } from '../consts'
+import { signTokens, verifyAccessToken, verifyRefreshToken } from './authJwt.ts'
+import { roles } from '../consts.ts'
 
 describe('sign & verify tokens', () => {
   const fakeId = '019b6e29-21f5-7491-872a-92cf3c3e4a76'
@@ -27,11 +25,15 @@ describe('sign & verify tokens', () => {
     expect(refresh?.id).toEqual(fakeId)
   })
   it('invalidate expired tokens', (done) => {
-    const expiredTokens = signTokens({
-      id: fakeId,
-      role: 'admin',
-      email: 'foo@bar.com',
-    }, false, { accessTtl: '10ms', refreshTtl: '10ms' })
+    const expiredTokens = signTokens(
+      {
+        id: fakeId,
+        role: 'admin',
+        email: 'foo@bar.com',
+      },
+      false,
+      { accessTtl: '10ms', refreshTtl: '10ms' },
+    )
 
     setTimeout(() => {
       expect(verifyAccessToken(expiredTokens.access)).toBeNull()
@@ -41,17 +43,17 @@ describe('sign & verify tokens', () => {
   })
   it('invalidate tokens signed with wrong secret', () => {
     const secret = 'valid-secret'
-    const invalidTokens = signTokens({
-      id: fakeId,
-      role: 'admin',
-      email: 'foo@bar.com',
-    }, false, { secret: 'invalid-secret' })
+    const invalidTokens = signTokens(
+      {
+        id: fakeId,
+        role: 'admin',
+        email: 'foo@bar.com',
+      },
+      false,
+      { secret: 'invalid-secret' },
+    )
 
-    expect(verifyAccessToken(
-      invalidTokens.access, secret,
-    )).toBeNull()
-    expect(verifyRefreshToken(
-      invalidTokens.refresh, secret,
-    )).toBeNull()
+    expect(verifyAccessToken(invalidTokens.access, secret)).toBeNull()
+    expect(verifyRefreshToken(invalidTokens.refresh, secret)).toBeNull()
   })
 })
