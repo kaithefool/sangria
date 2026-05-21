@@ -78,7 +78,10 @@ export function updateUsers(filter: UsersFilter = {}, update: UserUpdate) {
 export function deleteUsers(filter: UsersFilter = {}) {
   const where = q.where(filter)
   db.transaction(() => {
-    q`INSERT INTO deleted_users SELECT * FROM users ${where};`.run()
+    q`
+      INSERT INTO deleted_users
+      SELECT *, CURRENT_TIMESTAMP FROM users ${where};
+    `.run()
     q`DELETE FROM users ${where};`.run()
   })()
 }
