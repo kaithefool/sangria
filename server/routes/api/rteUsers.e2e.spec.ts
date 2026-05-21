@@ -7,9 +7,9 @@ const baseUrl = `${apiRoot}/users`
 describe('Users API', () => {
   const teardown: string[] = []
 
-  afterAll(async () => {
-    await Promise.all(teardown.map((id) => request.delete(`${baseUrl}/${id}`)))
-  })
+  afterAll(() =>
+    Promise.all(teardown.map((id) => request.delete(`${baseUrl}/${id}`))),
+  )
 
   it('GET, POST, PATCH & DELETE', async () => {
     const entry = {
@@ -17,7 +17,7 @@ describe('Users API', () => {
       email: 'foo@bar.com',
     }
     const insert = { ...entry, password: '12345678' }
-    const patch = { email: 'foo@bax.com' }
+    const patch = { email: 'bax@bar.com' }
 
     // POST
     const res0 = await request.post(baseUrl).send(insert)
@@ -61,7 +61,7 @@ describe('Users API', () => {
   it('enforces unique index in the POST API', async () => {
     const insert = {
       role: 'admin',
-      email: 'bar@bax.com',
+      email: 'foo@bax.com',
       password: '12345678',
     }
 
@@ -81,34 +81,25 @@ describe('Users API', () => {
     }).rejects.toMatchObject({ status: 400 })
   })
 
-  // it('enforces unique index with a POST API', async () => {
-  //   const id = await testCreate()
+  it('enforces unique index in the PATCH API', async () => {
+    const base = {
+      role: 'admin',
+      password: '12345678',
+    }
+    const diff = [{ email: 'foo@qux.com' }, { email: 'bar@qux.com' }]
+    const ids: string[] = []
 
-  //   // teardown in case test failed
-  //   const dup: { id?: string } = {}
-  //   afterThis(async () => {
-  //     return dup?.id && request.delete(`${baseUrl}/${dup.id}`)
-  //   })
+    for (const d of diff) {
+      const res = await request.post(baseUrl).send({ ...base, ...d })
+      expect(res.status).toBe(200)
+      expect(res.headers['content-type']).toContain('application/json')
+      expect(typeof res.body?.id).toBe('string')
+      teardown.push(res.body.id)
+      ids.push(res.body.id)
+    }
 
-  //   await expect(async () => {
-  //     const res = await request.post(baseUrl).send(insert)
-  //     dup.id = res.body?.id
-  //   }).rejects.toMatchObject({ status: 400 })
-  // })
-  // it('enforces unique index with a PATCH API', async () => {
-  //   const {
-  //     body: { id: id0 },
-  //   } = await request.post(baseUrl).send(insert)
-  //   expect(typeof id0).toBe('string')
-  //   afterThis(() => request.delete(`${baseUrl}/${id0}`))
-  //   const {
-  //     body: { id: id1 },
-  //   } = await request.post(baseUrl).send({ ...insert, ...patch })
-  //   expect(typeof id1).toBe('string')
-  //   afterThis(() => request.delete(`${baseUrl}/${id1}`))
-
-  //   await expect(
-  //     request.patch(`${baseUrl}/${id0}`).send(patch),
-  //   ).rejects.toMatchObject({ status: 400 })
-  // })
+    await expect(
+      request.patch(`${baseUrl}/${ids[1]}`).send(diff[0]),
+    ).rejects.toMatchObject({ status: 400 })
+  })
 })
