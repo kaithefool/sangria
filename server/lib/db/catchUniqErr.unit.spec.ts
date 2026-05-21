@@ -1,13 +1,18 @@
-import { describe, expect, it, jest } from 'vitest'
+import sqlite from 'better-sqlite3'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { catchUniqErr, SqliteUniqError } from './catchUniqErr.ts'
-import Database from 'better-sqlite3'
-import { afterThis } from '../test'
 
 describe('query unique constraint error catcher', () => {
+  let db: sqlite.Database | undefined
+
+  afterEach(async () => {
+    await db?.close()
+  })
+
   it.each([[() => 'foobar', 'foobar']])(
     'executes any func & returns whatever the func returns.',
     async (func, result) => {
-      const fn = jest.fn(func)
+      const fn = vi.fn(func)
       const [, r] = catchUniqErr(fn)
       expect(fn.mock.calls).toHaveLength(1)
       expect(r).toEqual(result)
@@ -32,8 +37,7 @@ describe('query unique constraint error catcher', () => {
   ])(
     'catches unique constraint error',
     async (createTblSql, insertSql, result) => {
-      const db = new Database('')
-      afterThis(() => db.close())
+      db = new sqlite('')
       db.exec(createTblSql)
       const stmt = db.prepare(insertSql)
       stmt.run()
