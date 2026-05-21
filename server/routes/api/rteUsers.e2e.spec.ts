@@ -1,16 +1,14 @@
-import { afterEach } from 'node:test'
 import request from 'superagent'
-import { describe, expect, it } from 'vitest'
+import { afterAll, describe, expect, it } from 'vitest'
 import { apiRoot } from './test.ts'
 
 const baseUrl = `${apiRoot}/users`
 
 describe('Users API', () => {
-  let teardown: string[] = []
+  const teardown: string[] = []
 
-  afterEach(async () => {
+  afterAll(async () => {
     await Promise.all(teardown.map((id) => request.delete(`${baseUrl}/${id}`)))
-    teardown = []
   })
 
   it('GET, POST, PATCH & DELETE', async () => {
@@ -58,6 +56,29 @@ describe('Users API', () => {
     const { rows, total } = res.body
     expect(typeof total).toBe('number')
     expect(Array.isArray(rows)).toBe(true)
+  })
+
+  it('enforces unique index in the POST API', async () => {
+    const insert = {
+      role: 'admin',
+      email: 'bar@bax.com',
+      password: '12345678',
+    }
+
+    const res = await request.post(baseUrl).send(insert)
+    expect(res.status).toBe(200)
+    expect(res.headers['content-type']).toContain('application/json')
+    expect(typeof res.body?.id).toBe('string')
+    const { id } = res.body
+    teardown.push(id)
+
+    await expect(async () => {
+      const dup = await request.post(baseUrl).send(insert)
+      // teardown in case test failed
+      if (typeof dup?.body?.id === 'string') {
+        teardown.push(dup.body.id)
+      }
+    }).rejects.toMatchObject({ status: 400 })
   })
 
   // it('enforces unique index with a POST API', async () => {
