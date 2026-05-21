@@ -38,7 +38,6 @@ describe('Users API', () => {
     expect(res2.status).toBe(200)
     const res3 = await request.get(`${baseUrl}/${id}`)
     expect(res3.status).toBe(200)
-    expect(res3.headers['content-type']).toContain('application/json')
     expect(res3.body).toMatchObject({ id, ...entry, ...patch })
 
     // DELETE

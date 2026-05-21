@@ -9,8 +9,8 @@
     "start": "node watch bin/www.ts",
     "test": "npm run test:unit",
     "test:all": "vitest",
-    "test:unit": "jest --testPathPatterns=\\.unit\\.spec\\.ts$",
-    "test:e2e": "jest --testPathPatterns=\\.e2e\\.spec\\.ts$"
+    "test:unit": "vitest unit",
+    "test:e2e": "vitest e2e"
   },
   "author": "Kai Lam <kai.chun.lam@gmail.com>",
   "license": "ISC",
