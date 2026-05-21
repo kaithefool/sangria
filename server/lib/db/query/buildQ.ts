@@ -1,5 +1,5 @@
-import { Database } from 'better-sqlite3'
-import { SqlQuery, SqlDataType } from './SqlQuery.ts'
+import { type Database } from 'better-sqlite3'
+import { SqlQuery, type SqlDataType } from './SqlQuery.ts'
 import { where } from './where.ts'
 import { values } from './values.ts'
 import set from './set.ts'

@@ -1,24 +1,18 @@
-import { verifyPwd } from '../lib/crypto'
-import { signTokens, toJwtUser, verifyRefreshToken } from '../lib/authJwt'
-import { selectUsers, updateUsers } from '../models/mdlUsers'
+import { verifyPwd } from '../lib/crypto.ts'
+import { signTokens, toJwtUser, verifyRefreshToken } from '../lib/authJwt.ts'
+import { selectUsers, updateUsers } from '../models/mdlUsers.ts'
 
 export type AuthCredentials = {
   email: string
   password: string
 }
 
-export function login(
-  cred: AuthCredentials, persist: boolean,
-) {
-  const user = selectUsers(
-    { filter: { email: cred.email } }, true,
-  )[0]
+export function login(cred: AuthCredentials, persist: boolean) {
+  const user = selectUsers({ filter: { email: cred.email } }, true)[0]
   if (!user) return { err: new Error('invalid-credentials') }
   if (!user.active) return { err: new Error('invalid-credentials') }
-  if (
-    user.password === null
-    || !verifyPwd(cred.password, user.password)
-  ) return { err: new Error('invalid-credentials') }
+  if (user.password === null || !verifyPwd(cred.password, user.password))
+    return { err: new Error('invalid-credentials') }
 
   return { authTokens: signTokens(user, persist) }
 }
@@ -32,13 +26,12 @@ export function refreshTokens(refreshToken: string) {
   if (refresh === null) return { err: new Error('invalid-token') }
   const user = selectUsers({ filter: { id: refresh.id } })[0]
   if (
-    !user
-    || (
-      user.last_logout_at
-      && refresh.issueAt
-      && user.last_logout_at > refresh.issueAt
-    )
-  ) return { err: new Error('invalid-token') }
+    !user ||
+    (user.last_logout_at &&
+      refresh.issueAt &&
+      user.last_logout_at > refresh.issueAt)
+  )
+    return { err: new Error('invalid-token') }
   return {
     user: toJwtUser(user),
     authTokens: signTokens(user, refresh.persist),

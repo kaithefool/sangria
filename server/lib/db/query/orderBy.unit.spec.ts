@@ -1,4 +1,4 @@
-import { describe, it, expect } from '@jest/globals'
+import { describe, it, expect } from 'vitest'
 import { orderBy } from './orderBy.ts'
 
 describe('orderBy query', () => {

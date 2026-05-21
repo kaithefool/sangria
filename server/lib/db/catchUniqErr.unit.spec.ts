@@ -1,4 +1,4 @@
-import { describe, expect, it, jest } from '@jest/globals'
+import { describe, expect, it, jest } from 'vitest'
 import { catchUniqErr, SqliteUniqError } from './catchUniqErr.ts'
 import Database from 'better-sqlite3'
 import { afterThis } from '../test'

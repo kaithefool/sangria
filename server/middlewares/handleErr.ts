@@ -1,4 +1,4 @@
-import { ErrorRequestHandler } from 'express'
+import { type ErrorRequestHandler } from 'express'
 import createHttpError, { HttpError } from 'http-errors'
 
 const { NODE_ENV } = process.env

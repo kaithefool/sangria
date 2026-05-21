@@ -1,13 +1,11 @@
 import createHttpError from 'http-errors'
 import ms from 'ms'
-import { RequestHandler, Response, Request, CookieOptions } from 'express'
-import { unchain } from './helpers'
-import * as aJwt from '../lib/authJwt'
-import { refreshTokens } from '../services/servAuth'
+import type { RequestHandler, Response, Request, CookieOptions } from 'express'
+import { unchain } from './helpers.ts'
+import * as aJwt from '../lib/authJwt.ts'
+import { refreshTokens } from '../services/servAuth.ts'
 
-const {
-  HTTPS = '0',
-} = process.env
+const { HTTPS = '0' } = process.env
 
 export function getJwtUser(res: Response): aJwt.JwtUser | undefined {
   const { jwtUser } = res.locals
@@ -52,11 +50,11 @@ export function setAuthnCookies(
   },
 ) {
   res.cookie('access.id', tokens.access, {
-    ...persist && { maxAge: ms(accessTtl) },
+    ...(persist && { maxAge: ms(accessTtl) }),
     ...cookieOpts,
   })
   res.cookie('refresh.id', tokens.refresh, {
-    ...persist && { maxAge: ms(refreshTtl) },
+    ...(persist && { maxAge: ms(refreshTtl) }),
     ...cookieOpts,
   })
 }
@@ -90,9 +88,9 @@ export const authnByCookie: RequestHandler = async (req, res, next) => {
     }
   }
   if (tokens.refresh) {
-    const {
-      err, authTokens, user, persist,
-    } = await refreshTokens(tokens.refresh)
+    const { err, authTokens, user, persist } = await refreshTokens(
+      tokens.refresh,
+    )
     if (err) {
       clearAuthnCookies(res)
       return next()

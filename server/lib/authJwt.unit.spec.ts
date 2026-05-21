@@ -1,4 +1,4 @@
-import { describe, expect, it } from '@jest/globals'
+import { describe, expect, it } from 'vitest'
 import { signTokens, verifyAccessToken, verifyRefreshToken } from './authJwt.ts'
 import { roles } from '../consts.ts'
 

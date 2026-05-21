@@ -1,12 +1,15 @@
 import { Router } from 'express'
-import validate, { assertValidInput } from '../middlewares/validate'
+import validate, { assertValidInput } from '../../middlewares/validate.ts'
 import z from 'zod'
-import { userSchema } from '../services/servUsers'
-import { authorize } from '../middlewares/authorize'
-import { login, logout, refreshTokens } from '../services/servAuth'
+import { userSchema } from '../../services/servUsers.ts'
+import { authorize } from '../../middlewares/authorize.ts'
+import { login, logout, refreshTokens } from '../../services/servAuth.ts'
 import {
-  clearAuthnCookies, getAuthnCookies, getJwtUser, setAuthnCookies,
-} from '../middlewares/authenticate'
+  clearAuthnCookies,
+  getAuthnCookies,
+  getJwtUser,
+  setAuthnCookies,
+} from '../../middlewares/authenticate.ts'
 import createHttpError from 'http-errors'
 
 const rteAuth = Router()
@@ -15,9 +18,7 @@ const loginSchema = z.object({
   body: z.object({
     cookies: z.boolean().optional(),
     persist: z.boolean().optional(),
-    ...userSchema
-      .pick({ email: true, password: true })
-      .shape,
+    ...userSchema.pick({ email: true, password: true }).shape,
   }),
 })
 rteAuth.post(
@@ -43,38 +44,30 @@ const refreshSchema = z.object({
     refresh: z.string(),
   }),
 })
-rteAuth.post(
-  '/refresh',
-  validate(refreshSchema),
-  async (req, res, next) => {
-    const { body: { refresh } } = assertValidInput(res, refreshSchema)
-    const { err, authTokens } = await refreshTokens(refresh)
-    if (err) return next(createHttpError(400, err))
-    return res.json(authTokens)
-  },
-)
+rteAuth.post('/refresh', validate(refreshSchema), async (req, res, next) => {
+  const {
+    body: { refresh },
+  } = assertValidInput(res, refreshSchema)
+  const { err, authTokens } = await refreshTokens(refresh)
+  if (err) return next(createHttpError(400, err))
+  return res.json(authTokens)
+})
 
-rteAuth.post(
-  '/logout',
-  async (req, res) => {
-    const jwtUser = getJwtUser(res)
-    if (jwtUser) {
-      await logout(jwtUser.id)
-    }
-    const ac = getAuthnCookies(req)
-    if (ac.access || ac.refresh) {
-      clearAuthnCookies(res)
-    }
-    return res.end()
-  },
-)
+rteAuth.post('/logout', async (req, res) => {
+  const jwtUser = getJwtUser(res)
+  if (jwtUser) {
+    await logout(jwtUser.id)
+  }
+  const ac = getAuthnCookies(req)
+  if (ac.access || ac.refresh) {
+    clearAuthnCookies(res)
+  }
+  return res.end()
+})
 
-rteAuth.get(
-  '/ping',
-  (req, res) => {
-    const jwtUser = getJwtUser(res)
-    return res.json(jwtUser)
-  },
-)
+rteAuth.get('/ping', (req, res) => {
+  const jwtUser = getJwtUser(res)
+  return res.json(jwtUser)
+})
 
 export default rteAuth

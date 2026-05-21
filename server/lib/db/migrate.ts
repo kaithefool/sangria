@@ -1,9 +1,9 @@
-import { Database } from 'better-sqlite3'
+import { type Database } from 'better-sqlite3'
 import fs from 'node:fs'
 import { join, basename } from 'node:path'
 
 const { dirname } = import.meta
-const dir = join(dirname, '../migrations')
+const dir = join(dirname, '../../migrations')
 
 export function readMigrationFiles() {
   const files = fs.readdirSync(dir)

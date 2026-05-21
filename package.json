@@ -5,7 +5,7 @@
   "main": "server/bin/www.ts",
   "scripts": {
     "start": "tsx server/bin/www.ts",
-    "up": "docker compose up --watch",
+    "up": "docker compose up --watch --build",
     "down": "docker compose down",
     "dev": "run-p dev-server dev-assets",
     "dev:server": "cd server && npm run start:dev",

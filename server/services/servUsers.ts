@@ -1,12 +1,12 @@
 import z from 'zod'
-import * as mdlUsers from '../models/mdlUsers'
-import { roles } from '../consts'
+import * as mdlUsers from '../models/mdlUsers.ts'
+import { roles } from '../consts.ts'
 
 export const userSchema = z.object({
   role: z.literal(roles),
   email: z.email(),
   password: z.string().min(8),
-  active: z.literal([1, 0]).optional(),
+  active: z.boolean().optional(),
 })
 
 export function findUser(id: string) {
@@ -17,15 +17,11 @@ export function findUsers(opts: mdlUsers.SelectUsersOpts) {
   return mdlUsers.selectUsers({ limit: 20, ...opts })
 }
 
-export function countUsers(
-  filter?: mdlUsers.UsersFilter,
-) {
+export function countUsers(filter?: mdlUsers.UsersFilter) {
   return mdlUsers.countUsers(filter)
 }
 
-export function listUsers(
-  opts: mdlUsers.SelectUsersOpts,
-) {
+export function listUsers(opts: mdlUsers.SelectUsersOpts) {
   const rows = mdlUsers.selectUsers(opts)
   const total = mdlUsers.countUsers(opts?.filter)
   return { rows, total }
@@ -42,8 +38,6 @@ export function patchUsers(
   return mdlUsers.updateUsers(filter, update)
 }
 
-export function deleteUsers(
-  filter: mdlUsers.UsersFilter,
-) {
+export function deleteUsers(filter: mdlUsers.UsersFilter) {
   return mdlUsers.deleteUsers(filter)
 }

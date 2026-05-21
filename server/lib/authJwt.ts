@@ -1,8 +1,7 @@
-import jwt, { JwtPayload, VerifyErrors } from 'jsonwebtoken'
+import jwt, { type JwtPayload, type VerifyErrors } from 'jsonwebtoken'
+import ms, { type StringValue as MsString } from 'ms'
 import { nanoid } from 'nanoid'
-import ms, { StringValue as MsString } from 'ms'
-
-import { Role } from '../consts.ts'
+import { type Role } from '../consts.ts'
 
 const {
   JWT_SECRET = nanoid(32),

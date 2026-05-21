@@ -1,5 +1,5 @@
-import { describe, it, expect } from '@jest/globals'
-import { encryptPwd, verifyPwd } from './crypto'
+import { describe, it, expect } from 'vitest'
+import { encryptPwd, verifyPwd } from './crypto.ts'
 
 describe('crypto', () => {
   it('encrypts and verifies password', () => {

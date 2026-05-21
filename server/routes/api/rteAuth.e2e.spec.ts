@@ -1,4 +1,4 @@
-import { describe, expect, it } from '@jest/globals'
+import { describe, expect, it } from 'vitest'
 import request from 'superagent'
 import { parseSetCookie, stringifyCookie } from 'cookie'
 import { api } from '../../test'

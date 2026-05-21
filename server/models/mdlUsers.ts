@@ -1,14 +1,19 @@
-import { Role } from '../consts'
-import { encryptPwd } from '../lib/crypto'
-import db, { q, uuid, catchUniqErr } from '../start/db'
-import { RowsFilter, RowInsert, RowUpdate, SelectRowsOpts } from './utils'
+import { type Role } from '../consts.ts'
+import { encryptPwd } from '../lib/crypto.ts'
+import db, { q, uuid } from '../start/db.ts'
+import type {
+  RowInsert,
+  RowsFilter,
+  RowUpdate,
+  SelectRowsOpts,
+} from './utils.ts'
 
 export type UserRow = {
   id: string
   role: Role
   email: string
   password: string | null
-  active: 1 | 0
+  active: boolean
   created_at: Date
   updated_at: Date | null
   last_logout_at: Date | null
@@ -20,7 +25,7 @@ export type UsersFilter = RowsFilter<UserRow>
 export type SelectUsersOpts = SelectRowsOpts<UserRow, UsersFilter>
 
 export function insertUsers(...rows: UserInsert[]) {
-  return catchUniqErr(() => {
+  return q.catchUniqErr(() => {
     const rr = rows.map(({ password, ...r }) => ({
       id: uuid(),
       password: password ? encryptPwd(password) : null,
@@ -44,20 +49,23 @@ export function selectUsers<P extends boolean>(
     ${q.where(filter)}
     ${q.orderBy(sort)}
     ${q.limit({ skip, limit })};
-  `
-    .all<UserRow>()
-    .map(q.castDates(['created_at', 'updated_at', 'last_logout_at']))
+  `.all<UserRow>({
+    active: Boolean,
+    created_at: Date,
+    updated_at: Date,
+    last_logout_at: Date,
+  })
 }
 
 export function countUsers(filter: UsersFilter = {}) {
   const r = q`
     SELECT count(*) AS total FROM users ${q.where(filter)};
-  `.get() as { total: number }
+  `.get<{ total: number }>()
   return r.total
 }
 
 export function updateUsers(filter: UsersFilter = {}, update: UserUpdate) {
-  return catchUniqErr(() => {
+  return q.catchUniqErr(() => {
     const u = { ...update, updated_at: new Date() }
     if (u.password) u.password = encryptPwd(u.password)
     q`

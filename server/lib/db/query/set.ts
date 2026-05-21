@@ -1,4 +1,4 @@
-import { SqlDataType, SqlQuery } from './SqlQuery.ts'
+import { type SqlDataType, SqlQuery } from './SqlQuery.ts'
 
 export function set(
   input: { [x: string]: SqlDataType | SqlQuery },

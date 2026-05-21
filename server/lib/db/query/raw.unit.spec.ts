@@ -1,4 +1,4 @@
-import { describe, it, expect } from '@jest/globals'
+import { describe, it, expect } from 'vitest'
 import { raw } from './raw.ts'
 import SqlQuery from './SqlQuery.ts'
 

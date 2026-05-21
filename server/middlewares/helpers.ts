@@ -1,4 +1,4 @@
-import { RequestHandler, Request, Response } from 'express'
+import type { RequestHandler, Request, Response } from 'express'
 
 /**
  * A wrapper func to turn any middleware into a simple async func
@@ -6,7 +6,10 @@ import { RequestHandler, Request, Response } from 'express'
  * and if it has signified the end of the response
  */
 export function unchain(rh: RequestHandler) {
-  return async (req: Request, res: Response): Promise<{
+  return async (
+    req: Request,
+    res: Response,
+  ): Promise<{
     err: unknown
     end: boolean
   }> => {

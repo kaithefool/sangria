@@ -1,4 +1,4 @@
-import { SqlDataType, SqlQuery, isSqlDataType } from './SqlQuery.ts'
+import { type SqlDataType, SqlQuery, isSqlDataType } from './SqlQuery.ts'
 
 export type SqlCf<T extends SqlDataType = SqlDataType> = {
   eq?: T | SqlQuery

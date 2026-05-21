@@ -5,9 +5,9 @@
     "lib": ["ES2023"],
     "module": "nodenext",
     "skipLibCheck": true,
-    "esModuleInterop": true,
     "moduleResolution": "nodenext",
     "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
     "noEmit": true,
     "resolveJsonModule": true,
 

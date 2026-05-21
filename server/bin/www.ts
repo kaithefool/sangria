@@ -1,4 +1,3 @@
-import '../start/index.ts'
 import pac from '../package.json' with { type: 'json' }
 import debug from 'debug'
 import http from 'http'
@@ -9,16 +8,13 @@ debug(`${pac.name}:server`)
 // Normalize a port into a number, string, or false.
 function normalizePort(port: string) {
   const p = parseInt(port, 10)
-
   // named pipe
   if (Number.isNaN(p)) {
     return port
   }
-
   if (p >= 0) {
     return p
   }
-
   return false
 }
 
@@ -67,7 +63,6 @@ server.on(
 server.on('listening', () => {
   const addr = server.address()
   let bind: string
-
   if (typeof addr === 'string') {
     bind = `pipe ${addr}`
   } else if (typeof addr === 'object' && addr !== null) {
@@ -75,7 +70,6 @@ server.on('listening', () => {
   } else {
     bind = 'unknown address'
   }
-
   console.info(`Listening on ${bind}`)
 })
 
